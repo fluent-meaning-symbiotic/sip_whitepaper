@@ -95,16 +95,14 @@ SIP is built on the core concept of the **SemanticIntent**. Everything in SIP or
     - **`SemanticUiIntent`**: Defines a reusable UI component with semantic properties and interactions.
     - **`SemanticAssetIntent`**: Defines a software asset (visual, audio, etc.) with semantic style guidelines and generation prompts.
     - **`SemanticTypeIntent`**: Defines a reusable data structure based on its domain meaning.
+      - **`SemanticReactiveTypeIntent`** Formally defines a reusable reactive stream grounded in its domain-specific meaning, encapsulating semantic properties and behavior, promoting data flow integrity and semantic clarity in event-driven interactions.
+      - **`InputEventTypeIntent`**: Abstract base type for SemanticIntents representing user input events (e.g., `DirectionalInputTypeIntent`, `KeyboardDirectionalInputTypeIntent`, `TouchSwipeDirectionalInputTypeIntent`).
     - **`SemanticThemeTokensIntent`**: Defines a set of semantic tokens for styling and theming.
     - **`SemanticTestIntent`**: Defines tests to validate the behavior of another SemanticIntent (e.g., a `SemanticCommandIntent` or `SemanticUiIntent`).
 
   - **Semantic Intent Framework:** A set of core classes and interfaces (`SemanticCommand`, `SemanticCommandHandler`, `SemanticCommandInvoker`) that provide the structural foundation for building SIP applications. Use these components when generating command and handler code.
 
     - **Semantic Command Invoker:** A central component for dispatching and managing Semantic Commands. Ensure UI and other components invoke commands through the `SemanticCommandInvoker`.
-
-  - **SemanticTypeIntents examples:**
-
-    - **`InputEventTypeIntent`**: Abstract base type for SemanticIntents representing user input events (e.g., `DirectionalInputTypeIntent`, `KeyboardDirectionalInputTypeIntent`, `TouchSwipeDirectionalInputTypeIntent`).
 
 - **3.2. LLM Meaning Partner: Collaborative Meaning Creation:**
 
