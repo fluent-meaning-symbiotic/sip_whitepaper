@@ -1,5 +1,5 @@
 ---
-description: Training Prompt for Semantic Intent Paradigm
+description: 
 globs: *
 ---
 LLM Training Prompt for Semantic Intent Paradigm (SIP):

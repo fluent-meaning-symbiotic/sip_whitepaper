@@ -1,0 +1,48 @@
+---
+description: SIP Architecture Principles
+globs: 
+---
+
+SIP Architecture Principles:
+
+- SemanticIntent as Core: SemanticIntent is the central building block, defining meaning for functionalities, UI, and assets. You should create / or make sure it is created for each file in the system.
+- SeedSemanticIntent as Seed: The starting point for application, the most high-level intent.
+- Semantic Type Intents and Token Intents: Use reusable Semantic Types (e.g., PixelPositionType, ColorType, GameState) and Semantic Tokens (e.g., Color.Primary, Spacing.Small) to build semantic definitions.
+- Semantic Command Intents: Define actions and operations within the application (e.g., MoveSnakeCommandIntent). Immutable. **All generated Dart Command classes MUST extend `SemanticCommand` from `semantic_intent_framework`.**
+- Semantic Ui Intents: Define reusable UI elements (e.g., SnakeGameCanvasIntent).
+- Semantic Asset Intents: Define visual and auditory assets (e.g., SnakePixelArtStyleIntent).
+- Semantic Test Intents: Defines tests to validate the behavior of another SemanticIntent (e.g., a `SemanticCommandIntent` or `SemanticUiIntent`).
+- Semantic Change Propagation: Be aware of the Semantic Intent Graph and the need to propagate changes across related SemanticIntents when meaning evolves.
+
+* Semantic Command Handlers: Implement logic for `SemanticCommandIntent`s in Dart Handler classes. **All generated Dart Handler classes MUST implement `SemanticCommandHandler<YourCommandType>` from `semantic_intent_framework`.**
+* Semantic Command Invoker:  Use the **`SemanticCommandInvoker`** (from `semantic_intent_framework_dart`) as the central point to dispatch and invoke Semantic Commands.  UI components and other parts of the application should invoke commands through the `SemanticCommandInvoker`.  Handlers are registered with the `SemanticCommandInvoker` to process specific command types.
+
+
+**SemanticIntent: The Unit of Meaning:**
+
+  - **Definition:** A SemanticIntent is a YAML-based definition that captures the _meaning_, _purpose_, and _intent_ behind a piece of software functionality, UI component, or asset. It serves as the single source of truth.
+  - **YAML Structure (Simplified):**
+
+    ```yaml
+    semantic_intent:
+      version: 1 # Version of the Semantic Intent Paradigm
+      name: IntentName # Unique Intent Name (e.g., MoveCircleCommandIntent, CircleMoverSemanticUiIntent, SnakePixelArtShaderIntent)
+      type: IntentType # Intent Type: SemanticCommandIntent, SemanticUiIntent, SemanticAssetIntent, SemanticTypeIntent, SemanticThemeTokensIntent, SemanticTestIntent
+      meaning: "Natural language description of the intent's purpose." # Core Meaning
+      description: "Detailed description of the intent." # Optional detailed description
+      semantic_properties:# (Optional) Semantic properties specific to the Intent Type (e.g., for UI components or Semantic Types)
+        # ... (Semantic Properties, Types, Tokens - depends on IntentType) ...
+      semantic_interactions:# (Optional, for SemanticUiIntent) Semantic Interactions with Commands/Intents (UI Events -> Semantic Intents)
+      test_categories:# (Optional), describes style of test (functional, golden, etc..), priority, meanings.
+        
+        # ... (UI Events mapped to Semantic Intents/Commands) ...
+      semantic_validations:# (Optional) describes validation rules for Command properties, or rules for handler.
+       # ... () ...
+
+      output_artifacts:# (Optional) Artifacts to generate (code files, UI component names, asset file paths, test files)
+        # ... (Artifact declarations) ...
+      llm_prompts:# (Optional) Prompts to guide LLM generation for different artifact types
+        # ... (Prompts for code, UI, asset, test generation) ...
+      scratchpad_todo: # (Optional) LLM's internal notes and todos for this Semantic Intent
+        - "..." # List of LLM's scratchpad items
+    ```

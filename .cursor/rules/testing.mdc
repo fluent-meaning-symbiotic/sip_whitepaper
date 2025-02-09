@@ -1,0 +1,10 @@
+---
+description: Testing
+globs: *
+---
+**Testing**
+
+- Use shared mockes relative to type, do not create over and over the same.
+- to run: 
+  - unit tests: `make test`
+  - golden tests: `make test-golden`  
