@@ -5,13 +5,23 @@ import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.da
 class SemanticValueNotifierAccessor<T> extends SemanticCommandStateAccessor<T> {
   final ValueNotifier<T> notifier;
 
-  const SemanticValueNotifierAccessor(this.notifier);
+  SemanticValueNotifierAccessor(this.notifier);
+  T? beforeUpdate;
 
   @override
   T get value => notifier.value;
 
   @override
-  void update(T newValue) => notifier.value = newValue;
+  void update(T newValue) {
+    beforeUpdate = notifier.value;
+    notifier.value = newValue;
+  }
+
+  @override
+  void rollback() {
+    final v = beforeUpdate;
+    if (v != null) notifier.value = v;
+  }
 
   @override
   Stream<T>? get changes => null;

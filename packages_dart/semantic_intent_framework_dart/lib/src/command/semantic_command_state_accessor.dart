@@ -8,6 +8,9 @@ abstract class SemanticCommandStateAccessor<T> {
   /// Update state value
   void update(T newValue);
 
+  /// Optional: return state, before update
+  void rollback() => throw UnimplementedError();
+
   /// Optional: Subscribe to state changes
   Stream<T>? get changes => null;
 }

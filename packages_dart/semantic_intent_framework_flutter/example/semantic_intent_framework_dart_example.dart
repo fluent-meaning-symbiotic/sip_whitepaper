@@ -27,8 +27,16 @@ class HelloWorldHandler extends SemanticCommandHandler<HelloWorldCommand> {
   HelloWorldHandler({required super.invoker});
   @override
   Future<void> execute(covariant HelloWorldCommand command) async {
-    command.stateAccessor
-        .update('${command.stateAccessor.value} ${command.code}!');
-    print(command.stateAccessor.value);
+    try {
+      command.stateAccessor
+          .update('${command.stateAccessor.value} ${command.code}!');
+      print(command.stateAccessor.value);
+      // prints Hello world!
+      throw Exception('some error from world');
+    } on Exception catch (_) {
+      command.stateAccessor.rollback();
+      print(command.stateAccessor.value);
+      // prints Hello
+    }
   }
 }
