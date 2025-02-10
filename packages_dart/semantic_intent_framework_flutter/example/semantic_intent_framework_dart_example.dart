@@ -18,7 +18,7 @@ void main() {
   invoker.invoke(command);
 }
 
-class HelloWorldCommand extends SemanticSingleStateModifierCommand<String> {
+class HelloWorldCommand extends SemanticSingleStateAccessorCommand<String> {
   HelloWorldCommand({required this.code, required super.stateAccessor});
   final String code;
 }

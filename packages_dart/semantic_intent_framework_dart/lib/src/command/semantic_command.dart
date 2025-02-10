@@ -7,10 +7,10 @@ abstract class SemanticCommand {
 }
 
 /// Base class for all Semantic Commands that access and modify state
-abstract class SemanticSingleStateModifierCommand<T extends Object>
+abstract class SemanticSingleStateAccessorCommand<T extends Object>
     extends SemanticCommand {
   /// Constructor (can be empty or have common command properties)
-  const SemanticSingleStateModifierCommand({
+  const SemanticSingleStateAccessorCommand({
     required this.stateAccessor,
   });
 
