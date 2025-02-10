@@ -1,18 +1,21 @@
 name: semantic_intent_framework_flutter
 description: Semantic Intent Framework for Flutter
 version: 1.0.2
+# temporary disabled
+publish_to: none
 # repository: https://github.com/my_org/my_repo
 environment:
   sdk: ^3.6.2
   flutter: ^3.27.0
 
-resolution: workspace
+# resolution: workspace
 
 dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2
-  semantic_intent_framework_dart: 1.0.0
+  semantic_intent_framework_dart:
+    path: ../semantic_intent_framework_dart
 
 # path: ^1.8.0
 dev_dependencies:

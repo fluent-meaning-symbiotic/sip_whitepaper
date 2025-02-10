@@ -6,7 +6,8 @@ environment:
 
 workspace:
   - semantic_intent_framework_dart
-  - semantic_intent_framework_flutter
+  # temporary disabled
+  # - semantic_intent_framework_flutter
 
 dependencies:
   flutter:
