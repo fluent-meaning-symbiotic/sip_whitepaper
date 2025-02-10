@@ -18,7 +18,7 @@ Flutter extensions for the `semantic_intent_framework_dart` package, providing s
 
 ## Features
 
-- **`ValueNotifierStateAccessor`**:  Provides a `SemanticCommandStateAccessor` implementation based on Flutter's `ValueNotifier`, enabling reactive state management in Flutter applications using the Semantic Intent Paradigm.
+- **`SemanticValueNotifierAccessor`**:  Provides a `SemanticCommandStateAccessor` implementation based on Flutter's `ValueNotifier`, enabling reactive state management in Flutter applications using the Semantic Intent Paradigm.
 
 ## Getting started
 
@@ -39,7 +39,7 @@ import 'package:semantic_intent_framework_flutter/semantic_intent_framework_flut
 
 ## Usage
 
-Here's a basic example demonstrating the usage of `ValueNotifierStateAccessor`:
+Here's a basic example demonstrating the usage of `SemanticValueNotifierAccessor`:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -49,7 +49,7 @@ import 'package:semantic_intent_framework_flutter/semantic_intent_framework_flut
 void main() {
   final invoker = SemanticCommandInvoker();
   final counterNotifier = ValueNotifier(0);
-  final counterStateAccessor = ValueNotifierStateAccessor(counterNotifier);
+  final counterStateAccessor = SemanticValueNotifierAccessor(counterNotifier);
 
   invoker.registerHandler<IncrementCounterCommand>(
       IncrementCounterHandler(invoker: invoker));
@@ -76,7 +76,7 @@ class IncrementCounterHandler extends SemanticCommandHandler<IncrementCounterCom
 }
 ```
 
-In this example, `ValueNotifierStateAccessor` is used to manage a simple counter state. The `IncrementCounterCommand` and `IncrementCounterHandler` demonstrate how to modify this state reactively within the Semantic Intent Framework in a Flutter environment.
+In this example, `SemanticValueNotifierAccessor` is used to manage a simple counter state. The `IncrementCounterCommand` and `IncrementCounterHandler` demonstrate how to modify this state reactively within the Semantic Intent Framework in a Flutter environment.
 
 ## Additional information
 

@@ -6,7 +6,7 @@ void main() {
   final invoker = SemanticCommandInvoker();
   final helloWorldNotifier = ValueNotifier('Hello');
   final helloWorldStateAccessor =
-      ValueNotifierStateAccessor(helloWorldNotifier);
+      SemanticValueNotifierAccessor(helloWorldNotifier);
 
   invoker
       .registerHandler<HelloWorldCommand>(HelloWorldHandler(invoker: invoker));
