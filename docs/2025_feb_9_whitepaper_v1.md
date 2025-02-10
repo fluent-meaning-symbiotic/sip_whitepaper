@@ -90,7 +90,7 @@ SIP is built on the core concept of the **SemanticIntent**. Everything in SIP or
 
   - **Intent Types:**
 
-    - **`SeedSemanticIntent`**: The starting point for an application, the most high-level intent.
+    - **`SeedSemanticIntent`**: Represents the initial conceptual seed for a larger feature or component, often embodying a high-level user-centric intent, serving as the entry point into a Semantic Intent subgraph.
     - **`SemanticCommandIntent`**: Defines a functional operation or action within the application.
     - **`SemanticUiIntent`**: Defines a reusable UI component with semantic properties and interactions.
     - **`SemanticAssetIntent`**: Defines a software asset (visual, audio, etc.) with semantic style guidelines and generation prompts.

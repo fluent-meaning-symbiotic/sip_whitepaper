@@ -6,7 +6,7 @@ globs:
 SIP Architecture Principles:
 
 - SemanticIntent as Core: SemanticIntent is the central building block, defining meaning for functionalities, UI, and assets. You should create / or make sure it is created for each file in the system.
-- SeedSemanticIntent as Seed: The starting point for application, the most high-level intent.
+- SeedSemanticIntent as Seed: Represents the initial conceptual seed for a larger feature or component, often embodying a high-level user-centric intent, serving as the entry point into a Semantic Intent subgraph.
 - Semantic Type Intents and Token Intents: Use reusable Semantic Types (e.g., PixelPositionType, ColorType, GameState) and Semantic Tokens (e.g., Color.Primary, Spacing.Small) to build semantic definitions.
 - Semantic Command Intents: Define actions and operations within the application (e.g., MoveSnakeCommandIntent). Immutable. **All generated Dart Command classes MUST extend `SemanticCommand` from `semantic_intent_framework`.**
 - Semantic Ui Intents: Define reusable UI elements (e.g., SnakeGameCanvasIntent).
