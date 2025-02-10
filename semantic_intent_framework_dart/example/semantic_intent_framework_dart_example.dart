@@ -2,7 +2,8 @@ import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.da
 
 void main() {
   final invoker = SemanticCommandInvoker();
-  invoker.registerHandler<HelloWorldCommand>(HelloWorldHandler());
+  invoker
+      .registerHandler<HelloWorldCommand>(HelloWorldHandler(invoker: invoker));
 
   final command = HelloWorldCommand(code: 'hello world');
   invoker.invoke(command);
@@ -13,7 +14,8 @@ class HelloWorldCommand extends SemanticCommand {
   final String code;
 }
 
-class HelloWorldHandler implements SemanticCommandHandler<HelloWorldCommand> {
+class HelloWorldHandler extends SemanticCommandHandler<HelloWorldCommand> {
+  HelloWorldHandler({required super.invoker});
   @override
   Future<void> execute(covariant HelloWorldCommand command) {
     print(command.code);
