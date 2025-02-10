@@ -1,0 +1,13 @@
+name: semantic_intent_framework
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - semantic_intent_framework_dart
+  - semantic_intent_framework_flutter
+
+dependencies:
+  flutter:
+    sdk: flutter
