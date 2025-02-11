@@ -1,3 +1,5 @@
+export 'single_state_accessor.dart';
+
 /// Generic state accessor that can work with any state management solution
 abstract class SemanticCommandStateAccessor<T> {
   const SemanticCommandStateAccessor();

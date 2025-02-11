@@ -16,6 +16,7 @@ class SemanticReactiveCommandInvoker {
   ) {
     var stream = _streamRegistry.getCommandStream<T>(streamName);
     final transformers = _transformersRegistry.getTransformers<T>(streamName);
+
     if (transformers != null) {
       for (final transformer in transformers) {
         stream = transformer(stream);

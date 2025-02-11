@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:test/test.dart';
 
+import '../state_accessor/single_state_accessor.dart';
 import '../state_accessor/state_accessor.dart';
 import 'command.dart';
-import 'command_accessor.dart';
 
 // Test implementation of SemanticCommand for testing
 class TestCommand extends SemanticCommand {

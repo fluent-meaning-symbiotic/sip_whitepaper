@@ -1,5 +1,5 @@
-import '../state_accessor/state_accessor.dart';
-import 'command.dart';
+import '../command/command.dart';
+import 'state_accessor.dart';
 
 /// Base class for all Semantic Commands that access and modify state
 abstract class SemanticSingleStateAccessorCommand<T extends Object>
