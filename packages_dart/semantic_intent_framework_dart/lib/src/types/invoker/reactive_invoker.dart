@@ -1,12 +1,8 @@
 import 'dart:async';
 
-import 'package:semantic_intent_framework_dart/src/command/semantic_reactive_command_transformer.dart';
-import 'package:semantic_intent_framework_dart/src/handler/semantic_reactive_command_handler.dart';
-import 'package:semantic_intent_framework_dart/src/invoker/registers/command_handlers_register_type.dart';
-
-import '../command/semantic_reactive_command.dart';
-import 'registers/command_reactive_stream_registry_type.dart';
-import 'registers/command_transformers_registry_type.dart';
+import '../../commands/commands.dart';
+import '../handler/reactive_handler.dart';
+import '../registers/registers.dart';
 
 class SemanticReactiveCommandInvoker {
   SemanticReactiveCommandInvoker(); // Constructor remains same

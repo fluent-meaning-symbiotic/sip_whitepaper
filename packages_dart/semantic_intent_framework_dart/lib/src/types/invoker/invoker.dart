@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import '../command/semantic_command.dart';
-import '../handler/semantic_command_handler.dart';
+import '../../commands/commands.dart';
+import '../handler/handler.dart';
 
 class SemanticCommandInvoker {
   /// For MVP simplicity, we can use a basic, implicit handler resolution.

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:semantic_intent_framework_dart/src/command/semantic_reactive_command.dart';
+import '../../commands/commands.dart';
 
 class ReactiveStreamRegistryType {
   ReactiveStreamRegistryType();

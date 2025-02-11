@@ -1,5 +1,4 @@
-import '../../command/semantic_reactive_command.dart';
-import '../../command/semantic_reactive_command_transformer.dart';
+import '../../commands/commands.dart';
 
 class CommandTransformersRegistryType {
   CommandTransformersRegistryType();

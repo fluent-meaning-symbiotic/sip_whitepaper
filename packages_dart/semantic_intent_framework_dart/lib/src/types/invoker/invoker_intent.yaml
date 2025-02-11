@@ -1,0 +1,19 @@
+semantic_intent:
+  version: 1
+  name: SemanticCommandInvokerIntent
+  type: SemanticTypeIntent
+  meaning: "Defines the core invoker type for dispatching semantic commands"
+  description: "Central component for managing command dispatch and execution through registered handlers"
+  semantic_properties:
+    registry: "Registry of command handlers"
+    dispatch_mode: "Synchronous or asynchronous dispatch"
+  semantic_validations:
+    - "Must maintain thread safety"
+    - "Must handle command registration safely"
+    - "Must manage handler lifecycle"
+  output_artifacts:
+    - type.dart
+    - type_test.dart
+  scratchpad_todo:
+    - "Implement command queueing"
+    - "Add dispatch monitoring"

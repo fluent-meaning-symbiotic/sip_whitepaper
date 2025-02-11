@@ -1,0 +1,19 @@
+semantic_intent:
+  version: 1
+  name: SemanticCommandIntent
+  type: SemanticCommandIntent
+  meaning: "Defines the core semantic command interface for the framework"
+  description: "Base command interface that all semantic commands must implement to ensure proper semantic meaning propagation"
+  semantic_properties:
+    command_type: "Base command type that all semantic commands extend from"
+    state: "Optional state that can be carried by the command"
+  semantic_validations:
+    - "All commands must be immutable"
+    - "Commands must carry their own state"
+    - "Commands must have clear semantic meaning"
+  output_artifacts:
+    - command.dart
+    - command_test.dart
+  scratchpad_todo:
+    - "Ensure all command implementations are immutable"
+    - "Add validation for semantic meaning clarity"

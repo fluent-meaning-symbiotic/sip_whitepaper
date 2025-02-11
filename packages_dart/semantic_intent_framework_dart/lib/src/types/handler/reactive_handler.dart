@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../command/semantic_reactive_command.dart';
+import '../../commands/commands.dart';
 
 abstract class SemanticReactiveCommandHandler<
     T extends SemanticReactiveCommand> {

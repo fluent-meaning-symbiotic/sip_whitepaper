@@ -1,5 +1,6 @@
 // --- semantic_intent_framework/reactive_semantic_command.dart ---
-import 'semantic_command.dart';
+
+import '../../../semantic_intent_framework_dart.dart';
 
 /// Use this to use a [SemanticReactiveCommand] unified stream
 abstract interface class SemanticReactiveCommandStreamName implements Enum {}

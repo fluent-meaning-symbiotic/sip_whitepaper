@@ -1,5 +1,5 @@
-import '../../command/semantic_reactive_command.dart';
-import '../../handler/semantic_reactive_command_handler.dart';
+import '../../commands/commands.dart';
+import '../handler/reactive_handler.dart';
 
 class CommandHandlersRegistryType {
   CommandHandlersRegistryType();
