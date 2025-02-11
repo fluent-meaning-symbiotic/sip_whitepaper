@@ -36,6 +36,7 @@ class MockReactiveCommand extends SemanticReactiveCommand {
 
 class MockReactiveHandler
     extends SemanticReactiveCommandHandler<MockReactiveCommand> {
+  MockReactiveHandler({required super.invoker});
   final handled = <MockReactiveCommand>[];
   final _controller = StreamController<MockReactiveCommand>.broadcast();
   SemanticReactiveCommandStreamName _streamName = MockStreamName.test;
@@ -87,7 +88,7 @@ void main() {
 
     setUp(() {
       invoker = SemanticReactiveCommandInvoker();
-      handler = MockReactiveHandler();
+      handler = MockReactiveHandler(invoker: invoker);
     });
 
     tearDown(() async {
@@ -145,8 +146,9 @@ void main() {
     });
 
     test('should maintain stream isolation', () async {
-      final handler1 = MockReactiveHandler();
-      final handler2 = MockReactiveHandler()..streamName = MockStreamName.error;
+      final handler1 = MockReactiveHandler(invoker: invoker);
+      final handler2 = MockReactiveHandler(invoker: invoker)
+        ..streamName = MockStreamName.error;
 
       invoker.registerHandler<MockReactiveCommand>(handler1);
       invoker.registerHandler<MockReactiveCommand>(handler2);
@@ -217,8 +219,9 @@ void main() {
     });
 
     test('should apply transformers to specific streams only', () async {
-      final handler1 = MockReactiveHandler();
-      final handler2 = MockReactiveHandler()..streamName = MockStreamName.error;
+      final handler1 = MockReactiveHandler(invoker: invoker);
+      final handler2 = MockReactiveHandler(invoker: invoker)
+        ..streamName = MockStreamName.error;
 
       invoker.registerHandler<MockReactiveCommand>(handler1);
       invoker.registerHandler<MockReactiveCommand>(handler2);

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import '../../commands/commands.dart';
+import '../../commands/reactive/reactive_command.dart';
+import '../invoker/reactive_invoker.dart';
 
 abstract class SemanticReactiveCommandHandler<
     T extends SemanticReactiveCommand> {
-  // Abstract base class for Reactive Semantic Command Handlers
+  SemanticReactiveCommandHandler({required this.invoker});
+  final SemanticReactiveCommandInvoker invoker;
 
   // Handlers declare the stream they subscribe to
   SemanticReactiveCommandStreamName get streamName;

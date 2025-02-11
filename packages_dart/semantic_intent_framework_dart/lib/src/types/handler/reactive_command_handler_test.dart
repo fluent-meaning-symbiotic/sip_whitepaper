@@ -19,6 +19,7 @@ class TestReactiveCommand extends SemanticReactiveCommand {
 // Test reactive handler
 class TestReactiveHandler
     extends SemanticReactiveCommandHandler<TestReactiveCommand> {
+  TestReactiveHandler({required super.invoker});
   final List<String> handledValues = [];
   final List<TestReactiveCommand> handledCommands = [];
   final _commandController = StreamController<TestReactiveCommand>.broadcast();
@@ -45,9 +46,11 @@ void main() {
   group('SemanticReactiveCommandHandler', () {
     late TestReactiveHandler handler;
     late StreamController<TestReactiveCommand> commandController;
+    late SemanticReactiveCommandInvoker invoker;
 
     setUp(() {
-      handler = TestReactiveHandler();
+      invoker = SemanticReactiveCommandInvoker();
+      handler = TestReactiveHandler(invoker: invoker);
       commandController = StreamController<TestReactiveCommand>.broadcast();
     });
 
