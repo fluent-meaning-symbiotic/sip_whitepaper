@@ -28,7 +28,7 @@ class TestReactiveHandler
   SemanticReactiveCommandStreamName get streamName => TestStreamName.testStream;
 
   @override
-  Future<void> handleCommand(TestReactiveCommand command) async {
+  Future<void> execute(TestReactiveCommand command) async {
     handledValues.add(command.value);
     handledCommands.add(command);
     _commandController.add(command);

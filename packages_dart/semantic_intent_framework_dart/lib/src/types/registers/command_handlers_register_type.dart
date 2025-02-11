@@ -1,5 +1,5 @@
 import '../../commands/commands.dart';
-import '../handler/reactive_handler.dart';
+import '../handler/reactive_command_handler.dart';
 
 class CommandHandlersRegistryType {
   CommandHandlersRegistryType();

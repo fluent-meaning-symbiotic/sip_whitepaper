@@ -36,7 +36,7 @@ class HelloWorldHandler
   HelloWorldHandler({required super.invoker});
 
   @override
-  Future<void> handleCommand(HelloWorldCommand command) async {
+  Future<void> execute(HelloWorldCommand command) async {
     print('${command.code} world!');
   }
 

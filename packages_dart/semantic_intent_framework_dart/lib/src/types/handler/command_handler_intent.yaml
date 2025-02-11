@@ -1,0 +1,30 @@
+semantic_intent:
+  version: 1
+  name: SemanticCommandHandlerIntent
+  type: SemanticTypeIntent
+  meaning: "Defines the core handler type for processing semantic commands"
+  description: "Base handler type that processes semantic commands and manages their execution"
+  semantic_properties:
+    command_type: "Type of command this handler can process"
+    handler_type: "Type of handler (sync/reactive)"
+  semantic_validations:
+    - Handlers must be stateless
+    - Must handle command type safely
+    - State Management Rules
+      - Always use command's state accessor
+      - Implement rollback mechanism
+      - Notify state changes through accessor
+      - Never modify state directly
+    - Handler Chain Communication
+      - Use state change notifications
+      - Never return execution results
+      - Implement state-based triggers
+      - Use accessor events for chain control
+  output_artifacts:
+    - command_handler.dart
+    - command_handler_test.dart
+    - reactive_command_handler.dart
+    - reactive_command_handler_test.dart
+  scratchpad_todo:
+    - "Add handler lifecycle management"
+    - "Implement error handling patterns"

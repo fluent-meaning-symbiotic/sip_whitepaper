@@ -19,7 +19,7 @@ abstract class SemanticReactiveCommandHandler<
   @internal
   void subscribe(Stream<T> stream) {
     unsubscribe();
-    _subscription = stream.listen(handleCommand);
+    _subscription = stream.listen(execute);
   }
 
   /// unsubscribes from command stream
@@ -30,6 +30,5 @@ abstract class SemanticReactiveCommandHandler<
   }
 
   /// Reactive handler processes commands from stream
-  @internal
-  Future<void> handleCommand(T command);
+  Future<void> execute(T command);
 }

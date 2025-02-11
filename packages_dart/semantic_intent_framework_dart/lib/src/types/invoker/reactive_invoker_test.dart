@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:test/test.dart';
 
 import '../../commands/reactive/reactive_command.dart';
-import '../handler/reactive_handler.dart';
+import '../handler/reactive_command_handler.dart';
 import 'reactive_invoker.dart';
 
 // Mock implementations for testing
@@ -49,7 +49,7 @@ class MockReactiveHandler
   }
 
   @override
-  Future<void> handleCommand(MockReactiveCommand command) async {
+  Future<void> execute(MockReactiveCommand command) async {
     handled.add(command);
     _controller.add(command);
   }

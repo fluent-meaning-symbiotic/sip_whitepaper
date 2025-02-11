@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import '../../commands/commands.dart';
-import '../handler/reactive_handler.dart';
+import '../handler/reactive_command_handler.dart';
 import '../registers/registers.dart';
 
 class SemanticReactiveCommandInvoker {
