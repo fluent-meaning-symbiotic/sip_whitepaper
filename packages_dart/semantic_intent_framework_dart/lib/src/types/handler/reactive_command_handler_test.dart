@@ -20,6 +20,7 @@ class TestReactiveHandler
     extends SemanticReactiveCommandHandler<TestReactiveCommand> {
   final List<String> handledValues = [];
   final List<TestReactiveCommand> handledCommands = [];
+  final _commandController = StreamController<TestReactiveCommand>.broadcast();
 
   @override
   SemanticReactiveCommandStreamName get streamName => TestStreamName.testStream;
@@ -28,6 +29,14 @@ class TestReactiveHandler
   Future<void> handleCommand(TestReactiveCommand command) async {
     handledValues.add(command.value);
     handledCommands.add(command);
+    _commandController.add(command);
+  }
+
+  Stream<TestReactiveCommand> get commandStream => _commandController.stream;
+
+  Future<void> dispose() async {
+    unsubscribe();
+    await _commandController.close();
   }
 }
 
@@ -42,26 +51,25 @@ void main() {
     });
 
     tearDown(() async {
+      await handler.dispose();
       await commandController.close();
     });
 
     test('subscribes to command stream', () async {
-      final subscription = handler.subscribe(commandController.stream);
-      addTearDown(() => subscription.cancel());
+      handler.subscribe(commandController.stream);
 
       const command = TestReactiveCommand(value: 'test value');
       commandController.add(command);
 
-      // Wait for async processing
-      await Future.delayed(Duration.zero);
+      // Wait for the next command to be processed
+      await handler.commandStream.first;
 
       expect(handler.handledValues, contains('test value'));
       expect(handler.handledCommands, contains(command));
     });
 
     test('handles multiple commands in sequence', () async {
-      final subscription = handler.subscribe(commandController.stream);
-      addTearDown(() => subscription.cancel());
+      handler.subscribe(commandController.stream);
 
       const commands = [
         TestReactiveCommand(value: 'first'),
@@ -73,8 +81,10 @@ void main() {
         commandController.add(command);
       }
 
-      // Wait for async processing
-      await Future.delayed(Duration.zero);
+      // Wait for all commands to be processed
+      await Future.wait(
+        commands.map((_) => handler.commandStream.first),
+      );
 
       expect(handler.handledValues, equals(['first', 'second', 'third']));
       expect(handler.handledCommands, equals(commands));
@@ -85,25 +95,25 @@ void main() {
       expect(handler.streamName, isNot(equals(TestStreamName.anotherStream)));
     });
 
-    test('subscription can be cancelled', () async {
-      final subscription = handler.subscribe(commandController.stream);
+    test('unsubscribe stops command handling', () async {
+      handler.subscribe(commandController.stream);
 
-      const command1 = TestReactiveCommand(value: 'before cancel');
+      const command1 = TestReactiveCommand(value: 'before unsubscribe');
       commandController.add(command1);
 
-      // Wait for async processing
-      await Future.delayed(Duration.zero);
+      // Wait for the command to be processed
+      await handler.commandStream.first;
 
-      await subscription.cancel();
+      handler.unsubscribe();
 
-      const command2 = TestReactiveCommand(value: 'after cancel');
+      const command2 = TestReactiveCommand(value: 'after unsubscribe');
       commandController.add(command2);
 
-      // Wait for async processing
-      await Future.delayed(Duration.zero);
+      // Give time for any potential processing
+      await Future<void>.delayed(Duration.zero);
 
-      expect(handler.handledValues, contains('before cancel'));
-      expect(handler.handledValues, isNot(contains('after cancel')));
+      expect(handler.handledValues, contains('before unsubscribe'));
+      expect(handler.handledValues, isNot(contains('after unsubscribe')));
     });
   });
 }

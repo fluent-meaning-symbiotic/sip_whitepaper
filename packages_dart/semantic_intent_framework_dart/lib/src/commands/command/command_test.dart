@@ -1,7 +1,10 @@
 import 'dart:async';
 
-import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.dart';
 import 'package:test/test.dart';
+
+import '../state_accessor/state_accessor.dart';
+import 'command.dart';
+import 'command_accessor.dart';
 
 // Test implementation of SemanticCommand for testing
 class TestCommand extends SemanticCommand {
@@ -14,7 +17,7 @@ class TestStateCommand extends SemanticSingleStateAccessorCommand<String> {
 }
 
 // Mock state accessor for testing
-class MockStateAccessor implements SemanticCommandStateAccessor<String> {
+class MockStateAccessor extends SemanticCommandStateAccessor<String> {
   String _value = '';
   String? _previousValue;
   final _controller = StreamController<String>.broadcast();
@@ -45,58 +48,101 @@ class MockStateAccessor implements SemanticCommandStateAccessor<String> {
   }
 }
 
+// Mock implementations for testing
+class MockCommand extends SemanticCommand {
+  const MockCommand({this.value = ''});
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MockCommand &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
+class MockStateCommand extends SemanticSingleStateAccessorCommand<String> {
+  const MockStateCommand({required super.stateAccessor, this.value = ''});
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MockStateCommand &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
 void main() {
   group('SemanticCommand', () {
     test('can be instantiated', () {
       final command = TestCommand();
       expect(command, isA<SemanticCommand>());
     });
+
+    test('should be immutable', () {
+      const command1 = MockCommand(value: 'test1');
+      const command2 = MockCommand(value: 'test1');
+      const command3 = MockCommand(value: 'test2');
+
+      expect(command1, equals(command2));
+      expect(command1, isNot(equals(command3)));
+      expect(command1.value, equals('test1'));
+    });
   });
 
   group('SemanticSingleStateAccessorCommand', () {
-    late MockStateAccessor mockStateAccessor;
-    late TestStateCommand command;
+    late MockStateAccessor stateAccessor;
+    late MockStateCommand command;
 
     setUp(() {
-      mockStateAccessor = MockStateAccessor();
-      command = TestStateCommand(stateAccessor: mockStateAccessor);
+      stateAccessor = MockStateAccessor();
+      command = MockStateCommand(stateAccessor: stateAccessor, value: 'test');
     });
 
     tearDown(() {
-      mockStateAccessor.dispose();
+      stateAccessor.dispose();
     });
 
-    test('can be instantiated with state accessor', () {
-      expect(command, isA<SemanticSingleStateAccessorCommand<String>>());
-      expect(command.stateAccessor, equals(mockStateAccessor));
+    test('should provide access to state', () {
+      expect(command.stateAccessor, equals(stateAccessor));
+      command.stateAccessor.update('new state');
+      expect(command.stateAccessor.value, equals('new state'));
     });
 
-    test('can access and modify state through accessor', () {
-      mockStateAccessor.update('test');
-      expect(command.stateAccessor.value, equals('test'));
+    test('should be immutable despite state changes', () {
+      final command2 =
+          MockStateCommand(stateAccessor: stateAccessor, value: 'test');
+      command.stateAccessor.update('changed');
 
-      command.stateAccessor.update('modified');
-      expect(mockStateAccessor.value, equals('modified'));
+      expect(command, equals(command2));
+      expect(command.value, equals('test'));
+      expect(command.stateAccessor.value, equals('changed'));
     });
 
-    test('can rollback to previous state', () {
-      mockStateAccessor.update('initial');
-      mockStateAccessor.update('modified');
-      mockStateAccessor.rollback();
-      expect(mockStateAccessor.value, equals('initial'));
+    test('should handle state rollback', () {
+      command.stateAccessor.update('initial');
+      command.stateAccessor.update('changed');
+      command.stateAccessor.rollback();
+      expect(command.stateAccessor.value, equals('initial'));
     });
 
-    test('can listen to state changes', () async {
+    test('should notify state changes', () async {
       final states = <String>[];
-      final subscription = mockStateAccessor.changes.listen(states.add);
+      final subscription = command.stateAccessor.changes!.listen(states.add);
 
-      mockStateAccessor.update('first');
-      mockStateAccessor.update('second');
+      command.stateAccessor.update('first');
+      command.stateAccessor.update('second');
 
-      // Wait for async events to complete
-      await Future.delayed(Duration.zero);
-
+      await Future<void>.delayed(Duration.zero);
       expect(states, equals(['first', 'second']));
+
       subscription.cancel();
     });
   });

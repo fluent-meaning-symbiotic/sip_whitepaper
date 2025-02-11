@@ -3,17 +3,33 @@ semantic_intent:
   name: SemanticCommandInvokerIntent
   type: SemanticTypeIntent
   meaning: "Defines the core invoker type for dispatching semantic commands"
-  description: "Central component for managing command dispatch and execution through registered handlers"
+  description: "Central component for managing command dispatch and execution through registered handlers, with support for reactive streams and transformers"
   semantic_properties:
-    registry: "Registry of command handlers"
+    handler_registry: "Registry of command handlers"
+    transformer_registry: "Registry of command transformers"
+    stream_registry: "Registry of reactive command streams"
     dispatch_mode: "Synchronous or asynchronous dispatch"
   semantic_validations:
     - "Must maintain thread safety"
     - "Must handle command registration safely"
     - "Must manage handler lifecycle"
+    - "Must apply transformers in registration order"
+    - "Must maintain stream isolation"
   output_artifacts:
-    - type.dart
-    - type_test.dart
+    - invoker.dart
+    - reactive_invoker.dart
+    - command_invoker_test.dart
+    - reactive_invoker_test.dart
+  test_categories:
+    - type: "unit"
+      priority: "high"
+      meanings:
+        - "Verify handler registration and dispatch"
+        - "Test transformer application order"
+        - "Validate stream isolation"
+        - "Test error handling"
   scratchpad_todo:
     - "Implement command queueing"
     - "Add dispatch monitoring"
+    - "Add transformer composition"
+    - "Add stream lifecycle management"

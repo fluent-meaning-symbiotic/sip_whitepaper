@@ -1,0 +1,29 @@
+semantic_intent:
+  version: 1
+  name: SemanticReactiveCommandIntent
+  type: SemanticCommandIntent
+  meaning: "Defines reactive command capabilities for handling streams and transformations"
+  description: "Extension of semantic commands that provides reactive programming capabilities through streams and transformers"
+  semantic_properties:
+    reactive_stream: "Stream of command states"
+    transformer: "Command state transformer"
+    command_type: "Reactive command type that extends SemanticCommand"
+  semantic_validations:
+    - "Must maintain immutability of command state"
+    - "Transformers must be pure functions"
+    - "Must handle stream lifecycle properly"
+  output_artifacts:
+    - command.dart
+    - transformer_command.dart
+    - reactive_command_test.dart
+  test_categories:
+    - type: "unit"
+      priority: "high"
+      meanings:
+        - "Verify stream transformation"
+        - "Test transformer composition"
+        - "Validate stream lifecycle"
+  scratchpad_todo:
+    - "Add stream lifecycle management"
+    - "Implement transformer composition"
+    - "Add error handling for transformers"

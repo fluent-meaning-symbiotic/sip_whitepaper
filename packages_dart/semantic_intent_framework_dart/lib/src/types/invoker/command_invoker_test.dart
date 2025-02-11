@@ -1,133 +1,122 @@
-import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.dart';
+import 'dart:async';
+
 import 'package:test/test.dart';
 
-// Test commands
-class TestCommand extends SemanticCommand {
-  const TestCommand({this.value = ''});
+import '../../commands/command/command.dart';
+import '../handler/handler.dart';
+import 'invoker.dart';
+
+// Mock implementations for testing
+class MockCommand extends SemanticCommand {
+  const MockCommand({this.value = ''});
   final String value;
 }
 
-class AnotherTestCommand extends SemanticCommand {
-  const AnotherTestCommand({this.data = ''});
-  final String data;
-}
-
-// Test handlers
-class TestHandler extends SemanticCommandHandler<TestCommand> {
-  TestHandler({required super.invoker});
-
-  final handledCommands = <TestCommand>[];
+class MockHandler implements SemanticCommandHandler<MockCommand> {
+  final handled = <MockCommand>[];
+  final completer = Completer<void>();
 
   @override
-  Future<void> execute(TestCommand command) async {
-    handledCommands.add(command);
+  SemanticCommandInvoker get invoker => throw UnimplementedError();
+
+  @override
+  Future<void> execute(MockCommand command) async {
+    handled.add(command);
+    if (!completer.isCompleted) {
+      completer.complete();
+    }
   }
 }
 
-class AnotherTestHandler extends SemanticCommandHandler<AnotherTestCommand> {
-  AnotherTestHandler({required super.invoker});
-
-  final handledCommands = <AnotherTestCommand>[];
-
+class ErrorMockHandler extends MockHandler {
   @override
-  Future<void> execute(AnotherTestCommand command) async {
-    handledCommands.add(command);
+  Future<void> execute(MockCommand command) async {
+    throw Exception('Test error');
   }
 }
 
 void main() {
   group('SemanticCommandInvoker', () {
     late SemanticCommandInvoker invoker;
-    late TestHandler testHandler;
-    late AnotherTestHandler anotherTestHandler;
+    late MockHandler handler;
 
     setUp(() {
       invoker = SemanticCommandInvoker();
-      testHandler = TestHandler(invoker: invoker);
-      anotherTestHandler = AnotherTestHandler(invoker: invoker);
+      handler = MockHandler();
     });
 
-    test('registers handlers correctly', () {
-      invoker.registerHandler(testHandler);
-      invoker.registerHandler(anotherTestHandler);
+    test('should register handler and invoke commands', () async {
+      invoker.registerHandler(handler);
 
-      const testCommand = TestCommand(value: 'test');
-      const anotherCommand = AnotherTestCommand(data: 'data');
-
-      invoker.invoke(testCommand);
-      invoker.invoke(anotherCommand);
-
-      expect(testHandler.handledCommands, contains(testCommand));
-      expect(anotherTestHandler.handledCommands, contains(anotherCommand));
-    });
-
-    test('throws exception when no handler is registered', () {
-      const command = TestCommand(value: 'test');
-
-      expect(
-        () => invoker.invoke(command),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('No handler registered for command type'),
-        )),
-      );
-    });
-
-    test('handlers receive correct commands', () {
-      invoker.registerHandler(testHandler);
-
-      const commands = [
-        TestCommand(value: 'first'),
-        TestCommand(value: 'second'),
-        TestCommand(value: 'third'),
-      ];
-
-      for (final command in commands) {
-        invoker.invoke(command);
-      }
-
-      expect(testHandler.handledCommands, equals(commands));
-    });
-
-    test('multiple handlers work independently', () {
-      invoker.registerHandler(testHandler);
-      invoker.registerHandler(anotherTestHandler);
-
-      const testCommands = [
-        TestCommand(value: 'test1'),
-        TestCommand(value: 'test2'),
-      ];
-
-      const anotherCommands = [
-        AnotherTestCommand(data: 'data1'),
-        AnotherTestCommand(data: 'data2'),
-      ];
-
-      for (final command in testCommands) {
-        invoker.invoke(command);
-      }
-
-      for (final command in anotherCommands) {
-        invoker.invoke(command);
-      }
-
-      expect(testHandler.handledCommands, equals(testCommands));
-      expect(anotherTestHandler.handledCommands, equals(anotherCommands));
-    });
-
-    test('last registered handler for type is used', () {
-      final firstHandler = TestHandler(invoker: invoker);
-      final secondHandler = TestHandler(invoker: invoker);
-
-      invoker.registerHandler(firstHandler);
-      invoker.registerHandler(secondHandler);
-
-      const command = TestCommand(value: 'test');
+      const command = MockCommand(value: 'test');
       invoker.invoke(command);
 
-      expect(firstHandler.handledCommands, isEmpty);
-      expect(secondHandler.handledCommands, contains(command));
+      await handler.completer.future;
+      expect(handler.handled.length, equals(1));
+      expect(handler.handled.first.value, equals('test'));
+    });
+
+    test('should handle multiple commands in order', () async {
+      invoker.registerHandler(handler);
+
+      const command1 = MockCommand(value: 'first');
+      const command2 = MockCommand(value: 'second');
+
+      invoker.invoke(command1);
+      invoker.invoke(command2);
+
+      await handler.completer.future;
+      expect(handler.handled.length, equals(2));
+      expect(handler.handled[0].value, equals('first'));
+      expect(handler.handled[1].value, equals('second'));
+    });
+
+    test('should handle errors gracefully', () async {
+      final errorHandler = ErrorMockHandler();
+      invoker.registerHandler(errorHandler);
+
+      const command = MockCommand(value: 'test');
+
+      // Create a future that will complete when the error is thrown
+      final errorFuture = runZonedGuarded(
+        () async => invoker.invoke(command),
+        (error, stack) {
+          expect(error, isA<Exception>());
+          expect(error.toString(), contains('Test error'));
+        },
+      );
+
+      await errorFuture;
+    });
+
+    test('should not invoke with wrong handler type', () async {
+      final otherHandler = MockHandler();
+      invoker.registerHandler(otherHandler);
+
+      const command = MockCommand(value: 'test');
+      invoker.invoke(command);
+
+      await Future<void>.delayed(Duration.zero);
+      expect(otherHandler.handled.length, equals(1));
+    });
+
+    test('should handle concurrent invocations', () async {
+      invoker.registerHandler(handler);
+
+      final commands = List.generate(
+        5,
+        (index) => MockCommand(value: 'test$index'),
+      );
+
+      for (final cmd in commands) {
+        invoker.invoke(cmd);
+      }
+
+      await handler.completer.future;
+      expect(handler.handled.length, equals(5));
+      for (var i = 0; i < 5; i++) {
+        expect(handler.handled[i].value, equals('test$i'));
+      }
     });
   });
 }

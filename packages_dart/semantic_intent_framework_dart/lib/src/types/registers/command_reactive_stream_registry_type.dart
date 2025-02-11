@@ -4,35 +4,55 @@ import '../../commands/commands.dart';
 
 class ReactiveStreamRegistryType {
   ReactiveStreamRegistryType();
+
   final _commandStreams = <SemanticReactiveCommandStreamName,
-      StreamController<SemanticReactiveCommand>>{};
+      Map<Type, StreamController<dynamic>>>{};
 
   StreamController<T>
       getCommandStreamController<T extends SemanticReactiveCommand>(
-    SemanticReactiveCommandStreamName streamIntentName,
+    SemanticReactiveCommandStreamName streamName,
   ) {
-    if (!_commandStreams.containsKey(streamIntentName)) {
-      _commandStreams[streamIntentName] =
-          StreamController<SemanticReactiveCommand>.broadcast();
+    _commandStreams[streamName] ??= {};
+
+    final typeStreams = _commandStreams[streamName]!;
+    if (!typeStreams.containsKey(T)) {
+      typeStreams[T] = StreamController<T>.broadcast();
     }
-    return _commandStreams[streamIntentName]! as StreamController<T>;
+
+    return typeStreams[T]! as StreamController<T>;
   }
 
   Stream<T> getCommandStream<T extends SemanticReactiveCommand>(
-    SemanticReactiveCommandStreamName streamIntentName,
+    SemanticReactiveCommandStreamName streamName,
   ) =>
-      getCommandStreamController<T>(streamIntentName).stream.cast<T>();
+      getCommandStreamController<T>(streamName).stream;
 
-  void disposeStream(SemanticReactiveCommandStreamName streamIntentName) {
-    if (_commandStreams.containsKey(streamIntentName)) {
-      _commandStreams[streamIntentName]!.close();
-      _commandStreams.remove(streamIntentName);
+  void push<T extends SemanticReactiveCommand>(
+    SemanticReactiveCommandStreamName streamName,
+    T command,
+  ) {
+    if (_commandStreams.containsKey(streamName) &&
+        _commandStreams[streamName]!.containsKey(T)) {
+      final controller =
+          _commandStreams[streamName]![T]! as StreamController<T>;
+      controller.add(command);
+    }
+  }
+
+  void disposeStream(SemanticReactiveCommandStreamName streamName) {
+    if (_commandStreams.containsKey(streamName)) {
+      for (final controller in _commandStreams[streamName]!.values) {
+        controller.close();
+      }
+      _commandStreams.remove(streamName);
     }
   }
 
   void dispose() {
-    for (final controller in _commandStreams.values) {
-      controller.close();
+    for (final typeStreams in _commandStreams.values) {
+      for (final controller in typeStreams.values) {
+        controller.close();
+      }
     }
     _commandStreams.clear();
   }
