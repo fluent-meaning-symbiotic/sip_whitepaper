@@ -9,5 +9,5 @@ abstract class SemanticCommandHandler<T extends SemanticCommand> {
   final SemanticCommandInvoker invoker;
 
   /// Execute method to be implemented by handlers
-  FutureOr<void> execute(T command);
+  Future<void> execute(T command);
 }

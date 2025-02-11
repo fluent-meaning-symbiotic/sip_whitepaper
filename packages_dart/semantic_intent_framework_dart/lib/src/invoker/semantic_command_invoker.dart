@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../command/semantic_command.dart';
 import '../handler/semantic_command_handler.dart';
 
@@ -16,7 +18,7 @@ class SemanticCommandInvoker {
   }
 
   /// Invoke a Semantic Command - Dispatches command to its registered handler
-  Future<void> invoke<T extends SemanticCommand>(T command) async {
+  void invoke<T extends SemanticCommand>(T command) {
     final handler =
         _handlers[T] as SemanticCommandHandler<T>?; // Type-safe retrieval
 
@@ -25,6 +27,6 @@ class SemanticCommandInvoker {
           "No handler registered for command type: ${T.toString()}");
     }
 
-    return handler.execute(command); // Execute the handler's logic
+    unawaited(handler.execute(command)); // Execute the handler's logic
   }
 }

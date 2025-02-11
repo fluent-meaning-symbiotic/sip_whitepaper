@@ -4,10 +4,10 @@ publish_to: none
 environment:
   sdk: ^3.6.2
 
-workspace:
-  - semantic_intent_framework_dart
-  # temporary disabled
-  # - semantic_intent_framework_flutter
+# workspace:
+#   - semantic_intent_framework_dart
+#   # temporary disabled
+#   # - semantic_intent_framework_flutter
 
 dependencies:
   flutter:

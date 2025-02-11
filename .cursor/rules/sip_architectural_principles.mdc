@@ -1,6 +1,6 @@
 ---
 description: SIP Architecture Principles
-globs: 
+globs: *
 ---
 
 SIP Architecture Principles:
