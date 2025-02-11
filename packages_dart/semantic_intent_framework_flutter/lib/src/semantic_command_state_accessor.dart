@@ -27,3 +27,8 @@ class SemanticValueNotifierAccessor<T>
   @override
   Stream<T>? get changes => null;
 }
+
+mixin SemanticValueNotifierAccessorMixin<T> on ValueNotifier<T> {
+  BaseSemanticCommandStateAccessor<T> get accessor =>
+      SemanticValueNotifierAccessor<T>(this);
+}
