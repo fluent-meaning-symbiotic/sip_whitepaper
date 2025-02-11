@@ -36,7 +36,7 @@ class MockReactiveCommand extends SemanticReactiveCommand {
 class MockReactiveHandler
     extends SemanticReactiveCommandHandler<MockReactiveCommand> {
   final handled = <MockReactiveCommand>[];
-  final StreamController<void> _controller = StreamController<void>.broadcast();
+  final _controller = StreamController<MockReactiveCommand>.broadcast();
   SemanticReactiveCommandStreamName _streamName = MockStreamName.test;
 
   @override
@@ -49,12 +49,13 @@ class MockReactiveHandler
   @override
   Future<void> handleCommand(MockReactiveCommand command) async {
     handled.add(command);
-    _controller.add(null);
+    _controller.add(command);
   }
 
-  Stream<void> get onCommandHandled => _controller.stream;
+  Stream<MockReactiveCommand> get onCommandHandled => _controller.stream;
 
   Future<void> dispose() async {
+    unsubscribe();
     await _controller.close();
   }
 }
@@ -99,9 +100,10 @@ void main() {
       const command = MockReactiveCommand(value: 'test');
       invoker.push(MockStreamName.test, command);
 
-      await handler.onCommandHandled.first;
+      final received = await handler.onCommandHandled.first;
       expect(handler.handled.length, equals(1));
       expect(handler.handled.first.value, equals('test'));
+      expect(received.value, equals('test'));
     });
 
     test('should register transformer and apply to commands', () async {
@@ -112,9 +114,10 @@ void main() {
       const command = MockReactiveCommand(value: 'test');
       invoker.push(MockStreamName.test, command);
 
-      await handler.onCommandHandled.first;
+      final received = await handler.onCommandHandled.first;
       expect(handler.handled.length, equals(1));
       expect(handler.handled.first.value, equals('TEST'));
+      expect(received.value, equals('TEST'));
     });
 
     test('should apply transformers in registration order', () async {
@@ -134,9 +137,10 @@ void main() {
       const command = MockReactiveCommand(value: 'Test');
       invoker.push(MockStreamName.test, command);
 
-      await handler.onCommandHandled.first;
+      final received = await handler.onCommandHandled.first;
       expect(handler.handled.length, equals(1));
       expect(handler.handled.first.value, equals('TEST'));
+      expect(received.value, equals('TEST'));
     });
 
     test('should maintain stream isolation', () async {
@@ -149,38 +153,66 @@ void main() {
       const command1 = MockReactiveCommand(value: 'test1');
       const command2 = MockReactiveCommand(value: 'test2');
 
-      await Future.wait([
-        invoker.push(MockStreamName.test, command1),
-        invoker.push(MockStreamName.error, command2),
-      ]);
+      // Create lists to collect processed commands
+      final processed1 = <MockReactiveCommand>[];
+      final processed2 = <MockReactiveCommand>[];
 
-      await Future.wait([
-        handler1.onCommandHandled.first,
-        handler2.onCommandHandled.first,
-      ]);
+      final sub1 = handler1.onCommandHandled.listen(processed1.add);
+      final sub2 = handler2.onCommandHandled.listen(processed2.add);
+
+      // Push commands
+      invoker.push(MockStreamName.test, command1);
+      invoker.push(MockStreamName.error, command2);
+
+      // Wait until both handlers have processed their commands
+      while (processed1.isEmpty || processed2.isEmpty) {
+        await Future<void>.delayed(Duration.zero);
+      }
+
+      await sub1.cancel();
+      await sub2.cancel();
 
       expect(handler1.handled.length, equals(1));
       expect(handler1.handled.first.value, equals('test1'));
+      expect(processed1.first.value, equals('test1'));
+
       expect(handler2.handled.length, equals(1));
       expect(handler2.handled.first.value, equals('test2'));
+      expect(processed2.first.value, equals('test2'));
 
       await handler1.dispose();
       await handler2.dispose();
     });
 
-    test('should handle transformer errors gracefully', () async {
+    test('should handle transformer errors', () async {
       invoker.registerHandler<MockReactiveCommand>(handler);
       invoker.addTransformer<MockReactiveCommand>(
           MockStreamName.test, mockErrorTransformer);
 
       const command = MockReactiveCommand(value: 'test');
 
-      await expectLater(
-        () => invoker.push(MockStreamName.test, command),
-        throwsA(isA<FormatException>()),
+      // Create a completer to track error
+      final errorCompleter = Completer<Object>();
+      final subscription = handler.onCommandHandled.listen(
+        (_) {},
+        onError: (error) {
+          if (!errorCompleter.isCompleted) {
+            errorCompleter.complete(error);
+          }
+        },
       );
 
-      expect(handler.handled.isEmpty, isTrue);
+      try {
+        invoker.push(MockStreamName.test, command);
+        final error = await errorCompleter.future.timeout(
+          Duration(seconds: 1),
+          onTimeout: () => throw TimeoutException('No error received'),
+        );
+        expect(error, isA<FormatException>());
+        expect(handler.handled.isEmpty, isTrue);
+      } finally {
+        await subscription.cancel();
+      }
     });
 
     test('should apply transformers to specific streams only', () async {
@@ -196,20 +228,21 @@ void main() {
 
       const command = MockReactiveCommand(value: 'test');
 
-      await Future.wait([
-        invoker.push(MockStreamName.test, command),
-        invoker.push(MockStreamName.error, command),
-      ]);
+      // Push to both streams
+      invoker.push(MockStreamName.test, command);
+      invoker.push(MockStreamName.error, command);
 
-      await Future.wait([
-        handler1.onCommandHandled.first,
-        handler2.onCommandHandled.first,
-      ]);
+      // Wait for both handlers to process their commands
+      final received1 = await handler1.onCommandHandled.first;
+      final received2 = await handler2.onCommandHandled.first;
 
       expect(handler1.handled.length, equals(1));
       expect(handler1.handled.first.value, equals('TEST'));
+      expect(received1.value, equals('TEST'));
+
       expect(handler2.handled.length, equals(1));
       expect(handler2.handled.first.value, equals('test'));
+      expect(received2.value, equals('test'));
 
       await handler1.dispose();
       await handler2.dispose();

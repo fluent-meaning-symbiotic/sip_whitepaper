@@ -77,14 +77,19 @@ void main() {
         TestReactiveCommand(value: 'third')
       ];
 
+      // Create a list to collect processed commands
+      final processedCommands = <TestReactiveCommand>[];
+      final subscription = handler.commandStream.listen(processedCommands.add);
+
       for (final command in commands) {
         commandController.add(command);
       }
 
-      // Wait for all commands to be processed
-      await Future.wait(
-        commands.map((_) => handler.commandStream.first),
-      );
+      // Wait until we've processed all commands
+      while (processedCommands.length < commands.length) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      await subscription.cancel();
 
       expect(handler.handledValues, equals(['first', 'second', 'third']));
       expect(handler.handledCommands, equals(commands));
