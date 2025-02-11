@@ -1,5 +1,6 @@
 import 'dart:async';
 
+// ignore: depend_on_referenced_packages
 import 'package:test/test.dart';
 
 import '../../commands/reactive/reactive_command.dart';

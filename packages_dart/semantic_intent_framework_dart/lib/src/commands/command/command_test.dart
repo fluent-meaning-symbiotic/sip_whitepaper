@@ -1,8 +1,8 @@
 import 'dart:async';
 
+// ignore: depend_on_referenced_packages
 import 'package:test/test.dart';
 
-import '../state_accessor/single_state_accessor.dart';
 import '../state_accessor/state_accessor.dart';
 import 'command.dart';
 

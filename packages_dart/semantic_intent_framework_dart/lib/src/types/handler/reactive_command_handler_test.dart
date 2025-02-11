@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.dart';
+// ignore: depend_on_referenced_packages
 import 'package:test/test.dart';
 
 // Test stream name enum
