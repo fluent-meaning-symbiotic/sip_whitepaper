@@ -6,13 +6,15 @@ export 'single_state_accessor.dart';
 class SemanticCommandStateAccessor<T>
     extends BaseSemanticCommandStateAccessor<T> {
   SemanticCommandStateAccessor({
-    required this.value,
-    required void Function(T newValue) update,
-  }) : _update = update;
-  final void Function(T newValue) _update;
+    required T Function() read,
+    required void Function(T newValue) write,
+  })  : _read = read,
+        _write = write;
+  final T Function() _read;
+  final void Function(T newValue) _write;
   @override
-  final T value;
+  T get value => _read();
 
   @override
-  void update(T newValue) => _update(newValue);
+  void update(T newValue) => _write(newValue);
 }
