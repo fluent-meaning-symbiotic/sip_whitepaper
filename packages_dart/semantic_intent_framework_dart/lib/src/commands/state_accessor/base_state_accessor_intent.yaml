@@ -1,6 +1,6 @@
 semantic_intent:
   version: 1
-  name: SemanticCommandStateAccessorIntent
+  name: BaseSemanticCommandStateAccessorIntent
   type: SemanticCommandIntent
   meaning: "Defines the interface for accessing and managing command state"
   description: "Provides a standardized way to access and manage state within semantic commands"
@@ -11,8 +11,8 @@ semantic_intent:
     - "State access must be thread-safe"
     - "State mutations must be tracked"
   output_artifacts:
-    - command.dart
-    - command_test.dart
+    - state_accessor.dart
+    - state_accessor_intent.yaml
   scratchpad_todo:
     - "Implement state change tracking"
     - "Add state access logging"

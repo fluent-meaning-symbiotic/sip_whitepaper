@@ -3,7 +3,7 @@ import 'dart:async';
 // ignore: depend_on_referenced_packages
 import 'package:test/test.dart';
 
-import '../state_accessor/state_accessor.dart';
+import '../state_accessor/base_state_accessor.dart';
 import 'command.dart';
 
 // Test implementation of SemanticCommand for testing
@@ -17,7 +17,7 @@ class TestStateCommand extends SemanticSingleStateAccessorCommand<String> {
 }
 
 // Mock state accessor for testing
-class MockStateAccessor extends SemanticCommandStateAccessor<String> {
+class MockStateAccessor implements BaseSemanticCommandStateAccessor<String> {
   String _value = '';
   String? _previousValue;
   final _controller = StreamController<String>.broadcast();

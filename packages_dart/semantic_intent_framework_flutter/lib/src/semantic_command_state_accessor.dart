@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.dart';
 
 /// ValueNotifier implementation
-class SemanticValueNotifierAccessor<T> extends SemanticCommandStateAccessor<T> {
+class SemanticValueNotifierAccessor<T>
+    extends BaseSemanticCommandStateAccessor<T> {
   final ValueNotifier<T> notifier;
 
   SemanticValueNotifierAccessor(this.notifier);

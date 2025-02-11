@@ -1,18 +1,18 @@
+import 'base_state_accessor.dart';
+
+export 'base_state_accessor.dart';
 export 'single_state_accessor.dart';
 
-/// Generic state accessor that can work with any state management solution
-abstract class SemanticCommandStateAccessor<T> {
-  const SemanticCommandStateAccessor();
+class SemanticCommandStateAccessor<T>
+    extends BaseSemanticCommandStateAccessor<T> {
+  SemanticCommandStateAccessor({
+    required this.value,
+    required void Function(T newValue) update,
+  }) : _update = update;
+  final void Function(T newValue) _update;
+  @override
+  final T value;
 
-  /// Get current state value
-  T get value;
-
-  /// Update state value
-  void update(T newValue);
-
-  /// Optional: return state, before update
-  void rollback() => throw UnimplementedError();
-
-  /// Optional: Subscribe to state changes
-  Stream<T>? get changes => null;
+  @override
+  void update(T newValue) => _update(newValue);
 }
