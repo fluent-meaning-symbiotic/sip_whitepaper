@@ -1,0 +1,12 @@
+---
+description: Semantic Handler Protocol
+globs: *.rhdl.dart
+---
+**Semantic Handler Protocol**
+
+Same as `handler_protocol`.
+
+- Uses *.rhdl.dart suffix
+- Should implement streamName Enum to differentiate logic if needed (rarely).
+
+

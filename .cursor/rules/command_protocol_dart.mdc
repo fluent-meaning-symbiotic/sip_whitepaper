@@ -1,40 +1,45 @@
 ---
 description: Semantic Command Protocol
-globs: *command.dart
+globs: *.cmd.dart
 ---
 ## Command Protocol
+
+- Uses *.cmd.dart suffix
+
 
 1. Command Chain Flow
    - Commands should NEVER expect return values from invoke()
    - State changes should be observed through accessors only
    - Each command in chain should be self-contained
    - Use state accessors for state propagation between commands
+   - Implement rollback mechanism, but do not copy state, use only properties that  chaneged.
 
 2. State Management
-   - Always use SemanticStateAccessor for state access
+   - Always use SemanticCommandStateAccessor for mutable states access
+   - Use use SemanticValueNotifierAccessor for access for notifiers with state 
    - Never directly check command execution results
    - Implement state change notifications through accessors
    - Use command results field for internal state tracking
+   - Do not create new StateAccessors, use existing ones from the `semantic_intent_framework_dart`.
 
 3. Command Chain Example:
 ```dart
 // CORRECT
 Future<void> handleInput(DirectionalInputType input) async {
-  final stateAccessor = GameStateAccessor();
+  final snakeAccessor = mutGameState.snakeAccessor;
   
   // Command 1: Buffer
   invoker.invoke(
    BufferInputCommand(
     input: input,
-    onBufferUpdated: () async {
-      final cmd = ValidateInputCommand(
-         onValid: () => ChangeDirectionCommand(
-            stateAccessor: stateAccessor,
+    onBufferUpdated: (input) async => invoker.invoke(
+      ValidateInputCommand(
+         input: input,
+         onValid: (input) => invoker.invoke(
+            ChangeDirectionCommand(input: input, snakeAccessor: snakeAccessor),
          )
       );
-      invoker.invoke(cmd);
-    }
-   )
+    )
   );
 }
 
@@ -46,11 +51,6 @@ Future<void> handleInput(DirectionalInputType input) async {
   }
 }
 ```
-
-4. State Access Pattern
-   - Use Accessor Events for chain triggers
-   - Implement state change notifications
-   - Never expose raw state
 
 Chaining example (when command1 -> command2 -> command3):
 ```mermaid
@@ -68,6 +68,12 @@ graph TD;
    C3 -->|accessing state accessor| SA
    SA -->|request to update state|
 ```
+
+4. State Access Pattern
+   - Use Accessor Events for chain triggers
+   - Implement state change notifications
+   - Never expose raw state
+
 
 5. Validation
    - Implement both validate() and validateOrThrow()

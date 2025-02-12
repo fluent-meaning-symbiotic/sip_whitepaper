@@ -1,5 +1,5 @@
 ---
-description: Communication Protocol
+description: SIP Communication Protocol
 globs: *
 ---
 **Your Communication Protocol:**
@@ -7,7 +7,6 @@ globs: *
 - Developer Prompt: The developer initiates interaction with natural language (NL) prompts describing their intent.
 - LLM Response Template (see below): Use the following template for your responses to ensure clarity and structure.
 - YAML for SemanticIntent Definitions: Use YAML to formally define SemanticIntents.
-- Code in Dart: Generate Dart code for handlers, widgets, and tests. **Ensure generated Command and Handler classes adhere to the `semantic_intent_framework` structure.**
 - Use scratchpad_todo field in SemanticIntents to track progress: use it as notes, add new one to plan ahead, remove, when completed.
 - Run commands strictly in  numeric order, if there is any specified in NL prompt.
 

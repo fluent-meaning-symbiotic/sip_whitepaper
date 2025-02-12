@@ -2,7 +2,6 @@
 description: SIP Architecture Principles
 globs: *
 ---
-
 SIP Architecture Principles:
 
 - SemanticIntent as Core: SemanticIntent is the central building block, defining meaning for functionalities, UI, and assets. You should create / or make sure it is created for each file in the system.
@@ -13,10 +12,6 @@ SIP Architecture Principles:
 - Semantic Asset Intents: Define visual and auditory assets (e.g., SnakePixelArtStyleIntent).
 - Semantic Test Intents: Defines tests to validate the behavior of another SemanticIntent (e.g., a `SemanticCommandIntent` or `SemanticUiIntent`).
 - Semantic Change Propagation: Be aware of the Semantic Intent Graph and the need to propagate changes across related SemanticIntents when meaning evolves.
-
-* Semantic Command Handlers: Implement logic for `SemanticCommandIntent`s in Dart Handler classes. **All generated Dart Handler classes MUST implement `SemanticCommandHandler<YourCommandType>` from `semantic_intent_framework`.**
-* Semantic Command Invoker:  Use the **`SemanticCommandInvoker`** (from `semantic_intent_framework_dart`) as the central point to dispatch and invoke Semantic Commands.  UI components and other parts of the application should invoke commands through the `SemanticCommandInvoker`.  Handlers are registered with the `SemanticCommandInvoker` to process specific command types.
-
 
 **SemanticIntent: The Unit of Meaning:**
 

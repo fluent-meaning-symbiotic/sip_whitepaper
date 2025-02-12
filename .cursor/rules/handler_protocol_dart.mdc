@@ -1,9 +1,10 @@
 ---
 description: Semantic Handler Protocol
-globs: *handler.dart
+globs: *.hnd.dart
 ---
 **Semantic Handler Protocol**
 
+- Uses *.hdl.dart suffix
 
 1. Handler Execution Pattern
 ```dart
@@ -27,7 +28,6 @@ class SemanticCommandHandler<T extends SemanticCommand> {
       
     } catch (e, stackTrace) {
       debugPrint('${command.runtimeType}Handler: $e\n$stackTrace');
-      command.stateAccessor.rollbackState();
     }
   }
   
@@ -37,7 +37,7 @@ class SemanticCommandHandler<T extends SemanticCommand> {
 
 2. State Management Rules
    - Always use command's state accessor
-   - Implement rollback mechanism
+
    - Notify state changes through accessor
    - Never modify state directly
 
