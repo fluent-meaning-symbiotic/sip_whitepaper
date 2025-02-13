@@ -9,15 +9,14 @@ enum Streams implements SemanticReactiveCommandStreamName {
 
 void main() {
   final invoker = SemanticReactiveCommandInvoker();
-  invoker
-      .registerHandler<HelloWorldCommand>(HelloWorldHandler(invoker: invoker));
+  invoker.registerHandler(HelloWorldHandler(invoker: invoker));
   final transformer =
       StreamTransformer<HelloWorldCommand, HelloWorldCommand>.fromHandlers(
     handleData: (command, sink) {
       sink.add(HelloWorldCommand(code: '${command.code}llo'));
     },
   );
-  invoker.addTransformer<HelloWorldCommand>(
+  invoker.addTransformer(
     Streams.test,
     (stream) => stream.transform(transformer),
   );

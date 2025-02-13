@@ -2,8 +2,7 @@ import 'package:semantic_intent_framework_dart/semantic_intent_framework_dart.da
 
 void main() {
   final invoker = SemanticCommandInvoker();
-  invoker
-      .registerHandler<HelloWorldCommand>(HelloWorldHandler(invoker: invoker));
+  invoker.registerHandler(HelloWorldHandler(invoker: invoker));
 
   final command = HelloWorldCommand(code: 'hello world');
   invoker.invoke(command);
