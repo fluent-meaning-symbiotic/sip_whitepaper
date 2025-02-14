@@ -32,14 +32,46 @@ class RenderUtils {
       return;
     }
 
-    for (var i = 0; i < mesh.geometry.indices.length; i += 3) {
+    // Check if this is a line geometry (2 indices per primitive)
+    final isLineGeometry = mesh.geometry.indices.length % 2 == 0;
+
+    if (isLineGeometry) {
+      _renderLines(mesh.geometry.indices, screenPoints, paint, canvas);
+    } else {
+      _renderTriangles(
+          mesh.geometry.indices, screenPoints, paint, canvas, wireframe);
+    }
+  }
+
+  static void _renderLines(
+    List<int> indices,
+    List<Offset> screenPoints,
+    Paint paint,
+    Canvas canvas,
+  ) {
+    for (var i = 0; i < indices.length; i += 2) {
+      canvas.drawLine(
+        screenPoints[indices[i]],
+        screenPoints[indices[i + 1]],
+        paint,
+      );
+    }
+  }
+
+  static void _renderTriangles(
+    List<int> indices,
+    List<Offset> screenPoints,
+    Paint paint,
+    Canvas canvas,
+    bool wireframe,
+  ) {
+    for (var i = 0; i < indices.length; i += 3) {
       final path = Path()
-        ..moveTo(screenPoints[mesh.geometry.indices[i]].dx,
-            screenPoints[mesh.geometry.indices[i]].dy)
-        ..lineTo(screenPoints[mesh.geometry.indices[i + 1]].dx,
-            screenPoints[mesh.geometry.indices[i + 1]].dy)
-        ..lineTo(screenPoints[mesh.geometry.indices[i + 2]].dx,
-            screenPoints[mesh.geometry.indices[i + 2]].dy)
+        ..moveTo(screenPoints[indices[i]].dx, screenPoints[indices[i]].dy)
+        ..lineTo(
+            screenPoints[indices[i + 1]].dx, screenPoints[indices[i + 1]].dy)
+        ..lineTo(
+            screenPoints[indices[i + 2]].dx, screenPoints[indices[i + 2]].dy)
         ..close();
 
       if (wireframe) {
