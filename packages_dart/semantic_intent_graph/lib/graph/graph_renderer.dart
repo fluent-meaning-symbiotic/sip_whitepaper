@@ -41,7 +41,7 @@ class GraphRenderer extends StandardFlutterRenderer {
     final viewProjection = projectionMatrix * scene.camera.viewMatrix;
 
     for (final node in scene.graphNodes.values) {
-      if (node.selected) {
+      if (node.isSelected) {
         final screenPos = _projectPoint(node.position, viewProjection, size);
         if (screenPos != null) {
           canvas.drawCircle(screenPos, 12, _selectedPaint);
@@ -54,10 +54,15 @@ class GraphRenderer extends StandardFlutterRenderer {
     final viewProjection = projectionMatrix * scene.camera.viewMatrix;
 
     for (final edge in scene.edges) {
+      final sourceNode = scene.graphNodes[edge.sourceId];
+      final targetNode = scene.graphNodes[edge.targetId];
+
+      if (sourceNode == null || targetNode == null) continue;
+
       final screenPos1 =
-          _projectPoint(edge.source.position, viewProjection, size);
+          _projectPoint(sourceNode.position, viewProjection, size);
       final screenPos2 =
-          _projectPoint(edge.target.position, viewProjection, size);
+          _projectPoint(targetNode.position, viewProjection, size);
 
       if (screenPos1 != null && screenPos2 != null) {
         // Check if points are within valid drawing bounds
