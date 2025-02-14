@@ -12,18 +12,21 @@ import 'graph_node.dart';
 class GraphScene extends Scene3D {
   final ForceSystem physics = ForceSystem();
   final Map<String, GraphNode> _nodes = {};
-  final List<GraphEdgeMesh> _edges = [];
+  final Map<String, GraphEdgeMesh> _edges = {};
 
   @override
   List<Mesh> get meshes => [
-        ..._nodes.values.whereType<Mesh>(),
-        ..._edges,
+        ..._nodes.values
+            .where((node) => node.mesh != null)
+            .map((node) => node.mesh!),
+        ..._edges.values,
       ];
 
   /// Adds a graph node with the given ID and position
   void addGraphNode(String id, Vector3 position) {
     final node = GraphNode(id: id, position: position);
     final mesh = GraphNodeMesh(node: node);
+    node.mesh = mesh; // Store mesh reference in node
 
     _nodes[id] = node;
     addMesh(mesh);
@@ -36,7 +39,23 @@ class GraphScene extends Scene3D {
     if (node == null) return;
 
     // Remove connected edges
-    _edges.removeWhere((edge) => edge.source.id == id || edge.target.id == id);
+    final edgesToRemove = _edges.entries
+        .where((entry) =>
+            entry.value.source.id == id || entry.value.target.id == id)
+        .map((e) => e.key)
+        .toList();
+
+    for (final edgeId in edgesToRemove) {
+      final edge = _edges.remove(edgeId);
+      if (edge != null) {
+        removeMesh(edge);
+      }
+    }
+
+    // Remove node's mesh
+    if (node.mesh != null) {
+      removeMesh(node.mesh!);
+    }
 
     physics.removeParticle(node);
     super.removeNode(node);
@@ -66,19 +85,29 @@ class GraphScene extends Scene3D {
     final target = _nodes[targetId];
     if (source == null || target == null) return;
 
+    final edgeId = '$sourceId-$targetId';
+    if (_edges.containsKey(edgeId)) return;
+
     final edge = GraphEdgeMesh(source: source, target: target);
-    _edges.add(edge);
+    _edges[edgeId] = edge;
     addMesh(edge);
+
     physics.addForce(SpringForce(
       particleA: source,
       particleB: target,
+      springConstant: 0.5,
+      restLength: 200.0,
+      damping: 0.3,
     ));
   }
 
   /// Removes an edge between two nodes
   void removeEdge(String sourceId, String targetId) {
-    _edges.removeWhere(
-        (edge) => edge.source.id == sourceId && edge.target.id == targetId);
+    final edgeId = '$sourceId-$targetId';
+    final edge = _edges.remove(edgeId);
+    if (edge != null) {
+      removeMesh(edge);
+    }
   }
 
   @override
@@ -87,7 +116,7 @@ class GraphScene extends Scene3D {
     physics.update(dt);
 
     // Update edge geometries
-    for (final edge in _edges) {
+    for (final edge in _edges.values) {
       edge.updateGeometry();
     }
   }
@@ -96,5 +125,5 @@ class GraphScene extends Scene3D {
   Map<String, GraphNode> get graphNodes => Map.unmodifiable(_nodes);
 
   /// Gets all edges (unmodifiable)
-  List<GraphEdgeMesh> get edges => List.unmodifiable(_edges);
+  List<GraphEdgeMesh> get edges => List.unmodifiable(_edges.values);
 }

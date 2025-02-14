@@ -5,7 +5,6 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
-import 'graph/graph_renderer.dart';
 import 'graph/graph_scene.dart';
 import 'graph/graph_widget.dart';
 import 'services/semantic_intent_loader.dart';
@@ -39,13 +38,11 @@ class DemoPage extends StatefulWidget {
 
 class _DemoPageState extends State<DemoPage> {
   late GraphScene scene;
-  late GraphRenderer renderer;
 
   @override
   void initState() {
     super.initState();
     scene = GraphScene();
-    renderer = GraphRenderer();
     _setupDemo();
   }
 
@@ -76,7 +73,6 @@ class _DemoPageState extends State<DemoPage> {
           aspectRatio: 1.0,
           child: Graph3DWidget(
             scene: scene,
-            renderer: renderer,
           ),
         ),
       ),

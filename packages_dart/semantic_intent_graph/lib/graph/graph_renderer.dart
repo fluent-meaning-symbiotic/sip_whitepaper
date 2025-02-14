@@ -4,6 +4,7 @@ import 'package:vector_math/vector_math_64.dart' hide Colors;
 import '../three_d/core/projection.dart';
 import '../three_d/core/scene.dart';
 import '../three_d/rendering/flutter_renderer.dart';
+import '../three_d/rendering/render_utils.dart';
 import 'graph_scene.dart';
 
 /// Renderer specialized for graph visualization
@@ -61,10 +62,6 @@ class GraphRenderer extends FlutterRenderer {
   }
 
   Offset _projectPoint(Vector3 point, Matrix4 viewProjection, Size size) {
-    final projected = viewProjection.transformed3(point);
-    return Offset(
-      (projected.x / projected.z * size.width / 2) + size.width / 2,
-      (projected.y / projected.z * size.height / 2) + size.height / 2,
-    );
+    return RenderUtils.projectVertices([point], viewProjection, size)[0];
   }
 }

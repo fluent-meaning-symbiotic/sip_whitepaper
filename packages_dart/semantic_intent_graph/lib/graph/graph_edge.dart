@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../three_d/core/geometry.dart';
-import '../three_d/core/material.dart';
 import '../three_d/core/mesh.dart';
 import 'graph_node.dart';
+import 'materials/graph_materials.dart';
 
 /// A mesh representing an edge between two graph nodes
 class GraphEdgeMesh extends Mesh {
@@ -15,15 +15,18 @@ class GraphEdgeMesh extends Mesh {
     required this.target,
     Color color = Colors.grey,
   }) : super(
-          geometry: Geometry(), // Dynamic geometry updated each frame
-          material: BasicMaterial(
-            color: color,
-            style: PaintingStyle.stroke,
-            strokeWidth: 2.0,
-          ),
+          geometry: _createEdgeGeometry(source, target),
+          material: EdgeMaterial(color: color),
         );
 
-  /// Updates edge geometry based on node positions
+  static Geometry _createEdgeGeometry(GraphNode source, GraphNode target) {
+    return Geometry(
+      vertices: [source.position, target.position],
+      // Use line indices instead of triangles for edges
+      indices: [0, 1],
+    );
+  }
+
   void updateGeometry() {
     geometry.vertices
       ..clear()

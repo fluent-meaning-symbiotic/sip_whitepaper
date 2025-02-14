@@ -15,12 +15,14 @@ import 'graph_scene.dart';
 /// - Zoom: Mouse wheel or Ctrl + drag
 class Graph3DWidget extends StatefulWidget {
   final GraphScene scene;
-  final GraphRenderer? renderer;
+  final bool enableControls;
+  final bool enableSelection;
 
   const Graph3DWidget({
     super.key,
     required this.scene,
-    this.renderer,
+    this.enableControls = true,
+    this.enableSelection = true,
   });
 
   @override
@@ -43,7 +45,7 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
   void initState() {
     super.initState();
     _controls = OrbitControls(widget.scene.camera);
-    _renderer = widget.renderer ?? GraphRenderer();
+    _renderer = GraphRenderer();
   }
 
   void _handleKeyEvent(KeyEvent event) {
@@ -65,7 +67,7 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
 
     // Start orbit on left click without shift
     if (_activeButton == kPrimaryButton && !_isShiftPressed) {
-      _controls.startOrbit(_lastMousePosition!);
+      _controls.startDrag(_lastMousePosition!);
     }
   }
 
@@ -85,12 +87,16 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
         _controls.pan(delta);
       } else {
         // Orbit with left drag
-        _controls.updateOrbit(currentPosition);
+        _controls.updateDrag(currentPosition);
       }
-    } else if (_activeButton == kMiddleButton ||
+    } else if (_activeButton == kMiddleMouseButton ||
         _activeButton == kSecondaryButton) {
       // Pan with middle/right drag
       _controls.pan(delta);
+    }
+
+    if (!_isShiftPressed) {
+      _controls.updateDrag(currentPosition);
     }
 
     _lastMousePosition = currentPosition;
@@ -99,7 +105,7 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
 
   void _handlePointerUp(PointerUpEvent event) {
     if (_activeButton == kPrimaryButton && !_isShiftPressed) {
-      _controls.endOrbit();
+      _controls.endDrag();
     }
     _isDragging = false;
     _lastMousePosition = null;
