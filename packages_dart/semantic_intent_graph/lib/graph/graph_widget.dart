@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
@@ -6,10 +7,12 @@ import '../three_d/controls/orbit_controls.dart';
 import 'graph_renderer.dart';
 import 'graph_scene.dart';
 
+/// A widget that displays a 3D graph with interactive controls
+///
 /// Controls:
-/// - Orbit: Regular drag/swipe
-/// - Pan: Shift + drag/swipe or two-finger scroll
-/// - Zoom: Ctrl + two-finger scroll
+/// - Orbit: Left mouse drag
+/// - Pan: Middle mouse drag or Shift + left drag
+/// - Zoom: Mouse wheel or Ctrl + drag
 class Graph3DWidget extends StatefulWidget {
   final GraphScene scene;
   final GraphRenderer? renderer;
@@ -27,9 +30,14 @@ class Graph3DWidget extends StatefulWidget {
 class _Graph3DWidgetState extends State<Graph3DWidget> {
   late OrbitControls _controls;
   late GraphRenderer _renderer;
-  Vector2? _lastPosition;
   bool _isShiftPressed = false;
   bool _isCtrlPressed = false;
+  bool _isDragging = false;
+  Vector2? _lastMousePosition;
+  int _activeButton = 0;
+
+  static const _zoomSpeed = 0.001;
+  static const _panSpeed = 0.5;
 
   @override
   void initState() {
@@ -39,77 +47,77 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
   }
 
   void _handleKeyEvent(KeyEvent event) {
-    setState(() {
-      if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
-          event.logicalKey == LogicalKeyboardKey.shiftRight) {
-        _isShiftPressed = event is RawKeyDownEvent;
-      } else if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
-          event.logicalKey == LogicalKeyboardKey.controlRight) {
-        _isCtrlPressed = event is RawKeyDownEvent;
-      }
-    });
+    final isDown = event is RawKeyDownEvent;
+    if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
+        event.logicalKey == LogicalKeyboardKey.shiftRight) {
+      setState(() => _isShiftPressed = isDown);
+    } else if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
+        event.logicalKey == LogicalKeyboardKey.controlRight) {
+      setState(() => _isCtrlPressed = isDown);
+    }
   }
 
   void _handlePointerDown(PointerDownEvent event) {
-    _lastPosition = Vector2(event.localPosition.dx, event.localPosition.dy);
-    if (!_isShiftPressed) {
-      _controls.startDrag(_lastPosition!);
+    _activeButton = event.buttons;
+    _lastMousePosition =
+        Vector2(event.localPosition.dx, event.localPosition.dy);
+    _isDragging = true;
+
+    // Start orbit on left click without shift
+    if (_activeButton == kPrimaryButton && !_isShiftPressed) {
+      _controls.startOrbit(_lastMousePosition!);
     }
   }
 
   void _handlePointerMove(PointerMoveEvent event) {
-    if (_lastPosition == null) return;
+    if (!_isDragging || _lastMousePosition == null) return;
 
     final currentPosition =
         Vector2(event.localPosition.dx, event.localPosition.dy);
-    if (_isShiftPressed) {
-      // Pan
-      final delta = currentPosition - _lastPosition!;
+    final delta = (currentPosition - _lastMousePosition!) * _panSpeed;
+
+    if (_isCtrlPressed) {
+      // Zoom with any drag while Ctrl is pressed
+      _controls.zoom(delta.y * _zoomSpeed * 100);
+    } else if (_activeButton == kPrimaryButton) {
+      if (_isShiftPressed) {
+        // Pan with left drag + shift
+        _controls.pan(delta);
+      } else {
+        // Orbit with left drag
+        _controls.updateOrbit(currentPosition);
+      }
+    } else if (_activeButton == kMiddleButton ||
+        _activeButton == kSecondaryButton) {
+      // Pan with middle/right drag
       _controls.pan(delta);
-    } else {
-      // Orbit
-      _controls.updateDrag(currentPosition);
     }
-    _lastPosition = currentPosition;
+
+    _lastMousePosition = currentPosition;
+    setState(() {}); // Trigger repaint
   }
 
   void _handlePointerUp(PointerUpEvent event) {
-    if (!_isShiftPressed) {
-      _controls.endDrag();
+    if (_activeButton == kPrimaryButton && !_isShiftPressed) {
+      _controls.endOrbit();
     }
-    _lastPosition = null;
+    _isDragging = false;
+    _lastMousePosition = null;
+    _activeButton = 0;
   }
 
-  void _handleScaleStart(ScaleStartDetails details) {
-    if (details.pointerCount == 2) {
-      _lastPosition =
-          Vector2(details.localFocalPoint.dx, details.localFocalPoint.dy);
+  void _handleMouseWheel(PointerScrollEvent event) {
+    final scrollDelta = event.scrollDelta.dy;
+    if (scrollDelta != 0) {
+      _controls.zoom(scrollDelta * _zoomSpeed);
+      setState(() {}); // Trigger repaint
     }
-  }
-
-  void _handleScaleUpdate(ScaleUpdateDetails details) {
-    if (details.pointerCount != 2) return;
-
-    final currentPosition = Vector2(
-      details.localFocalPoint.dx,
-      details.localFocalPoint.dy,
-    );
-
-    if (_isCtrlPressed) {
-      // Zoom
-      _controls.zoom((1 - details.scale) * 10);
-    } else {
-      // Pan with two fingers
-      final delta = currentPosition - _lastPosition!;
-      _controls.pan(delta);
-    }
-
-    _lastPosition = currentPosition;
   }
 
   @override
   Widget build(BuildContext context) {
     return Focus(
+      autofocus: true,
       onKeyEvent: (_, event) {
         _handleKeyEvent(event);
         return KeyEventResult.handled;
@@ -118,14 +126,15 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
         onPointerDown: _handlePointerDown,
         onPointerMove: _handlePointerMove,
         onPointerUp: _handlePointerUp,
-        child: GestureDetector(
-          onScaleStart: _handleScaleStart,
-          onScaleUpdate: _handleScaleUpdate,
-          child: CustomPaint(
-            painter: _Graph3DPainter(
-              scene: widget.scene,
-              renderer: _renderer,
-            ),
+        onPointerSignal: (event) {
+          if (event is PointerScrollEvent) {
+            _handleMouseWheel(event);
+          }
+        },
+        child: CustomPaint(
+          painter: _Graph3DPainter(
+            scene: widget.scene,
+            renderer: _renderer,
           ),
         ),
       ),
@@ -137,7 +146,7 @@ class _Graph3DPainter extends CustomPainter {
   final GraphScene scene;
   final GraphRenderer renderer;
 
-  _Graph3DPainter({
+  const _Graph3DPainter({
     required this.scene,
     required this.renderer,
   });
@@ -148,5 +157,5 @@ class _Graph3DPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_Graph3DPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _Graph3DPainter oldDelegate) => true;
 }

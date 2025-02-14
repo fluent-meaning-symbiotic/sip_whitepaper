@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
@@ -5,6 +8,7 @@ import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'graph/graph_renderer.dart';
 import 'graph/graph_scene.dart';
 import 'graph/graph_widget.dart';
+import 'services/semantic_intent_loader.dart';
 
 void main() {
   runApp(const MyApp());
@@ -88,6 +92,11 @@ class _DemoPageState extends State<DemoPage> {
             onPressed: _resetCamera,
             child: const Icon(Icons.refresh),
           ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            onPressed: _loadIntents,
+            child: const Icon(Icons.folder_open),
+          ),
         ],
       ),
     );
@@ -119,6 +128,43 @@ class _DemoPageState extends State<DemoPage> {
       scene.camera.position = Vector3(0, 0, 20);
       scene.camera.target = Vector3.zero();
       scene.camera.up = Vector3(0, 1, 0);
+    });
+  }
+
+  Future<void> _loadIntents() async {
+    final result = await FilePicker.platform.getDirectoryPath();
+    if (result == null) return;
+
+    final intents = await SemanticIntentLoader.loadFromDirectory(result);
+    setState(() {
+      // Clear existing nodes
+      scene = GraphScene();
+
+      // Add nodes for each intent
+      for (var i = 0; i < intents.length; i++) {
+        final intent = intents[i];
+        final angle = (i * 2 * math.pi) / intents.length;
+        final radius = 10.0;
+        final position = Vector3(
+          math.cos(angle) * radius,
+          math.sin(angle) * radius,
+          i * 0.1, // Slight z-offset for each node
+        );
+
+        scene.addGraphNode(
+          intent.path,
+          position,
+        );
+      }
+
+      // Add edges between consecutive nodes
+      for (var i = 0; i < intents.length; i++) {
+        final next = (i + 1) % intents.length;
+        scene.addEdge(
+          intents[i].path,
+          intents[next].path,
+        );
+      }
     });
   }
 }
