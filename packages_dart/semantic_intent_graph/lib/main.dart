@@ -12,6 +12,7 @@ import 'semantic/providers/semantic_intent_provider.dart';
 import 'semantic/types/loaded_intent_data.dart';
 import 'semantic/types/semantic_intent_types.dart';
 import 'services/semantic_intent_loader.dart';
+import 'three_d/controls/camera_controller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +45,7 @@ class DemoPage extends StatefulWidget {
 
 class _DemoPageState extends State<DemoPage> {
   late GraphScene scene;
+  CameraMode _cameraMode = CameraMode.free;
 
   @override
   void initState() {
@@ -96,7 +98,8 @@ class _DemoPageState extends State<DemoPage> {
               color: Colors.black12,
               child: Graph3DWidget(
                 scene: scene,
-                key: ValueKey(scene.hashCode),
+                key: ValueKey('${scene.hashCode}_${_cameraMode.toString()}'),
+                cameraMode: _cameraMode,
               ),
             );
           },
@@ -107,17 +110,37 @@ class _DemoPageState extends State<DemoPage> {
         children: [
           FloatingActionButton(
             onPressed: _addRandomNode,
+            tooltip: 'Add Random Node',
             child: const Icon(Icons.add),
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
             onPressed: _resetCamera,
+            tooltip: 'Reset Camera',
             child: const Icon(Icons.refresh),
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
             onPressed: _loadIntents,
+            tooltip: 'Load Intents',
             child: const Icon(Icons.folder_open),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _cameraMode = _cameraMode == CameraMode.orbit
+                    ? CameraMode.free
+                    : CameraMode.orbit;
+                print('Camera mode switched to: $_cameraMode');
+              });
+            },
+            tooltip: _cameraMode == CameraMode.orbit
+                ? 'Switch to Free Camera'
+                : 'Switch to Orbit Camera',
+            child: Icon(_cameraMode == CameraMode.orbit
+                ? Icons.videogame_asset
+                : Icons.panorama_photosphere),
           ),
         ],
       ),

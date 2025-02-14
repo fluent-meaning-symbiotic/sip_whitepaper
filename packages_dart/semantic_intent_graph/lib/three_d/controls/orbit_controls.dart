@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
-import '../core/camera.dart';
+import 'camera_controller.dart';
 
 /// Extension on Matrix4 to add custom lookAt functionality
 extension Matrix4Utils on Matrix4 {
@@ -109,169 +109,127 @@ class Spherical {
   }
 }
 
-/// Controls for orbiting camera around a target point
-class OrbitControls {
-  final Camera3D camera;
+/// Controls for orbiting around a target point
+class OrbitControls extends CameraController {
+  double rotateSpeed;
+  double zoomSpeed;
+  double panSpeed;
+  double minDistance;
+  double maxDistance;
 
-  // Configuration
-  double rotateSpeed = 1.0;
-  double zoomSpeed = 1.0;
-  double panSpeed = 1.0;
-
-  double minDistance = 1.0;
-  double maxDistance = double.infinity;
-  double minPolarAngle = 0.0;
-  double maxPolarAngle = math.pi;
-
-  bool enableRotate = true;
-  bool enableZoom = true;
-  bool enablePan = true;
-
-  // Internal state
-  final Vector3 _target = Vector3.zero();
-  final Spherical _spherical = Spherical();
-  final Spherical _sphericalDelta = Spherical();
-  final Vector3 _panOffset = Vector3.zero();
-  double _scale = 1.0;
-
-  Vector2? _rotateStart;
-  Vector2? _rotateEnd;
-  Vector2? _panStart;
-  Vector2? _panEnd;
-  double _zoomStart = 0.0;
-
+  Vector2? _lastPosition;
   bool _isRotating = false;
   bool _isPanning = false;
-  bool _isZooming = false;
 
-  OrbitControls(this.camera) {
-    _updateSpherical();
-  }
+  OrbitControls(
+    super.camera, {
+    this.rotateSpeed = 1.0,
+    this.zoomSpeed = 1.0,
+    this.panSpeed = 1.0,
+    this.minDistance = 5.0,
+    this.maxDistance = 100.0,
+  });
 
-  void _updateSpherical() {
-    final offset = camera.position - _target;
-    _spherical.setFromVector3(offset);
-  }
-
-  void startRotate(Vector2 position) {
-    if (!enableRotate) return;
+  @override
+  void startMove(Vector2 position) {
+    _lastPosition = position;
     _isRotating = true;
-    _rotateStart = position;
-    _rotateEnd = position;
   }
 
   void startPan(Vector2 position) {
-    if (!enablePan) return;
+    _lastPosition = position;
     _isPanning = true;
-    _panStart = position;
-    _panEnd = position;
+    _isRotating = false;
   }
 
-  void startZoom(double position) {
-    if (!enableZoom) return;
-    _isZooming = true;
-    _zoomStart = position;
-  }
-
-  void update(Vector2 position) {
-    if (_isRotating) {
-      _rotateEnd = position;
-      _handleRotate();
-    }
-    if (_isPanning) {
-      _panEnd = position;
-      _handlePan();
-    }
-    _updateCamera();
-  }
-
-  void updateZoom(double delta) {
-    if (!enableZoom) return;
-    _scale *= math.pow(0.95, delta * zoomSpeed);
-    _scale = _scale.clamp(
-      minDistance / _spherical.radius,
-      maxDistance / _spherical.radius,
-    );
-    _updateCamera();
+  @override
+  void endMove() {
+    _lastPosition = null;
+    _isRotating = false;
+    _isPanning = false;
   }
 
   void endRotate() {
     _isRotating = false;
-    _rotateStart = null;
-    _rotateEnd = null;
   }
 
   void endPan() {
     _isPanning = false;
-    _panStart = null;
-    _panEnd = null;
   }
 
-  void endZoom() {
-    _isZooming = false;
+  @override
+  void update(Vector2 input) {
+    if (_lastPosition == null) return;
+
+    final delta = input - _lastPosition!;
+    _lastPosition = input;
+
+    if (_isRotating) {
+      _rotate(delta);
+    } else if (_isPanning) {
+      _pan(delta);
+    }
   }
 
-  void _handleRotate() {
-    if (_rotateStart == null || _rotateEnd == null) return;
+  void _rotate(Vector2 delta) {
+    // Calculate the spherical coordinates
+    final offset = camera.position - camera.target;
+    final radius = offset.length;
 
-    final Vector2 delta = _rotateEnd! - _rotateStart!;
+    // Convert to spherical coordinates
+    var theta = math.atan2(offset.x, offset.z);
+    var phi = math.acos(offset.y / radius);
 
-    // Rotating up and down along phi
-    _sphericalDelta.phi -= 2 * math.pi * delta.y * rotateSpeed / 800;
-
-    // Rotating left and right along theta
-    _sphericalDelta.theta -= 2 * math.pi * delta.x * rotateSpeed / 800;
-
-    _rotateStart = _rotateEnd;
-  }
-
-  void _handlePan() {
-    if (_panStart == null || _panEnd == null) return;
-
-    final Vector2 delta = _panEnd! - _panStart!;
-
-    // Get the camera's right and up vectors
-    final Vector3 forward = (_target - camera.position).normalized();
-    final Vector3 right = forward.cross(camera.up).normalized();
-    final Vector3 up = right.cross(forward).normalized();
-
-    // Scale the movement by the distance to target for consistent speed
-    final distance = (_target - camera.position).length;
-    final panScale = distance * panSpeed / 400;
-
-    _panOffset.addScaled(right, -delta.x * panScale);
-    _panOffset.addScaled(up, delta.y * panScale);
-
-    _panStart = _panEnd;
-  }
-
-  void _updateCamera() {
     // Apply rotation
-    _spherical.phi += _sphericalDelta.phi;
-    _spherical.theta += _sphericalDelta.theta;
+    theta -= delta.x * rotateSpeed * 0.01;
+    phi = (phi + delta.y * rotateSpeed * 0.01).clamp(0.1, math.pi - 0.1);
 
-    // Restrict phi to avoid the camera flipping upside down
-    _spherical.phi = _spherical.phi.clamp(minPolarAngle, maxPolarAngle);
+    // Convert back to Cartesian coordinates
+    final newPosition = Vector3(
+      radius * math.sin(phi) * math.sin(theta),
+      radius * math.cos(phi),
+      radius * math.sin(phi) * math.cos(theta),
+    );
 
-    // Restrict radius
-    _spherical.radius *= _scale;
-    _spherical.radius = _spherical.radius.clamp(minDistance, maxDistance);
+    camera.position = camera.target + newPosition;
+    camera.updateView();
+  }
 
-    // Move target by pan offset
-    _target.add(_panOffset);
+  void _pan(Vector2 delta) {
+    // Get camera's right and up vectors from view matrix
+    final viewMatrix = camera.viewMatrix;
+    final right =
+        Vector3(viewMatrix.row0.x, viewMatrix.row0.y, viewMatrix.row0.z);
+    final up = Vector3(viewMatrix.row1.x, viewMatrix.row1.y, viewMatrix.row1.z);
 
-    // Calculate new camera position
-    final offset = _spherical.toVector3();
-    camera.position = _target + offset;
-    camera.target = _target;
+    final distance = (camera.position - camera.target).length;
+    final panScale = distance * panSpeed * 0.002;
 
-    // Reset deltas
-    _sphericalDelta.phi = 0;
-    _sphericalDelta.theta = 0;
-    _panOffset.setZero();
-    _scale = 1;
+    final movement = right * (-delta.x * panScale) + up * (delta.y * panScale);
+    camera.position += movement;
+    camera.target += movement;
+    camera.updateView();
+  }
 
-    // Update camera view matrix
+  @override
+  void updateZoom(double delta) {
+    final offset = camera.position - camera.target;
+    final distance = offset.length;
+    final direction = offset.normalized();
+
+    // Calculate new distance with zoom
+    final newDistance = (distance * math.exp(delta * zoomSpeed))
+        .clamp(minDistance, maxDistance);
+
+    camera.position = camera.target + direction * newDistance;
+    camera.updateView();
+  }
+
+  @override
+  void reset() {
+    camera.position = Vector3(0, 0, 10);
+    camera.target = Vector3.zero();
+    camera.up = Vector3(0, 1, 0);
     camera.updateView();
   }
 }
