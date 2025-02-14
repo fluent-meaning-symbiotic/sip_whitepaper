@@ -14,13 +14,12 @@ class EdgeMaterial extends TransparentMaterial {
 }
 
 /// Material specialized for graph nodes
-class NodeMaterial extends TransparentMaterial {
+class NodeMaterial extends BasicMaterial {
   final bool selected;
 
   NodeMaterial({
     Color color = Colors.blue,
     this.selected = false,
-    super.opacity = 1.0,
   }) : super(
           color: selected ? Colors.orange : color,
           style: PaintingStyle.fill,

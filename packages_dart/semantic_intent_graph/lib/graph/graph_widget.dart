@@ -146,11 +146,18 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
               _handleMouseWheel(event);
             }
           },
-          child: CustomPaint(
-            painter: _Graph3DPainter(
-              scene: widget.scene,
-              renderer: _renderer,
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              print('Graph3DWidget constraints: $constraints');
+              final size = constraints.biggest;
+              return CustomPaint(
+                size: size,
+                painter: _Graph3DPainter(
+                  scene: widget.scene,
+                  renderer: _renderer,
+                ),
+              );
+            },
           ),
         ),
       ),

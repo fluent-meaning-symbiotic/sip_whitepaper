@@ -83,15 +83,23 @@ class _DemoPageState extends State<DemoPage> {
         title: const Text('3D Graph Demo'),
       ),
       body: Center(
-        child: Container(
-          color: Colors.black12, // Add background color to see widget bounds
-          child: AspectRatio(
-            aspectRatio: 1.0,
-            child: Graph3DWidget(
-              scene: scene,
-              key: ValueKey(scene.hashCode), // Force rebuild when scene changes
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = constraints.biggest;
+            final dimension =
+                size.shortestSide * 0.9; // Use 90% of available space
+            print('Available size: $size, using dimension: $dimension');
+
+            return Container(
+              width: dimension,
+              height: dimension,
+              color: Colors.black12,
+              child: Graph3DWidget(
+                scene: scene,
+                key: ValueKey(scene.hashCode),
+              ),
+            );
+          },
         ),
       ),
       floatingActionButton: Column(
