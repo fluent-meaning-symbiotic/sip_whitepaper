@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 /// A 3D camera with position, target, and up vector
@@ -6,6 +8,7 @@ class Camera3D {
   Vector3 target;
   Vector3 up;
   final Matrix4 viewMatrix = Matrix4.identity();
+  final Matrix4 projectionMatrix = Matrix4.identity();
 
   Camera3D({
     required this.position,
@@ -20,7 +23,25 @@ class Camera3D {
     viewMatrix.setFrom(makeViewMatrix(position, target, up));
   }
 
-  /// Creates a look-at matrix for the camera
+  /// Updates the projection matrix
+  void updateProjection({
+    double fov = 45.0,
+    double aspectRatio = 1.0,
+    double near = 0.1,
+    double far = 1000.0,
+  }) {
+    final fovRad = fov * (math.pi / 180.0);
+    final tanHalfFov = math.tan(fovRad / 2);
+
+    projectionMatrix.setZero();
+    projectionMatrix.setEntry(0, 0, 1.0 / (aspectRatio * tanHalfFov));
+    projectionMatrix.setEntry(1, 1, 1.0 / tanHalfFov);
+    projectionMatrix.setEntry(2, 2, -(far + near) / (far - near));
+    projectionMatrix.setEntry(2, 3, -(2 * far * near) / (far - near));
+    projectionMatrix.setEntry(3, 2, -1);
+  }
+
+  /// Creates a view matrix looking from [eye] position towards [target] with [up] direction
   Matrix4 makeViewMatrix(Vector3 eye, Vector3 target, Vector3 up) {
     final z = (eye - target)..normalize();
     final x = up.cross(z)..normalize();
@@ -42,4 +63,8 @@ class Camera3D {
 
     return view;
   }
+
+  /// Gets the combined view-projection matrix
+  Matrix4 get viewProjectionMatrix =>
+      projectionMatrix.clone()..multiply(viewMatrix);
 }

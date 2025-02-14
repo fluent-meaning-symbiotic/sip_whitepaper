@@ -73,92 +73,205 @@ extension Matrix4Utils on Matrix4 {
   }
 }
 
+/// Spherical coordinates for orbit calculations
+class Spherical {
+  double radius;
+  double phi; // polar angle from y (up) axis
+  double theta; // azimuthal angle in x-z plane
+
+  Spherical({
+    this.radius = 1.0,
+    this.phi = 0.0,
+    this.theta = 0.0,
+  });
+
+  void setFromVector3(Vector3 v) {
+    radius = v.length;
+    if (radius == 0) {
+      phi = 0;
+      theta = 0;
+      return;
+    }
+
+    // phi is the polar angle from y-axis (up)
+    phi = math.acos(v.y / radius);
+    // theta is the azimuthal angle in x-z plane
+    theta = math.atan2(v.x, v.z);
+  }
+
+  Vector3 toVector3() {
+    final sinPhiRadius = radius * math.sin(phi);
+    return Vector3(
+      sinPhiRadius * math.sin(theta),
+      radius * math.cos(phi),
+      sinPhiRadius * math.cos(theta),
+    );
+  }
+}
+
 /// Controls for orbiting camera around a target point
 class OrbitControls {
   final Camera3D camera;
-  final double orbitSpeed;
-  final double panSpeed;
-  final double zoomSpeed;
-  final double minDistance;
-  final double maxDistance;
-  final double minPolarAngle;
-  final double maxPolarAngle;
 
-  bool _isDragging = false;
-  Vector2? _lastPosition;
+  // Configuration
+  double rotateSpeed = 1.0;
+  double zoomSpeed = 1.0;
+  double panSpeed = 1.0;
 
-  OrbitControls(
-    this.camera, {
-    this.orbitSpeed = 0.005,
-    this.panSpeed = 0.01,
-    this.zoomSpeed = 0.1,
-    this.minDistance = 1.0,
-    this.maxDistance = 100.0,
-    this.minPolarAngle = 0.1,
-    this.maxPolarAngle = math.pi - 0.1,
-  });
+  double minDistance = 1.0;
+  double maxDistance = double.infinity;
+  double minPolarAngle = 0.0;
+  double maxPolarAngle = math.pi;
 
-  void startDrag(Vector2 position) {
-    _isDragging = true;
-    _lastPosition = position;
+  bool enableRotate = true;
+  bool enableZoom = true;
+  bool enablePan = true;
+
+  // Internal state
+  final Vector3 _target = Vector3.zero();
+  final Spherical _spherical = Spherical();
+  final Spherical _sphericalDelta = Spherical();
+  final Vector3 _panOffset = Vector3.zero();
+  double _scale = 1.0;
+
+  Vector2? _rotateStart;
+  Vector2? _rotateEnd;
+  Vector2? _panStart;
+  Vector2? _panEnd;
+  double _zoomStart = 0.0;
+
+  bool _isRotating = false;
+  bool _isPanning = false;
+  bool _isZooming = false;
+
+  OrbitControls(this.camera) {
+    _updateSpherical();
   }
 
-  void updateDrag(Vector2 position) {
-    if (!_isDragging || _lastPosition == null) return;
-
-    final delta = position - _lastPosition!;
-    _orbit(delta.x, delta.y);
-    _lastPosition = position;
+  void _updateSpherical() {
+    final offset = camera.position - _target;
+    _spherical.setFromVector3(offset);
   }
 
-  void endDrag() {
-    _isDragging = false;
-    _lastPosition = null;
+  void startRotate(Vector2 position) {
+    if (!enableRotate) return;
+    _isRotating = true;
+    _rotateStart = position;
+    _rotateEnd = position;
   }
 
-  void zoom(double amount) {
-    final direction = (camera.target - camera.position).normalized();
-    final distance = (camera.target - camera.position).length;
-    final newDistance =
-        (distance + amount * zoomSpeed).clamp(minDistance, maxDistance);
-    camera.position = camera.target - direction * newDistance;
+  void startPan(Vector2 position) {
+    if (!enablePan) return;
+    _isPanning = true;
+    _panStart = position;
+    _panEnd = position;
   }
 
-  void pan(Vector2 delta) {
-    final viewDir = camera.target - camera.position;
-    final right = viewDir.cross(camera.up).normalized();
-    final forward = camera.up.cross(right).normalized();
-
-    final movement =
-        right * (-delta.x * panSpeed) + forward * (-delta.y * panSpeed);
-    camera.position += movement;
-    camera.target += movement;
+  void startZoom(double position) {
+    if (!enableZoom) return;
+    _isZooming = true;
+    _zoomStart = position;
   }
 
-  void _orbit(double deltaX, double deltaY) {
-    final viewDir = camera.target - camera.position;
-    final right = viewDir.cross(camera.up).normalized();
-
-    // Rotate around vertical axis (Y)
-    final rotationY = Matrix4.rotationY(-deltaX * orbitSpeed);
-    final posFromTarget = camera.position - camera.target;
-    final rotatedPos = rotationY.transform3(posFromTarget);
-    camera.position = camera.target + rotatedPos;
-
-    // Rotate around horizontal axis (right vector)
-    final rotationX = Matrix4Utils.rotationAxis(right, -deltaY * orbitSpeed);
-    final newPosition =
-        camera.target + rotationX.transform3(camera.position - camera.target);
-
-    // Check polar angle limits
-    final polar = _getPolarAngle(newPosition);
-    if (polar >= minPolarAngle && polar <= maxPolarAngle) {
-      camera.position = newPosition;
+  void update(Vector2 position) {
+    if (_isRotating) {
+      _rotateEnd = position;
+      _handleRotate();
     }
+    if (_isPanning) {
+      _panEnd = position;
+      _handlePan();
+    }
+    _updateCamera();
   }
 
-  double _getPolarAngle(Vector3 position) {
-    final dir = (position - camera.target).normalized();
-    return math.acos(dir.y.clamp(-1.0, 1.0));
+  void updateZoom(double delta) {
+    if (!enableZoom) return;
+    _scale *= math.pow(0.95, delta * zoomSpeed);
+    _scale = _scale.clamp(
+      minDistance / _spherical.radius,
+      maxDistance / _spherical.radius,
+    );
+    _updateCamera();
+  }
+
+  void endRotate() {
+    _isRotating = false;
+    _rotateStart = null;
+    _rotateEnd = null;
+  }
+
+  void endPan() {
+    _isPanning = false;
+    _panStart = null;
+    _panEnd = null;
+  }
+
+  void endZoom() {
+    _isZooming = false;
+  }
+
+  void _handleRotate() {
+    if (_rotateStart == null || _rotateEnd == null) return;
+
+    final Vector2 delta = _rotateEnd! - _rotateStart!;
+
+    // Rotating up and down along phi
+    _sphericalDelta.phi -= 2 * math.pi * delta.y * rotateSpeed / 800;
+
+    // Rotating left and right along theta
+    _sphericalDelta.theta -= 2 * math.pi * delta.x * rotateSpeed / 800;
+
+    _rotateStart = _rotateEnd;
+  }
+
+  void _handlePan() {
+    if (_panStart == null || _panEnd == null) return;
+
+    final Vector2 delta = _panEnd! - _panStart!;
+
+    // Get the camera's right and up vectors
+    final Vector3 forward = (_target - camera.position).normalized();
+    final Vector3 right = forward.cross(camera.up).normalized();
+    final Vector3 up = right.cross(forward).normalized();
+
+    // Scale the movement by the distance to target for consistent speed
+    final distance = (_target - camera.position).length;
+    final panScale = distance * panSpeed / 400;
+
+    _panOffset.addScaled(right, -delta.x * panScale);
+    _panOffset.addScaled(up, delta.y * panScale);
+
+    _panStart = _panEnd;
+  }
+
+  void _updateCamera() {
+    // Apply rotation
+    _spherical.phi += _sphericalDelta.phi;
+    _spherical.theta += _sphericalDelta.theta;
+
+    // Restrict phi to avoid the camera flipping upside down
+    _spherical.phi = _spherical.phi.clamp(minPolarAngle, maxPolarAngle);
+
+    // Restrict radius
+    _spherical.radius *= _scale;
+    _spherical.radius = _spherical.radius.clamp(minDistance, maxDistance);
+
+    // Move target by pan offset
+    _target.add(_panOffset);
+
+    // Calculate new camera position
+    final offset = _spherical.toVector3();
+    camera.position = _target + offset;
+    camera.target = _target;
+
+    // Reset deltas
+    _sphericalDelta.phi = 0;
+    _sphericalDelta.theta = 0;
+    _panOffset.setZero();
+    _scale = 1;
+
+    // Update camera view matrix
+    camera.updateView();
   }
 }

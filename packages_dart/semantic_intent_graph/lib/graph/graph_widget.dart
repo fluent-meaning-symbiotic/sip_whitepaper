@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,17 +37,16 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
   late GraphRenderer _renderer;
   bool _isShiftPressed = false;
   bool _isCtrlPressed = false;
-  bool _isDragging = false;
-  Vector2? _lastMousePosition;
-  int _activeButton = 0;
-
-  static const _zoomSpeed = 0.001;
-  static const _panSpeed = 0.5;
 
   @override
   void initState() {
     super.initState();
-    _controls = OrbitControls(widget.scene.camera);
+    _controls = OrbitControls(widget.scene.camera)
+      ..rotateSpeed = 1.0
+      ..zoomSpeed = 1.0
+      ..panSpeed = 1.0
+      ..minDistance = 5.0
+      ..maxDistance = 100.0;
     _renderer = GraphRenderer();
     print('Graph3DWidget initialized');
   }
@@ -58,67 +59,6 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
     } else if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
         event.logicalKey == LogicalKeyboardKey.controlRight) {
       setState(() => _isCtrlPressed = isDown);
-    }
-  }
-
-  void _handlePointerDown(PointerDownEvent event) {
-    _activeButton = event.buttons;
-    _lastMousePosition =
-        Vector2(event.localPosition.dx, event.localPosition.dy);
-    _isDragging = true;
-
-    // Start orbit on left click without shift
-    if (_activeButton == kPrimaryButton && !_isShiftPressed) {
-      _controls.startDrag(_lastMousePosition!);
-    }
-  }
-
-  void _handlePointerMove(PointerMoveEvent event) {
-    if (!_isDragging || _lastMousePosition == null) return;
-
-    final currentPosition =
-        Vector2(event.localPosition.dx, event.localPosition.dy);
-    final delta = (currentPosition - _lastMousePosition!) * _panSpeed;
-
-    if (_isCtrlPressed) {
-      // Zoom with any drag while Ctrl is pressed
-      _controls.zoom(delta.y * _zoomSpeed * 100);
-    } else if (_activeButton == kPrimaryButton) {
-      if (_isShiftPressed) {
-        // Pan with left drag + shift
-        _controls.pan(delta);
-      } else {
-        // Orbit with left drag
-        _controls.updateDrag(currentPosition);
-      }
-    } else if (_activeButton == kMiddleMouseButton ||
-        _activeButton == kSecondaryButton) {
-      // Pan with middle/right drag
-      _controls.pan(delta);
-    }
-
-    if (!_isShiftPressed) {
-      _controls.updateDrag(currentPosition);
-    }
-
-    _lastMousePosition = currentPosition;
-    setState(() {}); // Trigger repaint
-  }
-
-  void _handlePointerUp(PointerUpEvent event) {
-    if (_activeButton == kPrimaryButton && !_isShiftPressed) {
-      _controls.endDrag();
-    }
-    _isDragging = false;
-    _lastMousePosition = null;
-    _activeButton = 0;
-  }
-
-  void _handleMouseWheel(PointerScrollEvent event) {
-    final scrollDelta = event.scrollDelta.dy;
-    if (scrollDelta != 0) {
-      _controls.zoom(scrollDelta * _zoomSpeed);
-      setState(() {}); // Trigger repaint
     }
   }
 
@@ -137,27 +77,116 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
           _handleKeyEvent(event);
           return KeyEventResult.handled;
         },
-        child: Listener(
-          onPointerDown: _handlePointerDown,
-          onPointerMove: _handlePointerMove,
-          onPointerUp: _handlePointerUp,
-          onPointerSignal: (event) {
-            if (event is PointerScrollEvent) {
-              _handleMouseWheel(event);
+        child: GestureDetector(
+          // Touch and trackpad gesture handling
+          onScaleStart: (details) {
+            if (_isShiftPressed || details.pointerCount > 1) {
+              _controls.startPan(Vector2(
+                details.localFocalPoint.dx,
+                details.localFocalPoint.dy,
+              ));
+            } else {
+              _controls.startRotate(Vector2(
+                details.localFocalPoint.dx,
+                details.localFocalPoint.dy,
+              ));
             }
           },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              print('Graph3DWidget constraints: $constraints');
-              final size = constraints.biggest;
-              return CustomPaint(
-                size: size,
-                painter: _Graph3DPainter(
-                  scene: widget.scene,
-                  renderer: _renderer,
-                ),
-              );
+          onScaleUpdate: (details) {
+            // Handle zoom with scale gesture (pinch)
+            if (details.scale != 1.0) {
+              final zoomDelta = math.log(details.scale);
+              _controls.updateZoom(zoomDelta);
+            }
+
+            // Handle rotation and pan
+            _controls.update(Vector2(
+              details.localFocalPoint.dx,
+              details.localFocalPoint.dy,
+            ));
+
+            setState(() {}); // Trigger repaint
+          },
+          onScaleEnd: (details) {
+            _controls.endRotate();
+            _controls.endPan();
+            _controls.endZoom();
+          },
+          // Mouse handling
+          child: Listener(
+            onPointerDown: (event) {
+              if (event.buttons == kPrimaryButton) {
+                if (_isShiftPressed) {
+                  _controls.startPan(Vector2(
+                    event.localPosition.dx,
+                    event.localPosition.dy,
+                  ));
+                } else {
+                  _controls.startRotate(Vector2(
+                    event.localPosition.dx,
+                    event.localPosition.dy,
+                  ));
+                }
+              } else if (event.buttons == kMiddleMouseButton ||
+                  event.buttons == kSecondaryButton) {
+                _controls.startPan(Vector2(
+                  event.localPosition.dx,
+                  event.localPosition.dy,
+                ));
+              }
             },
+            onPointerMove: (event) {
+              if (event.buttons != 0) {
+                _controls.update(Vector2(
+                  event.localPosition.dx,
+                  event.localPosition.dy,
+                ));
+                setState(() {}); // Trigger repaint
+              }
+            },
+            onPointerUp: (event) {
+              _controls.endRotate();
+              _controls.endPan();
+            },
+            onPointerSignal: (event) {
+              if (event is PointerScrollEvent) {
+                // Handle trackpad two-finger scroll
+                if (event.kind == PointerDeviceKind.trackpad) {
+                  if (_isShiftPressed) {
+                    // Pan with two-finger scroll
+                    _controls.startPan(Vector2(
+                      event.position.dx,
+                      event.position.dy,
+                    ));
+                    _controls.update(Vector2(
+                      event.position.dx + event.scrollDelta.dx * 0.5,
+                      event.position.dy + event.scrollDelta.dy * 0.5,
+                    ));
+                    _controls.endPan();
+                  } else {
+                    // Zoom with two-finger vertical scroll
+                    _controls.updateZoom(event.scrollDelta.dy * 0.01);
+                  }
+                } else {
+                  // Regular mouse wheel zoom
+                  _controls.updateZoom(event.scrollDelta.dy * 0.005);
+                }
+                setState(() {});
+              }
+            },
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                print('Graph3DWidget constraints: $constraints');
+                final size = constraints.biggest;
+                return CustomPaint(
+                  size: size,
+                  painter: _Graph3DPainter(
+                    scene: widget.scene,
+                    renderer: _renderer,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
