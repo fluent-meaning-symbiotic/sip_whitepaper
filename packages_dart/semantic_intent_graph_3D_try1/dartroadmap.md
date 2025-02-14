@@ -21,44 +21,36 @@
       meaning: "A concise description of the intent's purpose."
       description: "A more detailed description." # Optional
     semantic_properties: # Semantic properties specific to the Intent Type
-      position:
+      {semantic_property_name}:
         type: SemanticTypeIntent
-        value: "PixelPositionType"
-      color:
+        value: "SemanticTypeValue"
+      {semantic_property_name}:
         type: SemanticTokenIntent
-        value: "Color.Primary"
+        value: "SemanticTokenValue"
     semantic_interactions: # For UI intents, maps UI events to Semantic Intents
-      onTap:
+      {semantic_interaction_name}:
         type: SemanticCommandIntent
-        value: "UpdatePositionCommandIntent"
+        meaning: "How this intent is interacted with current intent."
     test_categories: # Test metadata
       style: ["functional", "golden"]
       priority: "high"
       meanings: ["visual_accuracy", "interaction_flow"]
     semantic_validations: # Validation rules
+      - rule: {rule meaning}
       - rule: "position must be within screen bounds"
       - rule: "color must be from theme tokens"
-    relationships: # Semantic relationships
-        - type: dependsOn
-        target: PixelPositionType
-          direction: unidirectional
-        - type: triggers
-        target: UpdatePositionCommandIntent
-          direction: unidirectional
     output_artifacts: # Generated artifacts
       code: ["lib/commands/update_position_command.dart"]
       tests: ["test/commands/update_position_command_test.dart"]
     llm_prompts:
       code_generation: "Generate Dart code for a command handler that updates pixel position..."
       test_generation: "Generate tests to verify position bounds and color token validity..."
-      scratchpad_todo:
+    scratchpad_todo:
       - "Implement position bounds validation"
       - "Add color token verification"
   ```
 
 - **TODO (AI/Human):**
-  - [x] Define core semantic types (PixelPositionType, ColorType, GameStateType, AnimationStateType, Vector3Type)
-  - [x] Define semantic tokens (Color.Primary, Spacing.Small, etc.)
   - [ ] Create validation rule schema
   - [ ] Create example files for each intent type
 
@@ -68,12 +60,12 @@
 
   ```dart
   // Core semantic types
-  extension type const IntentId(String value) implements String {}
-  extension type const RelationshipId(String value) implements String {}
+  extension type const SemanticIntentId(String value) implements String {}
+  extension type const SemanticRelationshipId(String value) implements String {}
 
   // Base semantic intent class
   abstract class SemanticIntent {
-    final IntentId id;
+    final SemanticIntentId id;
     final String type;
     final String meaning;
     final String? description;
@@ -594,26 +586,6 @@ class PixelPositionType extends SemanticType {
   Map<String, num> convert(dynamic value) {
     if (value is Map<String, num>) return value;
     throw FormatException('Cannot convert $value to PixelPositionType');
-  }
-}
-
-class ColorType extends SemanticType {
-  const ColorType()
-      : super(
-          name: 'ColorType',
-          description: 'Represents a color value',
-        );
-
-  @override
-  bool validate(dynamic value) {
-    if (value is! String) return false;
-    return RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(value);
-  }
-
-  @override
-  String convert(dynamic value) {
-    if (value is String && validate(value)) return value;
-    throw FormatException('Cannot convert $value to ColorType');
   }
 }
 
