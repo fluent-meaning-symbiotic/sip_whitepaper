@@ -1,0 +1,21 @@
+---
+description: SIP Command Pattern for Dart
+globs: *.dart
+---
+SIP Command Pattern for Dart:
+
+- Code in Dart: Generate Dart code for handlers, widgets, and tests. **Ensure generated Command and Handler classes adhere to the `semantic_intent_framework` structure.**
+
+**For GLOBAL classes**:
+
+* Semantic Reactive Command Handlers: Implement logic for `SemanticReactiveCommandIntent`s in Dart Handler globally available classes . All generated Dart Handler classes implement `SemanticReactiveCommandHandler<YourReactiveCommandType>` from `semantic_intent_framework_dart` if this is simple scoped module. Otherwise use global Semantic Reactive Command Handlers.
+* Semantic Reactive Command Invoker:  Use the **`SemanticReactiveCommandInvoker`** (from `semantic_intent_framework_dart`) as the central point to dispatch and invoke Semantic Commands.  UI components and other parts of the application should invoke commands through the `SemanticReactiveCommandInvoker`.  Handlers are registered with the `SemanticReactiveCommandInvoker` to process specific command types.
+
+For implementation use protocols `reactive_handler_protocol`, `reactive_command_protocol`.
+
+**For Local (Scoped) classes**:
+
+* Semantic Command Handlers: Implement logic for `SemanticCommandIntent`s in Dart Handler classes. All generated Dart Handler classes implement `SemanticCommandHandler<YourCommandType>` from `semantic_intent_framework_dart` if this is simple scoped module. Otherwise use global Semantic Reactive Command Handlers.
+* Semantic Command Invoker:  Use the **`SemanticCommandInvoker`** (from `semantic_intent_framework_dart`) as the central point to dispatch and invoke Semantic Commands for small scope of the module.  UI components and other parts of the application should invoke commands through the `SemanticCommandInvoker`.  Handlers are registered with the `SemanticCommandInvoker` to process specific command types.
+
+For implementation use protocols `handler_protocol`, `command_protocol`.

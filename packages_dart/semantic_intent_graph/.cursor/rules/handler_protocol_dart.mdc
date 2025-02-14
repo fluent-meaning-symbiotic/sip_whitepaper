@@ -1,0 +1,51 @@
+---
+description: Semantic Handler Protocol
+globs: *.hnd.dart
+---
+**Semantic Handler Protocol**
+
+- Uses *.hdl.dart suffix
+
+1. Handler Execution Pattern
+```dart
+class SemanticCommandHandler<T extends SemanticCommand> {
+  Future<void> execute(T command) async {
+    try {
+      // 1. Validate
+      command.validateOrThrow();
+      
+      // 2. Get state via accessor
+      final state = command.stateAccessor.getCurrentState();
+      
+      // 3. Execute core logic
+      final updatedState = await _executeCore(command, state);
+      
+      // 4. Update state via accessor
+      command.stateAccessor.updateState(updatedState);
+      
+      // 5. Notify state changes
+      command.stateAccessor.notifyStateChanged();
+      
+    } catch (e, stackTrace) {
+      debugPrint('${command.runtimeType}Handler: $e\n$stackTrace');
+    }
+  }
+  
+  Future<State> _executeCore(T command, State currentState);
+}
+```
+
+2. State Management Rules
+   - Always use command's state accessor
+
+   - Notify state changes through accessor
+   - Never modify state directly
+
+3. Handler Chain Communication
+   - Use state change notifications
+   - Never return execution results
+   - Implement state-based triggers
+   - Use accessor events for chain control
+   
+
+

@@ -1,0 +1,36 @@
+---
+description: How to use SemanticCommandStateAccessor and SemanticValueNotifierAccessor
+globs: *.dart
+---
+Semantic Accessor Type:
+
+- Use only existing ones from the `semantic_intent_framework_dart` and `semantic_intent_framework_flutter`
+- Accessor is immutable, do not try to use as a state.
+- Accessor is a way to change the immutabe structures. In another words, you create accessor to access the state which handler shouldn't know about.
+- Use `SemanticValueNotifierAccessor` and `SemanticValueNotifierAccessorMixin` for ValueNotifiers to get access to state.
+
+Example (all names just for convenience, not convention):
+```dart
+class ImmutableStateClass {
+  ImmutableStateClass({
+    required this.counter,
+  });
+  final int counter;
+}
+
+
+class MutableClass {
+  var immutableState = ImmutableStateClass();
+
+  late final accessor = SemanticCommandStateAccessor(
+    read: ()=> immutableState.counter,
+    write: (value) =>  immutableState = immutableState.copyWith(
+      counter: counter + value,
+    )
+  );
+}
+```
+
+
+
+

@@ -1,0 +1,88 @@
+---
+description: Semantic Command Protocol
+globs: *.cmd.dart
+---
+## Command Protocol
+
+- Uses *.cmd.dart suffix
+
+
+1. Command Chain Flow
+   - Commands should NEVER expect return values from invoke()
+   - State changes should be observed through accessors only
+   - Each command in chain should be self-contained
+   - Use state accessors for state propagation between commands
+   - Implement rollback mechanism, but do not copy state, use only properties that  chaneged.
+
+2. State Management
+   - Always use SemanticCommandStateAccessor for mutable states access
+   - Use use SemanticValueNotifierAccessor for access for notifiers with state 
+   - Never directly check command execution results
+   - Implement state change notifications through accessors
+   - Use command results field for internal state tracking
+   - Do not create new StateAccessors, use existing ones from the `semantic_intent_framework_dart`.
+
+3. Command Chain Example:
+```dart
+// CORRECT
+Future<void> handleInput(DirectionalInputType input) async {
+  final snakeAccessor = mutGameState.snakeAccessor;
+  
+  // Command 1: Buffer
+  invoker.invoke(
+   BufferInputCommand(
+    input: input,
+    onBufferUpdated: (input) async => invoker.invoke(
+      ValidateInputCommand(
+         input: input,
+         onValid: (input) => invoker.invoke(
+            ChangeDirectionCommand(input: input, snakeAccessor: snakeAccessor),
+         )
+      );
+    )
+  );
+}
+
+// INCORRECT
+Future<void> handleInput(DirectionalInputType input) async {
+  final result = await invoker.invoke(Command()); // Don't expect returns
+  if (result != null) { // Don't check command results directly
+    await invoker.invoke(NextCommand()); // Don't chain based on returns
+  }
+}
+```
+
+Chaining example (when command1 -> command2 -> command3):
+```mermaid
+graph TD;
+   SA[State Accessor] --> C1[COMMAND 1]
+   C1 --> I[INVOKER]
+   I --> H[HANDLER]
+   H --> C2[COMMAND 2]
+   C2 --> I
+   I --> H2[HANDLER]
+   H2 --> C3[COMMAND 3]
+   C3 --> I
+   I --> H3[HANDLER]
+   H3 -->|accessing state accessor via command| C3
+   C3 -->|accessing state accessor| SA
+   SA -->|request to update state|
+```
+
+4. State Access Pattern
+   - Use Accessor Events for chain triggers
+   - Implement state change notifications
+   - Never expose raw state
+
+
+5. Validation
+   - Implement both validate() and validateOrThrow()
+   - Include domain-specific validation rules if needed
+   - Provide detailed error messages
+   - Log validation failures with stack traces
+
+6. Error Handling
+   - Use try-catch blocks
+   - Implement debug logging
+
+

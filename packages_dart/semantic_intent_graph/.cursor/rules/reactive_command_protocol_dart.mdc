@@ -1,0 +1,43 @@
+---
+description: Semantic Reactive Command Protocol
+globs: *.rcmd.dart
+---
+## Reactive Command Protocol
+
+Mostly same as implementation in `command_protocol`.
+
+- Uses *.rcmd.dart suffix
+- Difference in reactive invoker - command should use `.push({StreamNameEnum}, {ReactiveCommand})` 
+
+
+3. Command Chain Example:
+```dart
+// CORRECT
+Future<void> handleInput(DirectionalInputType input) async {
+  final snakeAccessor = mutGameState.snakeAccessor;
+  
+  // Command 1: Buffer
+  invoker.push(
+   BufferInputCommand(
+    input: input,
+    onBufferUpdated: (input) async => invoker.push(
+      ValidateInputCommand(
+         input: input,
+         onValid: (input) => invoker.push(
+            ChangeDirectionCommand(input: input, snakeAccessor: snakeAccessor),
+         )
+      );
+    )
+  );
+}
+
+// INCORRECT
+Future<void> handleInput(DirectionalInputType input) async {
+  final result = await invoker.push(Command()); // Don't expect returns
+  if (result != null) { // Don't check command results directly
+    await invoker.push(NextCommand()); // Don't chain based on returns
+  }
+}
+```
+
+

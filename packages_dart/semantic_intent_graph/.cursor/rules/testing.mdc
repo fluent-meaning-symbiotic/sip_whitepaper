@@ -1,0 +1,15 @@
+---
+description: Testing
+globs: *.dart
+---
+**Testing**
+
+- When test fails, first look at intent.yaml, then verify that test and implementation is used accordingly to intent. Then try to fix it.
+- For UI testing, use golden and integration tests exclusively. Unit tests should only be used for business logic, commands, types and handlers. Test only nehaviour, not how many widgets.
+- If there is no mock, create it to reuse it.
+- Always add to mock classes suffix `Mock` and to file - suffix `_mock`
+- wrap goldenTest in unawaited function
+- Use shared mockes relative to type, do not create over and over the same.
+- to run: 
+  - unit tests: `make test`
+  - golden tests: `make test-golden`  
