@@ -23,36 +23,66 @@ mixin ProjectionUtils {
   }
 }
 
+/// Base class for render passes
+abstract class Pass {
+  final RenderPassType type;
+  bool enabled = true;
+
+  Pass(this.type);
+
+  void render(Canvas canvas, Size size, Scene3D scene);
+}
+
 /// Standard geometry render pass
-class GeometryPass extends RenderPass {
-  GeometryPass() : super(RenderPassType.opaque);
+class GeometryPass extends Pass {
+  final Matrix4 projectionMatrix;
+
+  GeometryPass(super.type, {required this.projectionMatrix});
 
   @override
   void render(Canvas canvas, Size size, Scene3D scene) {
-    final viewProjection = scene.camera.viewMatrix;
-    final meshes = scene
-        .getVisibleMeshes()
-        .where((mesh) =>
-            mesh.isVisible(viewProjection) &&
-            mesh.material is! TransparentMaterial)
-        .toList();
+    print('GeometryPass.render: Processing ${scene.meshes.length} meshes');
 
-    for (final mesh in meshes) {
-      final vertices = mesh.getTransformedVertices();
-      final screenPoints = RenderUtils.projectVertices(
-        vertices,
-        viewProjection,
-        size,
-      );
-      final paint = mesh.material.createPaint();
+    final viewProjection = scene.camera.viewMatrix * projectionMatrix;
 
-      RenderUtils.renderMeshGeometry(mesh, screenPoints, paint, canvas);
+    for (final mesh in scene.meshes) {
+      print('Rendering mesh: ${mesh.runtimeType}');
+      final worldMatrix = mesh.transformationMatrix;
+      final mvp = viewProjection * worldMatrix;
+
+      final vertices = mesh.geometry.vertices;
+      final indices = mesh.geometry.indices;
+
+      print(
+          'Mesh stats: ${vertices.length} vertices, ${indices.length} indices');
+
+      final screenPoints = RenderUtils.projectVertices(vertices, mvp, size);
+
+      if (mesh.material is BasicMaterial) {
+        final material = mesh.material as BasicMaterial;
+        final paint = Paint()
+          ..color = material.color
+          ..style = material.style;
+
+        // Draw triangles
+        for (var i = 0; i < indices.length; i += 3) {
+          final path = Path()
+            ..moveTo(screenPoints[indices[i]].dx, screenPoints[indices[i]].dy)
+            ..lineTo(screenPoints[indices[i + 1]].dx,
+                screenPoints[indices[i + 1]].dy)
+            ..lineTo(screenPoints[indices[i + 2]].dx,
+                screenPoints[indices[i + 2]].dy)
+            ..close();
+
+          canvas.drawPath(path, paint);
+        }
+      }
     }
   }
 }
 
 /// Transparent objects render pass
-class TransparentPass extends RenderPass {
+class TransparentPass extends Pass {
   TransparentPass() : super(RenderPassType.transparent);
 
   @override
@@ -80,14 +110,14 @@ class TransparentPass extends RenderPass {
 }
 
 /// Post-processing render pass
-class PostProcessPass extends RenderPass {
+class PostProcessPass extends Pass {
   final List<PostProcessEffect> effects;
   RenderTarget? _renderTarget;
 
   PostProcessPass(this.effects) : super(RenderPassType.postProcess);
 
   @override
-  Future<void> render(Canvas canvas, Size size, Scene3D scene) async {
+  void render(Canvas canvas, Size size, Scene3D scene) async {
     _renderTarget ??= RenderTarget(size);
 
     ui.Image? currentImage;
@@ -132,7 +162,6 @@ class PostProcessPass extends RenderPass {
     currentImage?.dispose();
   }
 
-  @override
   void dispose() {
     _renderTarget?.dispose();
     _renderTarget = null;

@@ -47,6 +47,7 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
     super.initState();
     _controls = OrbitControls(widget.scene.camera);
     _renderer = GraphRenderer();
+    print('Graph3DWidget initialized');
   }
 
   void _handleKeyEvent(KeyEvent event) {
@@ -123,6 +124,10 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        'Building Graph3DWidget with ${widget.scene.graphNodes.length} nodes');
+    print('Camera position: ${widget.scene.camera.position}');
+
     return Debug3DView(
       scene: widget.scene,
       renderer: _renderer,
@@ -164,6 +169,7 @@ class _Graph3DPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    print('_Graph3DPainter.paint: size=$size');
     renderer.render(scene, canvas, size);
   }
 

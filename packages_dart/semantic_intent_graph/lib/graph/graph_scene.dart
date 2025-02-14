@@ -14,6 +14,17 @@ class GraphScene extends Scene3D {
   final Map<String, GraphNode> _nodes = {};
   final Map<String, GraphEdgeMesh> _edges = {};
 
+  GraphScene() {
+    print('Creating new GraphScene');
+    // Initialize camera with default values
+    camera.position = Vector3(0, 0, 50);
+    camera.target = Vector3.zero();
+    camera.up = Vector3(0, 1, 0);
+    camera.updateView();
+    print('Camera initialized at ${camera.position}');
+    print('Camera view matrix:\n${camera.viewMatrix}');
+  }
+
   @override
   List<Mesh> get meshes => [
         ..._nodes.values
@@ -24,13 +35,19 @@ class GraphScene extends Scene3D {
 
   /// Adds a graph node with the given ID and position
   void addGraphNode(String id, Vector3 position) {
-    final node = GraphNode(id: id, position: position);
-    final mesh = GraphNodeMesh(node: node);
-    node.mesh = mesh; // Store mesh reference in node
+    try {
+      print('Adding node: $id at position: $position');
+      final node = GraphNode(id: id, position: position);
+      final mesh = GraphNodeMesh(node: node);
+      node.mesh = mesh; // Store mesh reference in node
 
-    _nodes[id] = node;
-    addMesh(mesh);
-    physics.addParticle(node);
+      _nodes[id] = node;
+      addMesh(mesh);
+      physics.addParticle(node);
+    } catch (e) {
+      print('Error adding node: $e');
+      rethrow;
+    }
   }
 
   /// Removes a graph node by ID
@@ -81,24 +98,33 @@ class GraphScene extends Scene3D {
 
   /// Adds an edge between two nodes
   void addEdge(String sourceId, String targetId) {
-    final source = _nodes[sourceId];
-    final target = _nodes[targetId];
-    if (source == null || target == null) return;
+    try {
+      print('Adding edge: $sourceId -> $targetId');
+      if (!graphNodes.containsKey(sourceId)) {
+        throw Exception('Source node not found: $sourceId');
+      }
+      if (!graphNodes.containsKey(targetId)) {
+        throw Exception('Target node not found: $targetId');
+      }
+      final edgeId = '$sourceId-$targetId';
+      if (_edges.containsKey(edgeId)) return;
+      final source = graphNodes[sourceId]!;
+      final target = graphNodes[targetId]!;
+      final edge = GraphEdgeMesh(source: source, target: target);
+      _edges[edgeId] = edge;
+      addMesh(edge);
 
-    final edgeId = '$sourceId-$targetId';
-    if (_edges.containsKey(edgeId)) return;
-
-    final edge = GraphEdgeMesh(source: source, target: target);
-    _edges[edgeId] = edge;
-    addMesh(edge);
-
-    physics.addForce(SpringForce(
-      particleA: source,
-      particleB: target,
-      springConstant: 0.5,
-      restLength: 200.0,
-      damping: 0.3,
-    ));
+      physics.addForce(SpringForce(
+        particleA: source,
+        particleB: target,
+        springConstant: 0.5,
+        restLength: 200.0,
+        damping: 0.3,
+      ));
+    } catch (e) {
+      print('Error adding edge: $e');
+      rethrow;
+    }
   }
 
   /// Removes an edge between two nodes

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/mesh.dart';
 import '../core/scene.dart';
 
-/// Defines different types of render passes
+/// Types of render passes
 enum RenderPassType {
   opaque,
   transparent,
@@ -27,38 +27,38 @@ abstract class PostProcessEffect {
   void apply(ui.Image input, Canvas canvas, Size size);
 }
 
-/// Main render queue system
+/// Queue for sorting meshes by render pass
 class RenderQueue {
-  final Map<RenderPassType, List<Mesh>> _queues = {
-    RenderPassType.opaque: [],
-    RenderPassType.transparent: [],
-  };
+  final Map<RenderPassType, List<Mesh>> _queues = {};
+
+  void addMesh(Mesh mesh, RenderPassType type) {
+    _queues.putIfAbsent(type, () => []).add(mesh);
+  }
 
   void clear() {
-    for (var queue in _queues.values) {
-      queue.clear();
+    _queues.clear();
+  }
+
+  void sort(Matrix4 viewMatrix) {
+    // Sort meshes by distance from camera
+    for (final queue in _queues.values) {
+      queue.sort((a, b) {
+        final aPos = a.position;
+        final bPos = b.position;
+        final aDist = aPos.distanceToSquared(viewMatrix.getTranslation());
+        final bDist = bPos.distanceToSquared(viewMatrix.getTranslation());
+        return aDist.compareTo(bDist);
+      });
     }
   }
 
-  void addMesh(Mesh mesh, RenderPassType type) {
-    _queues[type]?.add(mesh);
+  List<Mesh> getMeshes(RenderPassType type) {
+    return _queues[type] ?? [];
   }
 
-  List<Mesh> getMeshes(RenderPassType type) => _queues[type] ?? [];
-
-  void sort(Matrix4 viewMatrix) {
-    // Sort opaque front-to-back
-    _queues[RenderPassType.opaque]?.sort((a, b) {
-      final depthA = viewMatrix.transformed3(a.position).z;
-      final depthB = viewMatrix.transformed3(b.position).z;
-      return depthA.compareTo(depthB);
-    });
-
-    // Sort transparent back-to-front
-    _queues[RenderPassType.transparent]?.sort((a, b) {
-      final depthA = viewMatrix.transformed3(a.position).z;
-      final depthB = viewMatrix.transformed3(b.position).z;
-      return depthB.compareTo(depthA);
-    });
+  String get stats {
+    return _queues
+        .map((type, meshes) => MapEntry(type.name, meshes.length))
+        .toString();
   }
 }

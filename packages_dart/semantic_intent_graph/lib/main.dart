@@ -48,16 +48,18 @@ class _DemoPageState extends State<DemoPage> {
   @override
   void initState() {
     super.initState();
+    print('Initializing DemoPage');
     scene = GraphScene();
     _setupDemo();
   }
 
   void _setupDemo() {
-    // Create a simple graph
-    scene.addGraphNode('A', Vector3(-5, 0, 0));
-    scene.addGraphNode('B', Vector3(5, 0, 0));
-    scene.addGraphNode('C', Vector3(0, 5, 0));
-    scene.addGraphNode('D', Vector3(0, -5, 0));
+    print('Setting up demo scene');
+    // Create a simple graph with more visible initial positions
+    scene.addGraphNode('A', Vector3(-10, 0, 0));
+    scene.addGraphNode('B', Vector3(10, 0, 0));
+    scene.addGraphNode('C', Vector3(0, 10, 0));
+    scene.addGraphNode('D', Vector3(0, -10, 0));
 
     // Add some edges
     scene.addEdge('A', 'B');
@@ -66,19 +68,29 @@ class _DemoPageState extends State<DemoPage> {
     scene.addEdge('D', 'A');
     scene.addEdge('A', 'C');
     scene.addEdge('B', 'D');
+
+    // Ensure camera is properly positioned
+    scene.camera.position = Vector3(0, 0, 50); // Move camera further back
+    scene.camera.target = Vector3.zero();
+    scene.camera.up = Vector3(0, 1, 0);
   }
 
   @override
   Widget build(BuildContext context) {
+    print('Building DemoPage');
     return Scaffold(
       appBar: AppBar(
         title: const Text('3D Graph Demo'),
       ),
       body: Center(
-        child: AspectRatio(
-          aspectRatio: 1.0,
-          child: Graph3DWidget(
-            scene: scene,
+        child: Container(
+          color: Colors.black12, // Add background color to see widget bounds
+          child: AspectRatio(
+            aspectRatio: 1.0,
+            child: Graph3DWidget(
+              scene: scene,
+              key: ValueKey(scene.hashCode), // Force rebuild when scene changes
+            ),
           ),
         ),
       ),
@@ -134,54 +146,77 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   Future<void> _loadIntents() async {
-    final result = await FilePicker.platform.getDirectoryPath();
-    if (result == null) return;
+    print('Starting _loadIntents...');
 
+    final result = await FilePicker.platform.getDirectoryPath();
+    print('Selected directory: $result');
+    if (result == null) {
+      print('No directory selected');
+      return;
+    }
+
+    print('Loading intents from directory...');
     final intents = await SemanticIntentLoader.loadFromDirectory(result);
+    print('Loaded ${intents.length} intents');
 
     // Get the registry from provider
     final registry =
         Provider.of<SemanticIntentRegistry>(context, listen: false);
+    print('Got registry from provider');
 
+    // Clear existing nodes
+    scene = GraphScene();
+    print('Cleared existing scene');
+
+    // Add nodes for each intent and register them
+    for (var i = 0; i < intents.length; i++) {
+      final intent = intents[i];
+      print('Processing intent: ${intent.path}');
+
+      final angle = (i * 2 * math.pi) / intents.length;
+      final radius = 10.0;
+      final position = Vector3(
+        math.cos(angle) * radius,
+        math.sin(angle) * radius,
+        i * 0.1,
+      );
+
+      // Create semantic intent
+      final intentType = SemanticIntentType('loaded_${intent.path}');
+      final intentData = LoadedIntentData(
+        path: intent.path,
+        position: position,
+        meaning: 'Loaded intent from file system',
+        description: 'Intent loaded from path: ${intent.path}',
+        file: intent,
+      );
+
+      // Register the intent
+      registry.registerIntent(intentType, intentData);
+      print('Registered intent: ${intent.path}');
+
+      // Add node to scene
+      scene.addGraphNode(intent.path, position);
+      print('Added node to scene: ${intent.path}');
+    }
+
+    // Add edges between consecutive nodes
+    for (var i = 0; i < intents.length; i++) {
+      final next = (i + 1) % intents.length;
+      scene.addEdge(
+        intents[i].path,
+        intents[next].path,
+      );
+      print('Added edge: ${intents[i].path} -> ${intents[next].path}');
+    }
+
+    print('Calling setState...');
     setState(() {
-      // Clear existing nodes
-      scene = GraphScene();
-
-      // Add nodes for each intent and register them
-      for (var i = 0; i < intents.length; i++) {
-        final intent = intents[i];
-        final angle = (i * 2 * math.pi) / intents.length;
-        final radius = 10.0;
-        final position = Vector3(
-          math.cos(angle) * radius,
-          math.sin(angle) * radius,
-          i * 0.1, // Slight z-offset for each node
-        );
-
-        // Create semantic intent
-        final intentType = SemanticIntentType('loaded_${intent.path}');
-        final intentData = LoadedIntentData(
-            path: intent.path,
-            position: position,
-            meaning: 'Loaded intent from file system',
-            description: 'Intent loaded from path: ${intent.path}',
-            file: intent);
-
-        // Register the intent
-        registry.registerIntent(intentType, intentData);
-
-        // Add node to scene
-        scene.addGraphNode(intent.path, position);
-      }
-
-      // Add edges between consecutive nodes
-      for (var i = 0; i < intents.length; i++) {
-        final next = (i + 1) % intents.length;
-        scene.addEdge(
-          intents[i].path,
-          intents[next].path,
-        );
-      }
+      // Reset camera after loading new nodes
+      scene.camera.position = Vector3(0, 0, 20);
+      scene.camera.target = Vector3.zero();
+      scene.camera.up = Vector3(0, 1, 0);
     });
+    print('_loadIntents completed');
   }
 }

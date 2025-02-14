@@ -1,7 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
+import 'package:semantic_intent_graph/three_d/core/projection.dart';
 
 import '../core/material.dart';
 import '../core/renderer.dart';
@@ -9,27 +7,62 @@ import '../core/scene.dart';
 import 'render_passes.dart';
 import 'render_pipeline.dart';
 
-/// A Flutter-specific renderer implementation using Canvas API
-class FlutterRenderer extends Renderer3D {
-  final RenderQueue _renderQueue = RenderQueue();
-  final List<RenderPass> _renderPasses;
-  Matrix4 _projectionMatrix = Matrix4.identity();
+/// Base renderer interface for Flutter-based 3D rendering
+abstract class BaseFlutterRenderer extends Renderer3D {
+  final Matrix4 projectionMatrix = Matrix4.identity();
 
-  FlutterRenderer({List<PostProcessEffect>? postProcessEffects})
-      : _renderPasses = [
-          GeometryPass(),
-          TransparentPass(),
-          if (postProcessEffects != null) PostProcessPass(postProcessEffects),
-        ];
+  void _updateProjection(Size size) {
+    const fov = 45.0;
+    const near = 0.1;
+    const far = 1000.0;
+    final aspectRatio = size.width / size.height;
+
+    projectionMatrix.setFrom(Projection.perspective(
+      fov: fov,
+      aspectRatio: aspectRatio,
+      near: near,
+      far: far,
+    ));
+  }
 
   @override
   void render(Scene3D scene, Canvas canvas, Size size) {
     _updateProjection(size);
+    renderScene(scene, canvas, size);
+  }
+
+  /// Implement actual scene rendering in subclasses
+  void renderScene(Scene3D scene, Canvas canvas, Size size);
+}
+
+/// Standard Flutter renderer with render passes and queue
+class StandardFlutterRenderer extends BaseFlutterRenderer {
+  final RenderQueue _renderQueue = RenderQueue();
+  late final List<Pass> _renderPasses;
+
+  StandardFlutterRenderer({List<PostProcessEffect>? postProcessEffects}) {
+    _renderPasses = [
+      GeometryPass(
+        RenderPassType.opaque,
+        projectionMatrix: projectionMatrix,
+      ),
+      TransparentPass(),
+      if (postProcessEffects != null) PostProcessPass(postProcessEffects),
+    ];
+  }
+
+  @override
+  void renderScene(Scene3D scene, Canvas canvas, Size size) {
+    print('StandardFlutterRenderer.renderScene: size=$size');
+    print('Visible meshes: ${scene.getVisibleMeshes().length}');
+
     _updateRenderQueue(scene);
+    print('RenderQueue stats: ${_renderQueue.stats}');
 
     // Execute render passes
     for (final pass in _renderPasses) {
       if (pass.enabled) {
+        print('Executing render pass: ${pass.runtimeType}');
         pass.render(canvas, size, scene);
       }
     }
@@ -50,25 +83,6 @@ class FlutterRenderer extends Renderer3D {
     _renderQueue.sort(scene.camera.viewMatrix);
   }
 
-  void _updateProjection(Size size) {
-    const fov = 45.0;
-    const near = 0.1;
-    const far = 1000.0;
-    final aspectRatio = size.width / size.height;
-
-    final fovRad = radians(fov);
-    final tanHalfFov = tan(fovRad / 2);
-
-    _projectionMatrix = Matrix4.identity()
-      ..setEntry(0, 0, 1 / (aspectRatio * tanHalfFov))
-      ..setEntry(1, 1, 1 / tanHalfFov)
-      ..setEntry(2, 2, -(far + near) / (far - near))
-      ..setEntry(2, 3, -2 * far * near / (far - near))
-      ..setEntry(3, 2, -1);
-  }
-
-  Matrix4 get projectionMatrix => _projectionMatrix;
-
   @override
   void update(double dt) {
     // Update any renderer state if needed
@@ -79,3 +93,20 @@ class FlutterRenderer extends Renderer3D {
     // Clean up any resources
   }
 }
+
+/// Simple Flutter renderer for basic rendering without passes
+class SimpleFlutterRenderer extends BaseFlutterRenderer {
+  @override
+  void renderScene(Scene3D scene, Canvas canvas, Size size) {
+    // Implement basic rendering without passes
+  }
+
+  @override
+  void update(double dt) {}
+
+  @override
+  void dispose() {}
+}
+
+// Export the base class as FlutterRenderer for backward compatibility
+typedef FlutterRenderer = BaseFlutterRenderer;
