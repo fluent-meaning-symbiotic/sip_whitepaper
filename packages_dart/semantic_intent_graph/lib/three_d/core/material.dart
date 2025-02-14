@@ -23,3 +23,27 @@ class BasicMaterial implements Material {
     ..style = style
     ..strokeWidth = strokeWidth;
 }
+
+/// Material with transparency support
+class TransparentMaterial extends BasicMaterial {
+  final double opacity;
+
+  const TransparentMaterial({
+    super.color = Colors.blue,
+    super.style = PaintingStyle.fill,
+    super.strokeWidth = 1.0,
+    this.opacity = 0.5,
+  });
+
+  @override
+  Paint createPaint() => super.createPaint()
+    ..color = color.withOpacity(opacity)
+    ..blendMode = BlendMode.srcOver;
+}
+
+/// Add shader support
+abstract class ShaderMaterial extends Material {
+  String get vertexShader;
+  String get fragmentShader;
+  Map<String, dynamic> get uniforms;
+}

@@ -42,4 +42,10 @@ class Mesh extends Node3D {
 
     return (point - center).length <= radius;
   }
+
+  // Add frustum culling
+  bool isVisible(Matrix4 viewProjection) {
+    // Implement frustum culling check
+    return true;
+  }
 }

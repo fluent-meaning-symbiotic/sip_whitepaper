@@ -54,3 +54,9 @@ class Geometry {
     }
   }
 }
+
+// Add geometry instancing
+class InstancedGeometry extends Geometry {
+  List<Matrix4> instanceMatrices = [];
+  // Implementation...
+}

@@ -44,4 +44,8 @@ class Scene3D {
   void removeMesh(Mesh mesh) {
     _meshes.remove(mesh);
   }
+
+  void _updateSpatialIndex() {
+    // Implement octree or similar structure
+  }
 }
