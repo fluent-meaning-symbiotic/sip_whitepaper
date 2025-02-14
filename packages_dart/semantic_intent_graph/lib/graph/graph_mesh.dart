@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../model/semantic_intent.dart';
+import '../model/semantic_intent_file.dart';
 import '../three_d/core/material.dart';
 import '../three_d/core/mesh.dart';
 import 'geometry/node_geometry.dart';
@@ -9,7 +9,7 @@ import 'graph_node.dart';
 /// Visual representation of a graph node
 class GraphNodeMesh extends Mesh {
   final GraphNode node;
-  final SemanticIntent? intent;
+  final SemanticIntentFile? intent;
 
   GraphNodeMesh({
     required this.node,

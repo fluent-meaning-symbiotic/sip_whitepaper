@@ -1,23 +1,23 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
-import 'package:semantic_intent_graph/model/semantic_intent.dart';
+import 'package:semantic_intent_graph/model/semantic_intent_file.dart';
 
 class GraphState extends ChangeNotifier {
-  final Map<String, SemanticIntent> _nodes;
+  final Map<String, SemanticIntentFile> _nodes;
   final Map<String, Set<String>> _edges;
 
   GraphState()
       : _nodes = {},
         _edges = {};
 
-  UnmodifiableMapView<String, SemanticIntent> get nodes =>
+  UnmodifiableMapView<String, SemanticIntentFile> get nodes =>
       UnmodifiableMapView(_nodes);
 
   Set<String> getEdges(String nodeId) =>
       UnmodifiableSetView(_edges[nodeId] ?? <String>{});
 
-  void addNode(SemanticIntent node) {
+  void addNode(SemanticIntentFile node) {
     if (_nodes.containsKey(node.name)) return;
     _nodes[node.name] = node;
     notifyListeners();

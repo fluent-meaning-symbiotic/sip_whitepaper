@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:semantic_intent_graph/three_d/debug/debug_view.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import '../three_d/controls/orbit_controls.dart';
@@ -122,25 +123,29 @@ class _Graph3DWidgetState extends State<Graph3DWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      autofocus: true,
-      onKeyEvent: (_, event) {
-        _handleKeyEvent(event);
-        return KeyEventResult.handled;
-      },
-      child: Listener(
-        onPointerDown: _handlePointerDown,
-        onPointerMove: _handlePointerMove,
-        onPointerUp: _handlePointerUp,
-        onPointerSignal: (event) {
-          if (event is PointerScrollEvent) {
-            _handleMouseWheel(event);
-          }
+    return Debug3DView(
+      scene: widget.scene,
+      renderer: _renderer,
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: (_, event) {
+          _handleKeyEvent(event);
+          return KeyEventResult.handled;
         },
-        child: CustomPaint(
-          painter: _Graph3DPainter(
-            scene: widget.scene,
-            renderer: _renderer,
+        child: Listener(
+          onPointerDown: _handlePointerDown,
+          onPointerMove: _handlePointerMove,
+          onPointerUp: _handlePointerUp,
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent) {
+              _handleMouseWheel(event);
+            }
+          },
+          child: CustomPaint(
+            painter: _Graph3DPainter(
+              scene: widget.scene,
+              renderer: _renderer,
+            ),
           ),
         ),
       ),

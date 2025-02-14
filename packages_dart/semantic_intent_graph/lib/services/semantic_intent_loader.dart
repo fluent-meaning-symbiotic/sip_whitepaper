@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-import '../model/semantic_intent.dart';
+import '../model/semantic_intent_file.dart';
 
 class SemanticIntentLoader {
   /// Loads all intent.yaml files from a directory recursively
-  static Future<List<SemanticIntent>> loadFromDirectory(String dirPath) async {
-    final intents = <SemanticIntent>[];
+  static Future<List<SemanticIntentFile>> loadFromDirectory(
+      String dirPath) async {
+    final intents = <SemanticIntentFile>[];
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
@@ -20,7 +21,7 @@ class SemanticIntentLoader {
         try {
           final content = await entity.readAsString();
           final yaml = loadYaml(content) as Map;
-          intents.add(SemanticIntent.fromYaml(
+          intents.add(SemanticIntentFile.fromYaml(
             entity.path,
             Map<String, dynamic>.from(yaml),
           ));

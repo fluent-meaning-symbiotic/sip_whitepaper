@@ -3,10 +3,14 @@ import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import 'graph/graph_scene.dart';
 import 'graph/graph_widget.dart';
+import 'semantic/providers/semantic_intent_provider.dart';
+import 'semantic/types/loaded_intent_data.dart';
+import 'semantic/types/semantic_intent_types.dart';
 import 'services/semantic_intent_loader.dart';
 
 void main() {
@@ -18,13 +22,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '3D Graph Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return SemanticIntentProvider(
+      child: MaterialApp(
+        title: '3D Graph Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const DemoPage(),
       ),
-      home: const DemoPage(),
     );
   }
 }
@@ -132,11 +138,16 @@ class _DemoPageState extends State<DemoPage> {
     if (result == null) return;
 
     final intents = await SemanticIntentLoader.loadFromDirectory(result);
+
+    // Get the registry from provider
+    final registry =
+        Provider.of<SemanticIntentRegistry>(context, listen: false);
+
     setState(() {
       // Clear existing nodes
       scene = GraphScene();
 
-      // Add nodes for each intent
+      // Add nodes for each intent and register them
       for (var i = 0; i < intents.length; i++) {
         final intent = intents[i];
         final angle = (i * 2 * math.pi) / intents.length;
@@ -147,10 +158,20 @@ class _DemoPageState extends State<DemoPage> {
           i * 0.1, // Slight z-offset for each node
         );
 
-        scene.addGraphNode(
-          intent.path,
-          position,
-        );
+        // Create semantic intent
+        final intentType = SemanticIntentType('loaded_${intent.path}');
+        final intentData = LoadedIntentData(
+            path: intent.path,
+            position: position,
+            meaning: 'Loaded intent from file system',
+            description: 'Intent loaded from path: ${intent.path}',
+            file: intent);
+
+        // Register the intent
+        registry.registerIntent(intentType, intentData);
+
+        // Add node to scene
+        scene.addGraphNode(intent.path, position);
       }
 
       // Add edges between consecutive nodes
