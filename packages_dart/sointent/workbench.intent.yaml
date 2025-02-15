@@ -1,0 +1,81 @@
+semantic_intent:
+  name: Sointent
+  type: SeedSemanticIntent
+  meaning: |
+    Workbench is a tool for creating and editing semantic intents.  
+    Logic Roadmap:
+    - [ ] Get all semantic intents from project. 
+    - [ ] Save semantic intents to runtime state. 
+      - Use name as an identifier.
+      - Store all semantic intents in one map.
+      - Use lists to get correct order of semantic intents.
+      - It's important not only get content of semantic intent but also get all sub-intents.
+      - Every semantic intent should also have its original path.
+    - [ ] Add ability to regenerate meaning for semantic intent based on OpenAI API 
+    using LM Studio or OpenAI key.
+      - use OpenAI API https://pub.dev/packages/openai_dart
+      - [x] Setup OpenAI API client with LM Studio provider.
+      - [ ] Add prompt for semantic intent regeneration.
+
+    AI Agent Roadmap:
+    - [x] Setup AI Agent Core:
+      - [x] Initialize AI agent with access to semantic intent repository
+      - [x] Setup communication protocol with LM Studio/OpenAI
+      - [x] Implement context management for maintaining conversation state
+      - [x] Create template system for standardized AI responses
+
+    - [x] Implement Intent Analysis:
+      - [x] Create semantic intent parser
+      - [x] Develop meaning extraction and validation
+      - [x] Implement dependency graph analysis
+      - [x] Add semantic validation rules checker
+
+    - [ ] Add Generation Capabilities:
+      - [ ] Setup prompt template system
+      - [ ] Implement code generation pipeline
+      - [ ] Create test generation system
+      - [ ] Add documentation generator
+
+    - [ ] Enhance Interactive Features:
+      - [ ] Implement real-time intent suggestions
+      - [ ] Add semantic validation feedback
+      - [ ] Create interactive refactoring suggestions
+      - [ ] Setup continuous meaning refinement
+
+    - [ ] Integration Features:
+      - [ ] Implement version control awareness
+      - [ ] Add codebase context understanding
+      - [ ] Setup project-wide semantic analysis
+      - [ ] Create semantic search capabilities
+
+    - [ ] Quality Assurance:
+      - [ ] Implement semantic consistency checker
+      - [ ] Add code quality validation
+      - [ ] Setup test coverage analysis
+      - [ ] Create performance impact analyzer
+
+    UI Roadmap:
+    UI Workbench:
+    - [ ] List all semantic intents in unix filesystem like manner:
+      ```md
+      |-- semantic_intent_1
+      |-> semantic_intent_2 < | -- sub_intent_1 
+      |-- semantic_intent_3 - | -- sub_intent_2 
+      |-- semantic_intent_4 - | -- sub_intent_3  
+      |-- semantic_intent_5 - | -> sub_intent_4 < | -- sub_sub_intent_1
+      |-- semantic_intent_6 - | -- sub_intent_5 - | -- sub_sub_intent_2
+      |-- semantic_intent_7 - | -- sub_intent_6 - | -- sub_sub_intent_3
+      |-- semantic_intent_8 - | -- sub_intent_7 - | -- sub_sub_intent_4
+      ```
+    - [ ] Display semantic intent content in different view:
+       --------- --------- ----------
+      |         |         |          |
+      |         |         |          |
+      |         |         |          |
+      | Intents | Intent  |  Intent  |
+      |         | Editor  | Controls |
+      |         |         | Commands |
+      |         |         |          |
+       --------- --------- ----------
+    - [ ] Add ability to edit semantic intent.
+    - [ ] Add ability to save semantic intent to file back to same path.

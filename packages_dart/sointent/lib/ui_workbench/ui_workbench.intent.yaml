@@ -1,0 +1,48 @@
+semantic_intent:
+  version: 1
+  name: UiWorkbenchScreen
+  type: SemanticUiIntent
+  meaning: |
+    Main workbench screen that provides a comprehensive interface for managing semantic intents.
+    Implements a three-panel layout for efficient intent management workflow.
+  description: |
+    The workbench screen is the primary interface for managing semantic intents.
+    It uses a three-panel layout to provide a clear workflow:
+    - Left panel: List of all semantic intents with search and filtering
+    - Center panel: Detailed editor for the selected intent (UiIntentEditor)
+    - Right panel: Command controls and actions for the selected intent (UiIntentControls)
+    All panels have draggable vertical dividers in between them to allow for resizing.
+  semantic_properties:
+    layout:
+      type: ThreeColumnLayout
+      columns:
+        - id: intents_list
+          width: 0.25 # 25% of screen width
+        - id: intent_editor
+          width: 0.5 # 50% of screen width
+        - id: intent_commands
+          width: 0.25 # 25% of screen width
+
+  semantic_interactions:
+    - event: onIntentSelected
+      command: LoadIntentCommand
+    - event: onIntentCreated
+      command: CreateIntentCommand
+    - event: onIntentDeleted
+      command: DeleteIntentCommand
+  output_artifacts:
+    - type: dart_widget
+      path: ui_workbench/ui_workbench.dart
+    - type: dart_test
+      path: ui_workbench/ui_workbench_test.dart
+  llm_prompts:
+    widget_generation: |
+      Generate a Flutter widget implementing a three-panel layout with:
+      - Responsive design supporting different screen sizes
+      - Material Design 3 components
+      - Proper state management using provided resources
+  scratchpad_todo:
+    - Implement responsive layout for different screen sizes
+    - Add search and filtering in intents list
+    # - Add keyboard shortcuts for common actions
+    # - Implement drag-and-drop for intent reordering

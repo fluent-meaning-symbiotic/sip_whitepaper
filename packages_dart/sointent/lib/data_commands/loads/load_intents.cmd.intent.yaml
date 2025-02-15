@@ -1,0 +1,8 @@
+semantic_intent:
+  name: LoadAppCommand
+  type: SemanticCommandIntent
+  meaning: |
+    Loads intents.
+      1. It should use FilePicker to get directory
+      2. Then use SemanticIntentLocalApi to get all intents from the directory
+      3. Then it should update SemanticIntentsResource with the intents

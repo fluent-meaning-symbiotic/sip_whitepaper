@@ -1,0 +1,8 @@
+semantic_intent:
+  type: SeedSemanticIntent
+  meaning: |
+    This folder contains state, written on resource manner: 
+      - no business Logic
+      - can be observable, by utilizing ChangeNotifier
+      - stores data in memory, has convenient methods to access or modify (bounlerplate code) data.
+      - can be used as a dependency for UI elements.
