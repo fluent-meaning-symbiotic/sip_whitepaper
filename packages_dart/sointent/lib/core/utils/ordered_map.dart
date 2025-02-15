@@ -70,6 +70,12 @@ class ImmutableOrderedMap<K, V> with Iterable<K> {
   V? operator [](final K key) => _items[key];
   void operator []=(final K key, final V value) => upsert(key, value);
 
+  /// Assigns all items from a map
+  void assignAll(final Map<K, V> map) {
+    _items = map.unmodifiable;
+    _orderedKeys = map.keys.toList().unmodifiable;
+  }
+
   /// Adds item with validation
   @mustCallSuper
   void upsert(final K key, final V value) {

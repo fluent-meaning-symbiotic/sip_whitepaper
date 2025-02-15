@@ -9,35 +9,37 @@ import 'package:sointent/data_resources/folders_resource.dart';
 /// Initial screen of the application that handles app loading and folder selection.
 /// Shows a loading indicator while initializing and then provides folder selection interface.
 /// {@endtemplate}
-class UiRootScreen extends HookWidget {
+class UiRootScreen extends StatefulWidget {
   /// {@macro ui_root_screen}
   const UiRootScreen({super.key});
+
+  @override
+  State<UiRootScreen> createState() => _UiRootScreenState();
+}
+
+class _UiRootScreenState extends State<UiRootScreen> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initApp());
+  }
+
+  Future<void> _initApp() async {
+    final appStateResource = context.read<AppStateResource>();
+    try {
+      await const LoadAppCommand().execute();
+      appStateResource.value = AppState.loaded;
+    } catch (e) {
+      debugPrint('Error loading app: $e');
+      appStateResource.value = AppState.error;
+    }
+  }
 
   @override
   Widget build(final BuildContext context) {
     final appStateResource = context.watch<AppStateResource>();
     final foldersResource = context.watch<FoldersResource>();
     final isLoading = appStateResource.value == AppState.loading;
-    useEffect(() {
-      Future<void> initApp() async {
-        try {
-          await const LoadAppCommand().execute();
-          appStateResource.value = AppState.loaded;
-        } catch (e) {
-          debugPrint('Error loading app: $e');
-          appStateResource.value = AppState.error;
-        }
-      }
-
-      unawaited(
-        initApp().catchError((final e) {
-          appStateResource.value = AppState.error;
-          debugPrint('Error in init: $e');
-        }),
-      );
-
-      return null;
-    }, []);
 
     return Scaffold(
       body: Center(
@@ -59,7 +61,7 @@ class FolderSelectionPanel extends StatelessWidget {
 
   Future<void> _handleFolderSelection(final BuildContext context) async {
     try {
-      await const LoadIntentsCommand().execute();
+      await LoadIntentsCommand(dirPath: foldersResource.value.last).execute();
       if (context.mounted) {
         context.go('/workbench');
       }

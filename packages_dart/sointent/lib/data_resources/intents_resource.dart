@@ -2,14 +2,14 @@ import 'package:sointent/common_imports.dart';
 import 'package:sointent/core/utils/ordered_map_notifier.dart';
 
 /// Resource for managing semantic intents
-class SemanticIntentsResource
+class IntentsResource
     extends OrderedMapNotifier<SemanticIntentName, SemanticIntentFile> {
-  /// Creates a new [SemanticIntentsResource]
-  SemanticIntentsResource({required this.semanticIntentLocalApi});
+  /// Creates a new [IntentsResource]
+  IntentsResource({required this.intentsLocalApi});
 
   /// Local API for semantic intents
-  final SemanticIntentLocalApi semanticIntentLocalApi;
+  final IntentsLocalApi intentsLocalApi;
 
   /// Singleton instance
-  static late SemanticIntentsResource instance;
+  static late IntentsResource instance;
 }

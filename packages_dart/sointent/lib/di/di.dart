@@ -3,7 +3,7 @@ import 'package:sointent/common_imports.dart';
 /// Initializes dependency injection for the application
 Future<void> initDI() async {
   // Initialize local storage
-  final semanticIntentLocalApi = SemanticIntentLocalApi();
+  final semanticIntentLocalApi = IntentsLocalApi();
 
   // Initialize AI client
   final aiClient = AiClient(
@@ -13,8 +13,8 @@ Future<void> initDI() async {
 
   // Initialize resources
   AppStateResource.instance = AppStateResource();
-  SemanticIntentsResource.instance = SemanticIntentsResource(
-    semanticIntentLocalApi: semanticIntentLocalApi,
+  IntentsResource.instance = IntentsResource(
+    intentsLocalApi: semanticIntentLocalApi,
   );
   DialogMessagesResource.instance = DialogMessagesResource(aiClient: aiClient);
 }

@@ -1,1 +1,1 @@
-export 'semantic_intent_local_api.dart';
+export 'intents_local_api.dart';

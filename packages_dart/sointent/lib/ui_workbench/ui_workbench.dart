@@ -11,7 +11,7 @@ class WorkbenchScreen extends HookWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final intents = context.watch<SemanticIntentsResource>();
+    final intents = context.watch<IntentsResource>();
     final appState = context.watch<AppStateResource>();
 
     // Panel width states

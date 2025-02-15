@@ -10,7 +10,7 @@ class UiIntentEditor extends HookWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final intents = context.watch<SemanticIntentsResource>();
+    final intents = context.watch<IntentsResource>();
     final messages = context.watch<DialogMessagesResource>();
 
     return const Card(

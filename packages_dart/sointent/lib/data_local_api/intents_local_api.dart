@@ -2,9 +2,9 @@ import 'package:path/path.dart' as path;
 import 'package:sointent/common_imports.dart';
 
 ///  for managing semantic intents
-class SemanticIntentLocalApi {
+class IntentsLocalApi {
   /// Loads all intent.yaml files from a directory recursively
-  static Future<List<SemanticIntentFile>> getRecursiveIntents({
+  Future<List<SemanticIntentFile>> getRecursiveIntents({
     required final String dirPath,
   }) async {
     print('Loading intents from directory: $dirPath');

@@ -10,7 +10,7 @@ class UiIntentControls extends HookWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final intents = context.watch<SemanticIntentsResource>();
+    final intents = context.watch<IntentsResource>();
 
     return Card(
       margin: const EdgeInsets.all(8),

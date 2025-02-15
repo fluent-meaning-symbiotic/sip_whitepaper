@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_resources/data_resources.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +23,8 @@ class SoIntentApp extends StatelessWidget {
       ChangeNotifierProvider<AppStateResource>.value(
         value: AppStateResource.instance,
       ),
-      ChangeNotifierProvider<SemanticIntentsResource>.value(
-        value: SemanticIntentsResource.instance,
+      ChangeNotifierProvider<IntentsResource>.value(
+        value: IntentsResource.instance,
       ),
       ChangeNotifierProvider<DialogMessagesResource>.value(
         value: DialogMessagesResource.instance,
