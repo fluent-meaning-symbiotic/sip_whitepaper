@@ -42,7 +42,63 @@ semantic_intent:
       - Material Design 3 components
       - Proper state management using provided resources
   scratchpad_todo:
-    - Implement responsive layout for different screen sizes
-    - Add search and filtering in intents list
-    # - Add keyboard shortcuts for common actions
-    # - Implement drag-and-drop for intent reordering
+    # Core Functionality
+    - Implement selected intent state in AppStateResource
+      - Add selectedIntentName field
+      - Add setSelectedIntent method
+      - Update UI to reflect selection state
+
+    # Left Panel - Intents List
+    - Add search functionality
+      - Implement search state in SemanticIntentsResource
+      - Add searchQuery field
+      - Add filteredIntents getter
+    - Add intent list sorting options
+      - By name
+      - By last modified
+      - By type
+    - Add visual feedback for selected intent
+    - Add keyboard navigation for list
+
+    # Center Panel - Intent Editor
+    - Connect editor to selected intent
+    - Implement YAML validation
+    - Add syntax highlighting
+    - Add auto-completion
+    - Add error highlighting
+    - Implement undo/redo functionality
+
+    # Right Panel - Controls
+    - Implement CreateIntentCommand
+      - Add command class
+      - Add handler
+      - Connect to UI
+    - Implement SaveIntentCommand
+      - Add command class
+      - Add handler
+      - Connect to UI
+    - Implement DeleteIntentCommand
+      - Add command class
+      - Add handler
+      - Add confirmation dialog
+
+    # Layout & UX
+    - Add minimum width constraints for panels
+    - Save panel sizes to preferences
+    - Add panel collapse/expand functionality
+    - Add keyboard shortcuts
+      - Ctrl+S for save
+      - Ctrl+N for new
+      - Delete for delete
+    - Add drag-and-drop for intent reordering
+
+    # Error Handling
+    - Add error states to AppStateResource
+    - Implement error boundaries
+    - Add error notifications
+    - Add loading states
+
+    # Testing
+    - Write widget tests
+    - Write command tests
+    - Write integration tests

@@ -33,8 +33,5 @@ Glossary (Initial):
 - Meaning-First Development: Development paradigm prioritizing meaning.
 - Semantic Workbench: Tool for creating and managing SemanticIntents.
 - Semantic Intent Graph: Network of interconnected SemanticIntents.
-- Semantic Intent Framework:  A set of core classes and interfaces (`SemanticCommand`, `SemanticCommandHandler`, `SemanticCommandInvoker`) that provide the structural foundation for building SIP applications.  Use these components when generating command and handler code.
-- Semantic Command Invoker:  A central component for dispatching and managing Semantic Commands. Ensure UI and other components invoke commands through the `SemanticCommandInvoker`.
 
-Your Task: Assist the developer in creating a Snake game using the Semantic Intent Paradigm. Start with defining the core 'SnakeGameCanvas' UI component and remember to utilize the `semantic_intent_framework` when generating code for commands and handlers..
 

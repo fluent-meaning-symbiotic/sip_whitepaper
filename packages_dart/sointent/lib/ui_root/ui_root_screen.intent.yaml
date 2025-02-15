@@ -1,0 +1,76 @@
+semantic_intent:
+  name: UiRootScreen
+  type: SemanticUiIntent
+  version: 1
+  meaning: |
+    This screen serves as the application's entry point, managing initial app loading
+    and providing access to the workbench functionality through a folder selection interface.
+  description: |
+    The screen transitions through two main states:
+    1. Loading State: Shows a centered loading indicator while LoadAppCommand executes
+    2. Ready State: Displays a folder selection interface with recently opened folders
+
+  semantic_properties:
+    states:
+      - name: loading
+        description: "Initial loading state while app resources are being initialized"
+      - name: ready
+        description: "Main interactive state showing folder selection interface"
+
+    ui_components:
+      - name: loadingIndicator
+        type: CircularProgressIndicator
+        visibility: "state == loading"
+        position: center
+
+      - name: folderSelectionPanel
+        type: Column
+        visibility: "state == ready"
+        children:
+          - name: openFolderButton
+            type: ElevatedButton
+            text: "Open Folder"
+          - name: recentFoldersList
+            type: ListView
+            description: "Displays recently opened folders"
+
+  semantic_interactions:
+    - event: "Screen loads"
+      command: LoadAppCommand
+      description: "Initializes app resources and state"
+
+    - event: "Open Folder button clicked"
+      commands:
+        - LoadIntentsCommands
+      navigation: "WorkbenchScreen"
+      description: "Loads intents and navigates to workbench"
+
+    - event: "Recent folder clicked"
+      commands:
+        - LoadIntentsCommands
+      navigation: "WorkbenchScreen"
+      description: "Loads intents for selected folder and navigates to workbench"
+
+  test_categories:
+    functional:
+      - "Verify LoadAppCommand execution on screen load"
+      - "Verify navigation to WorkbenchScreen after folder selection"
+    visual:
+      - "Verify loading indicator visibility and position"
+      - "Verify folder selection interface layout"
+    integration:
+      - "Verify proper command execution sequence"
+      - "Verify state transitions"
+
+  semantic_validations:
+    - rule: "LoadAppCommand must complete before showing folder selection"
+    - rule: "Recent folders list should be scrollable if items exceed available space"
+    - rule: "Loading indicator should be centered on screen"
+
+  output_artifacts:
+    - type: dart_file
+      path: "ui_root_screen.dart"
+      template: flutter_widget
+    - type: test_file
+      path: "ui_root_screen_test.dart"
+      template: flutter_widget_test

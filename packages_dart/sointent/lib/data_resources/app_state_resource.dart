@@ -10,7 +10,7 @@ class AppStateResource extends ValueNotifier<AppState> {
   /// Singleton instance
   static late AppStateResource instance;
 
-  // ignore: use_setters_to_change_properties
   /// Sets the current application state
+  // ignore: use_setters_to_change_properties
   void setState(final AppState state) => value = state;
 }

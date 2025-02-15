@@ -1,0 +1,13 @@
+semantic_intent:
+  name: FoldersLocalApi
+  type: SemanticApiIntent
+  meaning: |
+    This intent is responsible for managing folder paths. 
+    It allows saving a path to a folder, retrieving recent paths, 
+    and clearing the stored paths.
+    - Save Path: Store a specified folder path.
+    - Get Recent Paths: Retrieve a list of recently accessed folder paths.
+    - Clear Paths: Remove all stored folder paths.
+
+    Tech:
+      - use PrefsDb from xsoulspace_foundation package.

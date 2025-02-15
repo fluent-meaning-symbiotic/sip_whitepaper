@@ -10,7 +10,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/intent-editor',
-      builder: (final context, final state) => const IntentEditorScreen(),
+      builder: (final context, final state) => const UiIntentEditor(),
     ),
   ],
 );

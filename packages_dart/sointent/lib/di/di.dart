@@ -4,10 +4,12 @@ import 'package:sointent/common_imports.dart';
 Future<void> initDI() async {
   // Initialize local storage
   final semanticIntentLocalApi = SemanticIntentLocalApi();
-  await semanticIntentLocalApi.init();
 
   // Initialize AI client
-  final aiClient = AiClient();
+  final aiClient = AiClient(
+    baseUrl: Envs.openAiBaseUrl,
+    modelId: Envs.openApiModel,
+  );
 
   // Initialize resources
   AppStateResource.instance = AppStateResource();

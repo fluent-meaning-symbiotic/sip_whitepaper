@@ -1,34 +1,39 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_resources/data_resources.dart';
 
-/// {@template intent_editor_screen}
-/// Screen for editing a semantic intent.
+/// {@template ui_intent_editor}
+/// Center panel of the workbench that provides editing capabilities
+/// for the currently selected intent.
 /// {@endtemplate}
-class IntentEditorScreen extends HookWidget {
-  /// {@macro intent_editor_screen}
-  const IntentEditorScreen({super.key});
+class UiIntentEditor extends HookWidget {
+  /// {@macro ui_intent_editor}
+  const UiIntentEditor({super.key});
 
   @override
   Widget build(final BuildContext context) {
     final intents = context.watch<SemanticIntentsResource>();
     final messages = context.watch<DialogMessagesResource>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Intent Editor'),
-        actions: [
-          IconButton(icon: const Icon(Icons.save), onPressed: context.pop),
-        ],
-      ),
-      body: const Padding(
+    return const Card(
+      margin: EdgeInsets.all(8),
+      child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Intent Editor Coming Soon',
-              style: TextStyle(fontSize: 24),
-              textAlign: TextAlign.center,
+              'Intent Editor',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: TextField(
+                maxLines: null,
+                expands: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter intent YAML here...',
+                ),
+              ),
             ),
           ],
         ),

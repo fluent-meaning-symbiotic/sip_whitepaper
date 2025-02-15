@@ -1,0 +1,7 @@
+semantic_intent:
+  name: LoadFoldersCommand
+  type: SemanticCommandIntent
+  meaning: |
+    This command is responsible for loading the folders from the local storage.
+    It uses the FoldersLocalApi to load the folders.
+    Then it should update the FoldersResource with the loaded folders.
