@@ -1,5 +1,6 @@
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/ui_intent_controls/ui_intent_controls.dart';
+import 'package:sointent/ui_intents_view/ui_intents_view.dart';
 
 /// {@template workbench_screen}
 /// Main workbench screen of the application.
@@ -28,57 +29,11 @@ class UiWorkbenchScreen extends HookWidget {
           // Left Panel - Intents List
           SizedBox(
             width: leftPanelWidth.value,
-            child: Card(
-              margin: const EdgeInsets.all(8),
+            child: const Card(
+              margin: EdgeInsets.all(8),
               child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Intents',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        hintText: 'Search intents...',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (final value) {
-                        // TODO: Implement search
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child:
-                          intents.orderedValues.isEmpty
-                              ? const Center(
-                                child: Text(
-                                  'No intents yet.\nCreate one using the controls.',
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                              : ListView.builder(
-                                itemCount: intents.orderedValues.length,
-                                itemBuilder: (final context, final index) {
-                                  final intent = intents.orderedValues[index];
-                                  return ListTile(
-                                    title: Text(intent.name.value),
-                                    subtitle: Text(intent.description),
-                                    onTap: () {
-                                      // TODO: Implement selection
-                                    },
-                                  );
-                                },
-                              ),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.all(16),
+                child: UiIntentsView(),
               ),
             ),
           ),
