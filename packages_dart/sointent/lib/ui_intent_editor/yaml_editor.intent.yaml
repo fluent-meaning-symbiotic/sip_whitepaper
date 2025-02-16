@@ -1,0 +1,36 @@
+semantic_intent:
+  version: 1
+  name: YamlEditorIntent
+  type: SemanticUiIntent
+  meaning: "A reusable YAML editor component that provides syntax highlighting, validation, and proper indentation handling"
+  description: "A modular YAML editor widget that can be used to edit any YAML content with real-time validation and proper code editing features"
+  semantic_properties:
+    initialValue:
+      type: String
+      description: "Initial YAML content to display in the editor"
+    onChanged:
+      type: Function
+      description: "Callback triggered when YAML content changes and is valid"
+    onValidationError:
+      type: Function
+      description: "Optional callback triggered when YAML validation fails"
+  semantic_interactions:
+    onTextChange:
+      meaning: "User types or modifies text in the editor"
+      triggers:
+        - validateYaml
+        - notifyChanges
+    onTabKey:
+      meaning: "User presses tab key for indentation"
+      triggers:
+        - handleIndentation
+  test_categories:
+    functional:
+      - "Validate YAML syntax"
+      - "Handle tab key indentation"
+      - "Trigger callbacks on valid/invalid changes"
+    golden:
+      - "Verify editor appearance with different content lengths"
+      - "Verify error state appearance"
+  output_artifacts:
+    - "yaml_editor.dart"

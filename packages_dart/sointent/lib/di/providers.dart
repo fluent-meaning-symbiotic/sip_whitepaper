@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_resources/intents_search_resource.dart';
 
 /// Provides all application resources
 List<InheritedProvider> resourceProviders = [
@@ -35,6 +34,13 @@ List<InheritedProvider> resourceProviders = [
         (final context) =>
             DialogMessagesResource()
               ..also((final it) => DialogMessagesResource.instance = it),
+  ),
+  ChangeNotifierProvider<SelectedIntentResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            SelectedIntentResource()
+              ..also((final it) => SelectedIntentResource.instance = it),
   ),
   ChangeNotifierProvider<IntentsFolderResource>(
     lazy: false,

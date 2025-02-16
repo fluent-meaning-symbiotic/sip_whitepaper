@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/data_commands/search/search_intents.cmd.dart';
-import 'package:sointent/data_resources/intents_search_resource.dart';
 import 'package:sointent/ui_intents_view/intent_tree_builder.dart';
 import 'package:sointent/ui_intents_view/ui_tree_item.dart';
 
@@ -89,6 +88,12 @@ class _UiIntentsViewState extends State<UiIntentsView> {
   void _handleSelect(final String path) {
     setState(() {
       _selectedPath = path;
+      // Find the intent file for this path and update SelectedIntentResource
+      final intent =
+          FilteredIntentsResource.instance.orderedValues
+              .where((final i) => i.path.endsWith(path))
+              .firstOrNull;
+      SelectedIntentResource.instance.value = intent;
     });
   }
 

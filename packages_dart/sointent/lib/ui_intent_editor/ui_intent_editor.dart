@@ -1,4 +1,6 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/data_resources/selected_intent_resource.dart';
+import 'package:sointent/ui_intent_editor/yaml_editor.dart';
 
 /// {@template ui_intent_editor}
 /// Center panel of the workbench that provides editing capabilities
@@ -10,29 +12,37 @@ class UiIntentEditor extends HookWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final intents = context.watch<IntentsResource>();
-    final messages = context.watch<DialogMessagesResource>();
+    final selectedIntent = context.watch<SelectedIntentResource>();
+    final currentIntent = selectedIntent.value;
 
-    return const Card(
-      margin: EdgeInsets.all(8),
+    if (currentIntent == null) {
+      return const Card(
+        margin: EdgeInsets.all(8),
+        child: Center(child: Text('Select an intent to edit')),
+      );
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(8),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Intent Editor',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Editing: ${currentIntent.name}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
-              child: TextField(
-                maxLines: null,
-                expands: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter intent YAML here...',
-                ),
+              child: YamlEditor(
+                initialValue: currentIntent.toYaml(),
+                onChanged: (final yaml) {
+                  // TODO: Implement save functionality
+                },
+                onValidationError: (final error) {
+                  // TODO: Implement error handling
+                },
               ),
             ),
           ],

@@ -1,0 +1,40 @@
+semantic_intent:
+  version: 1
+  name: UiIntentEditorIntent
+  type: SemanticUiIntent
+  meaning: "Main editor panel for modifying semantic intent files with YAML validation and real-time updates"
+  description: "A workspace component that provides editing capabilities for semantic intent files, including YAML validation, error handling, and real-time preview"
+  semantic_properties:
+    selectedIntent:
+      type: SemanticIntentFile
+      description: "Currently selected intent file to edit"
+  semantic_interactions:
+    onIntentSelect:
+      meaning: "User selects an intent to edit"
+      triggers:
+        - loadIntentContent
+        - updateEditor
+    onIntentChange:
+      meaning: "User modifies intent content"
+      triggers:
+        - validateYaml
+        - saveChanges
+    onValidationError:
+      meaning: "YAML validation fails"
+      triggers:
+        - showError
+        - preventSave
+  test_categories:
+    functional:
+      - "Load and display intent content"
+      - "Handle intent selection changes"
+      - "Save valid changes"
+      - "Prevent invalid changes"
+    golden:
+      - "Verify editor layout with different intent types"
+      - "Verify error state appearance"
+  output_artifacts:
+    - "ui_intent_editor.dart"
+  dependencies:
+    - YamlEditorIntent
+    - SelectedIntentResource
