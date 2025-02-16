@@ -1,7 +1,7 @@
 import 'package:sointent/common_imports.dart';
 
-class FoldersResource extends ValueNotifier<List<String>> {
-  FoldersResource() : super([]);
+class FoldersResource extends OrderedListNotifier<String> {
+  FoldersResource() : super();
 
   static late FoldersResource instance;
 }

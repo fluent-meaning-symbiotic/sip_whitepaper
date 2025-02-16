@@ -6,6 +6,10 @@ class AiClient {
   /// Creates an [AiClient] with the provided OpenAI client
   AiClient({required final String baseUrl, required this.modelId})
     : _openAI = OpenAIClient(baseUrl: baseUrl);
+
+  /// Singleton instance
+  static late AiClient instance;
+
   final OpenAIClient _openAI;
   final String modelId;
 

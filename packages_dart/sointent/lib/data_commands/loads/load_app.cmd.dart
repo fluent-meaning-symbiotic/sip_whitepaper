@@ -1,5 +1,5 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/core/commands.dart';
+import 'package:sointent/data_commands/loads/load_folders.cmd.dart';
 
 /// Command to initialize the application and load initial resources
 class LoadAppCommand extends SemanticCommand {
@@ -8,7 +8,7 @@ class LoadAppCommand extends SemanticCommand {
 
   @override
   Future<void> execute() async {
-    // TODO: Implement app initialization logic
-    await Future.delayed(const Duration(seconds: 1)); // Simulated loading
+    await LocalDb.instance.init();
+    await const LoadFoldersCommand().execute();
   }
 }

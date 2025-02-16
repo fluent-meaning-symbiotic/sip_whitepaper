@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/data_commands/loads/load_app.cmd.dart';
 import 'package:sointent/data_commands/loads/load_intents.cmd.dart';
-import 'package:sointent/data_resources/folders_resource.dart';
 
 /// {@template ui_root_screen}
 /// Initial screen of the application that handles app loading and folder selection.
@@ -61,7 +61,9 @@ class FolderSelectionPanel extends StatelessWidget {
 
   Future<void> _handleFolderSelection(final BuildContext context) async {
     try {
-      await LoadIntentsCommand(dirPath: foldersResource.value.last).execute();
+      final dirPath = (await FilePicker.platform.getDirectoryPath()) ?? '';
+      if (dirPath.isEmpty) return;
+      await LoadIntentsCommand(dirPath: dirPath).execute();
       if (context.mounted) {
         context.go('/workbench');
       }
@@ -74,7 +76,7 @@ class FolderSelectionPanel extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final recentFolders = context.select<FoldersResource, List<String>>(
-      (final resource) => resource.value,
+      (final resource) => resource.toList(),
     );
 
     return Padding(

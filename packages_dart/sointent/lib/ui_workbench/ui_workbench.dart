@@ -5,9 +5,9 @@ import 'package:sointent/ui_intent_controls/ui_intent_controls.dart';
 /// Main workbench screen of the application.
 /// Displays a three-panel layout with intents list, editor, and controls.
 /// {@endtemplate}
-class WorkbenchScreen extends HookWidget {
+class UiWorkbenchScreen extends HookWidget {
   /// {@macro workbench_screen}
-  const WorkbenchScreen({super.key});
+  const UiWorkbenchScreen({super.key});
 
   @override
   Widget build(final BuildContext context) {

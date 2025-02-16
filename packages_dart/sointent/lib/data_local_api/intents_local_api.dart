@@ -3,6 +3,8 @@ import 'package:sointent/common_imports.dart';
 
 ///  for managing semantic intents
 class IntentsLocalApi {
+  static late IntentsLocalApi instance;
+
   /// Loads all intent.yaml files from a directory recursively
   Future<List<SemanticIntentFile>> getRecursiveIntents({
     required final String dirPath,

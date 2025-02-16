@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/ui_root/ui_root_screen.dart';
 
 /// Application router configuration
 final appRouter = GoRouter(
@@ -6,11 +7,11 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (final context, final state) => const WorkbenchScreen(),
+      builder: (final context, final state) => const UiRootScreen(),
     ),
     GoRoute(
-      path: '/intent-editor',
-      builder: (final context, final state) => const UiIntentEditor(),
+      path: '/workbench',
+      builder: (final context, final state) => const UiWorkbenchScreen(),
     ),
   ],
 );
@@ -22,4 +23,7 @@ abstract class AppRoutes {
 
   /// Intent editor route
   static const intentEditor = '/intent-editor';
+
+  /// Workbench route
+  static const workbench = '/workbench';
 }

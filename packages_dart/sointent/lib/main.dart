@@ -1,10 +1,8 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/di/providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize dependency injection
-  await initDI();
 
   runApp(const SoIntentApp());
 }
@@ -19,31 +17,22 @@ class SoIntentApp extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => MultiProvider(
-    providers: [
-      ChangeNotifierProvider<AppStateResource>.value(
-        value: AppStateResource.instance,
-      ),
-      ChangeNotifierProvider<IntentsResource>.value(
-        value: IntentsResource.instance,
-      ),
-      ChangeNotifierProvider<DialogMessagesResource>.value(
-        value: DialogMessagesResource.instance,
-      ),
-    ],
-    child: MaterialApp.router(
-      title: 'SoIntent',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
+    providers: resourceProviders,
+    builder:
+        (final context, final child) => MaterialApp.router(
+          title: 'SoIntent',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          routerConfig: appRouter,
         ),
-        useMaterial3: true,
-      ),
-      routerConfig: appRouter,
-    ),
   );
 }
