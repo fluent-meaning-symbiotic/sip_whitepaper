@@ -27,16 +27,7 @@ class UiWorkbenchScreen extends HookWidget {
       body: Row(
         children: [
           // Left Panel - Intents List
-          SizedBox(
-            width: leftPanelWidth.value,
-            child: const Card(
-              margin: EdgeInsets.all(8),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: UiIntentsView(),
-              ),
-            ),
-          ),
+          SizedBox(width: leftPanelWidth.value, child: const UiIntentsView()),
           // Left Resizable Divider
           MouseRegion(
             cursor: SystemMouseCursors.resizeColumn,

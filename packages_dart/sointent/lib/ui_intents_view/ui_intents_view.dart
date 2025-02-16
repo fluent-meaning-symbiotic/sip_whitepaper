@@ -1,37 +1,5 @@
 import 'package:sointent/common_imports.dart';
-
-/// Tree node data structure for the intent view
-@immutable
-class TreeNode {
-  const TreeNode({
-    required this.name,
-    required this.path,
-    this.intent,
-    this.children = const {},
-  });
-
-  final String name;
-  final String path;
-  final SemanticIntentFile? intent;
-  final Map<String, TreeNode> children;
-
-  bool get isFile => intent != null;
-
-  TreeNode copyWith({
-    final String? name,
-    final String? path,
-    final SemanticIntentFile? intent,
-    final Map<String, TreeNode>? children,
-  }) => TreeNode(
-    name: name ?? this.name,
-    path: path ?? this.path,
-    intent: intent ?? this.intent,
-    children: children ?? this.children,
-  );
-
-  TreeNode addChild(final String key, final TreeNode child) =>
-      copyWith(children: {...children, key: child});
-}
+import 'package:sointent/ui_intents_view/intent_tree_builder.dart';
 
 /// {@template ui_intents_view}
 /// A widget that displays a hierarchical tree view of semantic intents.
@@ -46,8 +14,8 @@ class UiIntentsView extends StatefulWidget {
 }
 
 class _UiIntentsViewState extends State<UiIntentsView> {
-  late TreeNode _root;
-  late Set<String> _expandedPaths;
+  late final TreeNode _root;
+  late final Set<String> _expandedPaths;
   String? _selectedPath;
 
   @override
@@ -57,101 +25,22 @@ class _UiIntentsViewState extends State<UiIntentsView> {
     _initializeTree();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _initializeTree();
-  }
-
   void _initializeTree() {
     final intentsResource = context.read<IntentsResource>();
-    _root = _buildTree(intentsResource.orderedValues.toList());
-  }
-
-  /// Builds tree structure from intents
-  TreeNode _buildTree(final List<SemanticIntentFile> intents) {
-    TreeNode root = const TreeNode(name: 'root', path: '');
-
-    for (final intent in intents) {
-      final segments = intent.path.split('/');
-      var currentNode = root;
-      var currentPath = '';
-
-      // Build path nodes
-      for (var i = 0; i < segments.length - 1; i++) {
-        final segment = segments[i];
-        currentPath = currentPath.isEmpty ? segment : '$currentPath/$segment';
-
-        if (!currentNode.children.containsKey(segment)) {
-          final newNode = TreeNode(name: segment, path: currentPath);
-          currentNode = currentNode.addChild(segment, newNode);
-        } else {
-          currentNode = currentNode.children[segment]!;
-        }
-      }
-
-      // Add leaf (intent) node
-      final fileName = segments.last;
-      final leafNode = TreeNode(
-        name: fileName,
-        path: intent.path,
-        intent: intent,
-      );
-      root = _updateNodeAtPath(
-        root,
-        currentNode.path,
-        (final node) => node.addChild(fileName, leafNode),
-      );
-    }
-
-    return root;
-  }
-
-  /// Updates a node at the specified path in the tree
-  TreeNode _updateNodeAtPath(
-    final TreeNode root,
-    final String path,
-    final TreeNode Function(TreeNode node) updater,
-  ) {
-    if (path.isEmpty) return updater(root);
-
-    final segments = path.split('/');
-    TreeNode currentNode = root;
-
-    for (final segment in segments) {
-      if (!currentNode.children.containsKey(segment)) {
-        return root;
-      }
-      currentNode = currentNode.children[segment]!;
-    }
-
-    return _updateNode(root, path, updater);
-  }
-
-  /// Recursively updates a node in the tree
-  TreeNode _updateNode(
-    final TreeNode node,
-    final String path,
-    final TreeNode Function(TreeNode node) updater,
-  ) {
-    if (node.path == path) return updater(node);
-
-    final newChildren = Map<String, TreeNode>.from(node.children);
-    for (final entry in node.children.entries) {
-      if (path.startsWith(entry.value.path)) {
-        newChildren[entry.key] = _updateNode(entry.value, path, updater);
-      }
-    }
-
-    return node.copyWith(children: newChildren);
+    _root = IntentTreeBuilder.buildFromIntents(
+      intentsResource.orderedValues.toList(),
+    );
+    print(_root);
+    // Expand root by default
+    _expandedPaths.add('');
   }
 
   void _handleExpand(final String path) {
     setState(() {
       if (_expandedPaths.contains(path)) {
-        _expandedPaths = _expandedPaths.where((final p) => p != path).toSet();
+        _expandedPaths.remove(path);
       } else {
-        _expandedPaths = {..._expandedPaths, path};
+        _expandedPaths.add(path);
       }
     });
   }
@@ -178,10 +67,7 @@ class _UiIntentsViewState extends State<UiIntentsView> {
             size: 20,
             color: theme.colorScheme.primary.withOpacity(0.7),
           ),
-          title: Text(
-            node.intent!.name.value,
-            style: theme.textTheme.bodyMedium,
-          ),
+          title: Text(node.name, style: theme.textTheme.bodyMedium),
           subtitle: Text(
             node.intent!.type.name,
             style: theme.textTheme.bodySmall,

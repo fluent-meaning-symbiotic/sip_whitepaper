@@ -58,9 +58,13 @@ class FolderSelectionPanel extends StatelessWidget {
 
   final FoldersResource foldersResource;
 
-  Future<void> _handleFolderSelection(final BuildContext context) async {
+  Future<void> _handleFolderSelection(
+    final BuildContext context, {
+    final String? folderPath,
+  }) async {
     try {
-      final dirPath = await FilePicker.platform.getDirectoryPath();
+      final dirPath =
+          folderPath ?? await FilePicker.platform.getDirectoryPath();
       if (dirPath == null || dirPath.isEmpty) return;
       await SaveFolderCommand(folderPath: dirPath).execute();
       await LoadIntentsCommand(dirPath: dirPath).execute();
@@ -108,7 +112,10 @@ class FolderSelectionPanel extends StatelessWidget {
                     title: Text(folderPath.split('/').last),
                     subtitle: Text(folderPath),
                     onTap: () async {
-                      await _handleFolderSelection(context);
+                      await _handleFolderSelection(
+                        context,
+                        folderPath: folderPath,
+                      );
                     },
                   );
                 },
