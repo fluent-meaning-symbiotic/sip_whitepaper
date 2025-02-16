@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_commands/loads/load_app.cmd.dart';
-import 'package:sointent/data_commands/loads/load_intents.cmd.dart';
+import 'package:sointent/data_commands/data_commands.dart';
 
 /// {@template ui_root_screen}
 /// Initial screen of the application that handles app loading and folder selection.
@@ -63,6 +62,7 @@ class FolderSelectionPanel extends StatelessWidget {
     try {
       final dirPath = await FilePicker.platform.getDirectoryPath();
       if (dirPath == null || dirPath.isEmpty) return;
+      await SaveFolderCommand(folderPath: dirPath).execute();
       await LoadIntentsCommand(dirPath: dirPath).execute();
       if (context.mounted) {
         context.go('/workbench');

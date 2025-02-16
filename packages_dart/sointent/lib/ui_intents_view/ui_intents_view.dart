@@ -1,8 +1,41 @@
 import 'package:sointent/common_imports.dart';
 
+/// Tree node data structure for the intent view
+@immutable
+class TreeNode {
+  const TreeNode({
+    required this.name,
+    required this.path,
+    this.intent,
+    this.children = const {},
+  });
+
+  final String name;
+  final String path;
+  final SemanticIntentFile? intent;
+  final Map<String, TreeNode> children;
+
+  bool get isFile => intent != null;
+
+  TreeNode copyWith({
+    final String? name,
+    final String? path,
+    final SemanticIntentFile? intent,
+    final Map<String, TreeNode>? children,
+  }) => TreeNode(
+    name: name ?? this.name,
+    path: path ?? this.path,
+    intent: intent ?? this.intent,
+    children: children ?? this.children,
+  );
+
+  TreeNode addChild(final String key, final TreeNode child) =>
+      copyWith(children: {...children, key: child});
+}
+
 /// {@template ui_intents_view}
-/// A widget that displays a hierarchical view of semantic intents using horizontal panels.
-/// Each panel represents one level of the path hierarchy.
+/// A widget that displays a hierarchical tree view of semantic intents.
+/// Each node in the tree represents a path segment or an intent file.
 /// {@endtemplate}
 class UiIntentsView extends StatefulWidget {
   /// {@macro ui_intents_view}
@@ -13,237 +46,220 @@ class UiIntentsView extends StatefulWidget {
 }
 
 class _UiIntentsViewState extends State<UiIntentsView> {
-  late final List<String> _selectedPaths;
-  late final Map<int, Map<String, List<SemanticIntentFile>>> _levels;
-  late final Map<String, List<String>> _subpaths;
+  late TreeNode _root;
+  late Set<String> _expandedPaths;
+  String? _selectedPath;
 
   @override
   void initState() {
     super.initState();
-    _selectedPaths = [];
-    _levels = {};
-    _subpaths = {};
-    _initializeData();
+    _expandedPaths = {};
+    _initializeTree();
   }
 
-  void _initializeData() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeTree();
+  }
+
+  void _initializeTree() {
     final intentsResource = context.read<IntentsResource>();
+    _root = _buildTree(intentsResource.orderedValues.toList());
+  }
 
-    // First pass: collect all paths and their subpaths
-    for (final intent in intentsResource.orderedValues) {
+  /// Builds tree structure from intents
+  TreeNode _buildTree(final List<SemanticIntentFile> intents) {
+    TreeNode root = const TreeNode(name: 'root', path: '');
+
+    for (final intent in intents) {
       final segments = intent.path.split('/');
-      final parentPath = segments.take(segments.length - 1).join('/');
-      final level = parentPath.isEmpty ? 0 : parentPath.split('/').length;
-
-      // Initialize level if needed
-      _levels.putIfAbsent(level, () => {});
-
-      // Add intent to its parent path
-      _levels[level]!.update(
-        parentPath,
-        (final files) => files..add(intent),
-        ifAbsent: () => [intent],
-      );
-
-      // Build subpath relationships
+      var currentNode = root;
       var currentPath = '';
+
+      // Build path nodes
       for (var i = 0; i < segments.length - 1; i++) {
         final segment = segments[i];
-        final nextPath =
-            currentPath.isEmpty ? segment : '$currentPath/$segment';
+        currentPath = currentPath.isEmpty ? segment : '$currentPath/$segment';
 
-        _subpaths.update(
-          currentPath,
-          (final paths) => paths..add(segment),
-          ifAbsent: () => [segment],
-        );
+        if (!currentNode.children.containsKey(segment)) {
+          final newNode = TreeNode(name: segment, path: currentPath);
+          currentNode = currentNode.addChild(segment, newNode);
+        } else {
+          currentNode = currentNode.children[segment]!;
+        }
+      }
 
-        currentPath = nextPath;
+      // Add leaf (intent) node
+      final fileName = segments.last;
+      final leafNode = TreeNode(
+        name: fileName,
+        path: intent.path,
+        intent: intent,
+      );
+      root = _updateNodeAtPath(
+        root,
+        currentNode.path,
+        (final node) => node.addChild(fileName, leafNode),
+      );
+    }
+
+    return root;
+  }
+
+  /// Updates a node at the specified path in the tree
+  TreeNode _updateNodeAtPath(
+    final TreeNode root,
+    final String path,
+    final TreeNode Function(TreeNode node) updater,
+  ) {
+    if (path.isEmpty) return updater(root);
+
+    final segments = path.split('/');
+    TreeNode currentNode = root;
+
+    for (final segment in segments) {
+      if (!currentNode.children.containsKey(segment)) {
+        return root;
+      }
+      currentNode = currentNode.children[segment]!;
+    }
+
+    return _updateNode(root, path, updater);
+  }
+
+  /// Recursively updates a node in the tree
+  TreeNode _updateNode(
+    final TreeNode node,
+    final String path,
+    final TreeNode Function(TreeNode node) updater,
+  ) {
+    if (node.path == path) return updater(node);
+
+    final newChildren = Map<String, TreeNode>.from(node.children);
+    for (final entry in node.children.entries) {
+      if (path.startsWith(entry.value.path)) {
+        newChildren[entry.key] = _updateNode(entry.value, path, updater);
       }
     }
+
+    return node.copyWith(children: newChildren);
   }
 
-  List<String> _getPathsForLevel(final int level) {
-    if (level == 0) {
-      return _subpaths[''] ?? const <String>[];
-    }
-
-    if (level >= _selectedPaths.length) {
-      return const <String>[];
-    }
-
-    final parentPath = _selectedPaths[level - 1];
-    return _subpaths[parentPath] ?? const <String>[];
-  }
-
-  void _handlePathSelected(final int level, final String path) {
-    final parentPath = level == 0 ? '' : _selectedPaths[level - 1];
-    final fullPath = parentPath.isEmpty ? path : '$parentPath/$path';
-
+  void _handleExpand(final String path) {
     setState(() {
-      _selectedPaths
-        ..length = level
-        ..add(fullPath);
+      if (_expandedPaths.contains(path)) {
+        _expandedPaths = _expandedPaths.where((final p) => p != path).toSet();
+      } else {
+        _expandedPaths = {..._expandedPaths, path};
+      }
     });
   }
 
-  @override
-  Widget build(final BuildContext context) => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Row(
+  void _handleSelect(final String path) {
+    setState(() {
+      _selectedPath = path;
+    });
+  }
+
+  /// Builds a tree item widget
+  Widget _buildTreeItem(final TreeNode node, {required final int depth}) {
+    final theme = Theme.of(context);
+    final isExpanded = _expandedPaths.contains(node.path);
+    final isSelected = node.path == _selectedPath;
+
+    if (node.isFile) {
+      return Padding(
+        padding: EdgeInsets.only(left: (depth * 24).toDouble()),
+        child: ListTile(
+          dense: true,
+          leading: Icon(
+            Icons.description,
+            size: 20,
+            color: theme.colorScheme.primary.withOpacity(0.7),
+          ),
+          title: Text(
+            node.intent!.name.value,
+            style: theme.textTheme.bodyMedium,
+          ),
+          subtitle: Text(
+            node.intent!.type.name,
+            style: theme.textTheme.bodySmall,
+          ),
+          selected: isSelected,
+          selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(
+            0.3,
+          ),
+          onTap: () => _handleSelect(node.path),
+        ),
+      );
+    }
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Create a panel for each selected level
-        for (var level = 0; level <= _selectedPaths.length; level++)
-          LevelPanel(
-            level: level,
-            selectedPath:
-                level < _selectedPaths.length ? _selectedPaths[level] : null,
-            paths: _getPathsForLevel(level),
-            intents:
-                (level < _selectedPaths.length
-                    ? (_levels[level]?[_selectedPaths[level]])
-                    : null) ??
-                const <SemanticIntentFile>[],
-            onPathSelected: (final path) => _handlePathSelected(level, path),
+        InkWell(
+          onTap: () => _handleExpand(node.path),
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: (depth * 24).toDouble(),
+              top: 8,
+              bottom: 8,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isExpanded ? Icons.expand_more : Icons.chevron_right,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.folder, size: 20, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(node.name, style: theme.textTheme.bodyMedium),
+                ),
+              ],
+            ),
           ),
+        ),
+        if (isExpanded) ...[
+          ...node.children.values.map(
+            (final child) => _buildTreeItem(child, depth: depth + 1),
+          ),
+        ],
+      ],
+    );
+  }
+
+  @override
+  Widget build(final BuildContext context) => Card(
+    margin: const EdgeInsets.all(8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Search bar (to be implemented)
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Search intents...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+            ),
+          ),
+        ),
+        // Tree view
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: _buildTreeItem(_root, depth: 0),
+          ),
+        ),
       ],
     ),
   );
-}
-
-/// {@template level_panel}
-/// A panel that displays the contents of a specific path level.
-/// {@endtemplate}
-class LevelPanel extends StatelessWidget {
-  /// {@macro level_panel}
-  const LevelPanel({
-    required this.level,
-    required this.selectedPath,
-    required this.paths,
-    required this.intents,
-    required this.onPathSelected,
-    super.key,
-  });
-
-  /// The level in the hierarchy (0-based)
-  final int level;
-
-  /// The currently selected path at this level
-  final String? selectedPath;
-
-  /// Available paths at this level
-  final List<String> paths;
-
-  /// Intents at the selected path
-  final List<SemanticIntentFile> intents;
-
-  /// Callback when a path is selected
-  final void Function(String path) onPathSelected;
-
-  @override
-  Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SizedBox(
-      width: 250, // Fixed width for each panel
-      child: Card(
-        margin: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Panel header
-            Container(
-              padding: const EdgeInsets.all(8),
-              color: theme.colorScheme.primaryContainer,
-              child: Text(
-                'Level ${level + 1}',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-            // Path/Intent list
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                itemCount: paths.length + intents.length,
-                itemBuilder: (final context, final index) {
-                  if (index < paths.length) {
-                    // Show path item
-                    final path = paths[index];
-                    final isSelected = path == selectedPath;
-                    final name = path.split('/').last;
-
-                    return ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.folder,
-                        size: 20,
-                        color: theme.colorScheme.primary,
-                      ),
-                      title: Text(name, style: theme.textTheme.bodyMedium),
-                      selected: isSelected,
-                      selectedTileColor: theme.colorScheme.primaryContainer
-                          .withOpacity(0.3),
-                      onTap: () => onPathSelected(path),
-                      trailing: const Icon(Icons.chevron_right, size: 16),
-                    );
-                  } else {
-                    // Show intent item
-                    final intent = intents[index - paths.length];
-
-                    return IntentListItem(
-                      intent: intent,
-                      isSelected: false, // No selection for intents yet
-                      onTap: () {}, // No action for intents yet
-                    );
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// {@template intent_list_item}
-/// A list item that displays information about a semantic intent.
-/// {@endtemplate}
-class IntentListItem extends StatelessWidget {
-  /// {@macro intent_list_item}
-  const IntentListItem({
-    required this.intent,
-    required this.isSelected,
-    required this.onTap,
-    super.key,
-  });
-
-  /// The intent to display
-  final SemanticIntentFile intent;
-
-  /// Whether this intent is currently selected
-  final bool isSelected;
-
-  /// Callback when the item is tapped
-  final VoidCallback onTap;
-
-  @override
-  Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-
-    return ListTile(
-      dense: true,
-      leading: Icon(
-        Icons.description,
-        size: 20,
-        color: theme.colorScheme.primary.withOpacity(0.7),
-      ),
-      title: Text(intent.name.value, style: theme.textTheme.bodyMedium),
-      subtitle: Text(intent.type.name, style: theme.textTheme.bodySmall),
-      selected: isSelected,
-      selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
-      onTap: onTap,
-    );
-  }
 }
