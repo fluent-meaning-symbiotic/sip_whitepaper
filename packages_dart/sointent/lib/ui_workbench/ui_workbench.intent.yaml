@@ -48,18 +48,6 @@ semantic_intent:
       - Add setSelectedIntent method
       - Update UI to reflect selection state
 
-    # Left Panel - Intents List
-    - Add search functionality
-      - Implement search state in SemanticIntentsResource
-      - Add searchQuery field
-      - Add filteredIntents getter
-    - Add intent list sorting options
-      - By name
-      - By last modified
-      - By type
-    - Add visual feedback for selected intent
-    - Add keyboard navigation for list
-
     # Center Panel - Intent Editor
     - Connect editor to selected intent
     - Implement YAML validation

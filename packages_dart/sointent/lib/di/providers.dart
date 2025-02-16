@@ -8,36 +8,42 @@ List<InheritedProvider> resourceProviders = [
         (final context) => PrefsDb()..also((final it) => LocalDb.instance = it),
   ),
   Provider<IntentsLocalApi>(
+    lazy: false,
     create:
         (final context) =>
             IntentsLocalApi()
               ..also((final it) => IntentsLocalApi.instance = it),
   ),
   Provider<AiClient>(
+    lazy: false,
     create:
         (final context) =>
             AiClient(baseUrl: Envs.openAiBaseUrl, modelId: Envs.openApiModel)
               ..also((final it) => AiClient.instance = it),
   ),
   ChangeNotifierProvider<AppStateResource>(
+    lazy: false,
     create:
         (_) =>
             AppStateResource()
               ..also((final it) => AppStateResource.instance = it),
   ),
   ChangeNotifierProvider<DialogMessagesResource>(
+    lazy: false,
     create:
         (final context) =>
             DialogMessagesResource()
               ..also((final it) => DialogMessagesResource.instance = it),
   ),
   ChangeNotifierProvider<IntentsResource>(
+    lazy: false,
     create:
         (final context) =>
             IntentsResource()
               ..also((final it) => IntentsResource.instance = it),
   ),
   ChangeNotifierProvider<FoldersResource>(
+    lazy: false,
     create:
         (final context) =>
             FoldersResource()

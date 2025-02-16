@@ -1,0 +1,35 @@
+semantic_intent:
+  name: "UiIntentsViewIntent"
+  type: "SemanticUiIntent"
+  meaning: |
+    # Left Panel - Intents List
+
+    The process of user acting is:
+    He selects top folder, then on the right new panel opens with content of this folder.
+    Then recursively it goes down.
+    We do know paths from SemanticIntentFile.path field.
+    Path should be parsed into levels.
+    Every level is one path segment.
+
+    View (endless panels,from left to right, depending on max level of paths): 
+
+      |-- semantic_intent_1
+      |-> semantic_intent_2 < | -- sub_intent_1 
+      |-- semantic_intent_3 - | -- sub_intent_2 
+      |-- semantic_intent_4 - | -- sub_intent_3  
+      |-- semantic_intent_5 - | -> sub_intent_4 < | -- sub_sub_intent_1
+      |-- semantic_intent_6 - | -- sub_intent_5 - | -- sub_sub_intent_2
+      |-- semantic_intent_7 - | -- sub_intent_6 - | -- sub_sub_intent_3
+      |-- semantic_intent_8 - | -- sub_intent_7 - | -- sub_sub_intent_4
+
+  scratchpad_todo:
+    - Add search functionality
+      - Implement search state in SemanticIntentsResource
+      - Add searchQuery field
+      - Add filteredIntents getter
+    - Add intent list sorting options
+      - By name
+      - By last modified
+      - By type
+    - Add visual feedback for selected intent
+    - Add keyboard navigation for list

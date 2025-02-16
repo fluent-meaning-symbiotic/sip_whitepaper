@@ -61,8 +61,8 @@ class FolderSelectionPanel extends StatelessWidget {
 
   Future<void> _handleFolderSelection(final BuildContext context) async {
     try {
-      final dirPath = (await FilePicker.platform.getDirectoryPath()) ?? '';
-      if (dirPath.isEmpty) return;
+      final dirPath = await FilePicker.platform.getDirectoryPath();
+      if (dirPath == null || dirPath.isEmpty) return;
       await LoadIntentsCommand(dirPath: dirPath).execute();
       if (context.mounted) {
         context.go('/workbench');

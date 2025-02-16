@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:sointent/common_imports.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
@@ -8,26 +9,35 @@ extension type const SemanticIntentName(String value) {
 }
 
 enum SemanticIntentType {
-  @JsonValue('SemanticTypeIntent')
   type,
-  @JsonValue('SeedSemanticIntent')
   seed,
-  @JsonValue('SemanticUiIntent')
+  api,
   ui,
-  @JsonValue('SemanticCommandIntent')
   command,
-  @JsonValue('SemanticAssetIntent')
+  reactiveCommand,
   asset,
-  @JsonValue('SemanticThemeTokensIntent')
   themeTokens,
-  @JsonValue('SemanticTestIntent')
   test;
 
   // ignore: prefer_expression_function_bodies
   factory SemanticIntentType.fromJson(final String json) {
-    // TODO(arenukvern): description
-    return SemanticIntentType.values.byName(json);
+    final result = _all.entries.firstWhereOrNull((final e) => e.value == json);
+    if (result == null) {
+      throw ArgumentError.value(json, 'json', 'Invalid semantic intent type');
+    }
+    return result.key;
   }
+  static const _all = <SemanticIntentType, String>{
+    type: 'SemanticTypeIntent',
+    api: 'SemanticApiIntent',
+    seed: 'SeedSemanticIntent',
+    ui: 'SemanticUiIntent',
+    command: 'SemanticCommandIntent',
+    reactiveCommand: 'SemanticReactiveCommandIntent',
+    asset: 'SemanticAssetIntent',
+    themeTokens: 'SemanticThemeTokensIntent',
+    test: 'SemanticTestIntent',
+  };
 }
 
 class SemanticIntentFile {
@@ -44,7 +54,7 @@ class SemanticIntentFile {
     final String path,
     final Map<String, dynamic> yaml,
   ) {
-    final data = yaml['semantic_intent'] as Map<String, dynamic>;
+    final data = yaml['semantic_intent'] as YamlMap;
 
     return SemanticIntentFile(
       name: SemanticIntentName(data['name'] as String),
@@ -52,7 +62,7 @@ class SemanticIntentFile {
       description: data['description'] as String,
       meaning: data['meaning'] as String,
       path: path,
-      data: data,
+      data: yaml,
     );
   }
 
