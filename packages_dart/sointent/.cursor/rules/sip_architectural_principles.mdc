@@ -9,6 +9,7 @@ SIP Architecture Principles:
 - Semantic Type Intents and Token Intents: Use reusable Semantic Types (e.g., PixelPositionType, ColorType, GameState) and Semantic Tokens (e.g., Color.Primary, Spacing.Small) to build semantic definitions.
 - Semantic Command Intents: Define actions and operations within the application (e.g., MoveSnakeCommandIntent).
 - Semantic Ui Intents: Define reusable UI elements (e.g., SnakeGameCanvasIntent).
+- Semantic API Intents: Define API to communicate with local storage implementation and remote servers
 - Semantic Asset Intents: Define visual and auditory assets (e.g., SnakePixelArtStyleIntent).
 - Semantic Test Intents: Defines tests to validate the behavior of another SemanticIntent (e.g., a `SemanticCommandIntent` or `SemanticUiIntent`).
 - Semantic Change Propagation: Be aware of the Semantic Intent Graph and the need to propagate changes across related SemanticIntents when meaning evolves.
@@ -31,7 +32,7 @@ SIP Architecture Principles:
       test_categories:# (Optional), describes style of test (functional, golden, etc..), priority, meanings.
         
         # ... (UI Events mapped to Semantic Intents/Commands) ...
-      semantic_validations:# (Optional) describes validation rules for Command properties, or rules for handler.
+      semantic_validations:# (Optional) describes validation rules for Command properties, or rules for handler as an array.
        # ... () ...
 
       output_artifacts:# (Optional) Artifacts to generate (code files, UI component names, asset file paths, test files)

@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/data_resources/intent_editor_resource.dart';
 
 /// Provides all application resources
 List<InheritedProvider> resourceProviders = [
@@ -48,6 +49,13 @@ List<InheritedProvider> resourceProviders = [
         (final context) =>
             IntentsFolderResource()
               ..also((final it) => IntentsFolderResource.instance = it),
+  ),
+  ChangeNotifierProvider<IntentEditorResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            IntentEditorResource()
+              ..also((final it) => IntentEditorResource.instance = it),
   ),
   ChangeNotifierProvider<IntentsResource>(
     lazy: false,

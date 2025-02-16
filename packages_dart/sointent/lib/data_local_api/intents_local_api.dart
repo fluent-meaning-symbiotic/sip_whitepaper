@@ -25,13 +25,7 @@ class IntentsLocalApi {
           try {
             print('Found intent file: ${entity.path}');
             final content = await entity.readAsString();
-            final yaml = loadYaml(content) as Map;
-            intents.add(
-              SemanticIntentFile.fromYaml(
-                entity.path,
-                Map<String, dynamic>.from(yaml),
-              ),
-            );
+            intents.add(SemanticIntentFile.fromYaml(entity.path, content));
             print('Successfully loaded intent from: ${entity.path}');
           } catch (e) {
             print('Error loading intent from ${entity.path}: $e');
