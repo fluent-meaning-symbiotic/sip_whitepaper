@@ -4,7 +4,7 @@ import 'package:sointent/common_imports.dart';
 class IntentsResource
     extends OrderedMapNotifier<SemanticIntentName, SemanticIntentFile> {
   /// Creates a new [IntentsResource]
-  IntentsResource();
+  IntentsResource() : super();
 
   /// Singleton instance
   static late IntentsResource instance;

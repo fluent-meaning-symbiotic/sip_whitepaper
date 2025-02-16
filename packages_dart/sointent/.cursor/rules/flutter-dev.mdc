@@ -8,6 +8,7 @@ You are a senior Dart programmer specializing in Flutter, Flame and Game develop
 
    - Clean code and design patterns
    - Use Dart 3.7, Flutter 3.29
+   - Use async / await instead of then
 
 2. **Enhanced Documentation**:
    - Always write dartdoc comments for all classes, functions, and important blocks of code.

@@ -33,17 +33,79 @@ semantic_intent:
     ├── - File (intent)
     └── - Last file in folder
 
+  semantic_properties:
+    layout:
+      type: TreeView
+      features:
+        - expandable_nodes
+        - selection
+        - search
+        - sorting
+        - keyboard_navigation
+
+    states:
+      - expanded_paths: Set<String>
+      - selected_path: String?
+      - search_query: String
+      - sort_mode: IntentSortMode
+
+  semantic_interactions:
+    - event: onNodeExpand
+      action: toggleNodeExpansion
+      description: "Expands or collapses a tree node"
+
+    - event: onNodeSelect
+      action: selectNode
+      description: "Selects a tree node and updates AppStateResource"
+
+    - event: onSearch
+      action: filterNodes
+      description: "Filters tree nodes based on search query"
+
+    - event: onSort
+      action: sortNodes
+      description: "Sorts tree nodes based on selected sort mode"
+
   scratchpad_todo:
-    - Add search functionality
-      - Implement search state in SemanticIntentsResource
-      - Add searchQuery field
-      - Add filteredIntents getter
-    - Add intent list sorting options
-      - By name
-      - By last modified
-      - By type
-    - Add visual feedback for selected intent
-    - Add keyboard navigation for tree
-      - Arrow keys for navigation
-      - Enter to expand/collapse
-      - Space to select
+    # Search Functionality
+    - Implement search in IntentsResource:
+        - Add searchQuery field
+          - Add filteredIntents getter using fuzzy search
+          - Update tree builder to use filtered intents
+
+    # Sorting Implementation
+    - Add IntentSortMode enum:
+        - byName
+        - byLastModified
+        - byType
+    - Add sorting logic to IntentTreeBuilder
+    - Add sort controls to UI
+
+    # Selection and Navigation
+    - Connect selection to AppStateResource:
+        - Add selectedIntentPath field
+        - Add setSelectedIntent method
+    - Implement keyboard navigation:
+        - Arrow keys for tree traversal
+        - Enter to expand/collapse
+        - Space to select
+        - Type to search (like VSCode)
+
+    # Visual Enhancements
+    - Add hover effects for tree items
+    - Improve selection highlight style
+    - Add intent type badges/icons
+    - Add file modification indicators
+    - Add loading states for large directories
+
+    # Performance Optimization
+    - Implement virtual scrolling for large trees
+    - Lazy load tree nodes on expansion
+    - Cache tree structure
+    - Optimize search performance
+
+    # Testing
+    - Add widget tests for tree view
+    - Add unit tests for tree builder
+    - Add integration tests for search/sort
+    - Add performance benchmarks

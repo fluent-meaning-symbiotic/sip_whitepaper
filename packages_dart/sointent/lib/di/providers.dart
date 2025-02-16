@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/data_resources/intents_search_resource.dart';
 
 /// Provides all application resources
 List<InheritedProvider> resourceProviders = [
@@ -55,6 +56,27 @@ List<InheritedProvider> resourceProviders = [
         (final context) =>
             FoldersResource()
               ..also((final it) => FoldersResource.instance = it),
+  ),
+  ChangeNotifierProvider<IntentSearchResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            IntentSearchResource()
+              ..also((final it) => IntentSearchResource.instance = it),
+  ),
+  ChangeNotifierProvider<IntentSortResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            IntentSortResource()
+              ..also((final it) => IntentSortResource.instance = it),
+  ),
+  ChangeNotifierProvider<FilteredIntentsResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            FilteredIntentsResource()
+              ..also((final it) => FilteredIntentsResource.instance = it),
   ),
 ];
 
