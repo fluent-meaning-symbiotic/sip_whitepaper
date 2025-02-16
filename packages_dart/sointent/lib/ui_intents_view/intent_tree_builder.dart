@@ -53,7 +53,10 @@ class IntentTreeBuilder {
   ///
   /// [intents] - The list of semantic intent files to organize into a tree.
   /// Returns a [TreeNode] representing the root of the tree.
-  static TreeNode buildFromIntents(final List<SemanticIntentFile> intents) {
+  static TreeNode buildFromIntents({
+    required final Iterable<SemanticIntentFile> intents,
+    required final String projectPath,
+  }) {
     if (intents.isEmpty) {
       return const TreeNode(name: 'root', path: '', children: {});
     }
@@ -64,31 +67,31 @@ class IntentTreeBuilder {
 
     // First pass: collect all paths and create path-to-intent mapping
     final Map<String, SemanticIntentFile> intentsByPath = {};
-    final Set<String> allPaths = {};
+    final Set<String> allParentPaths = {};
 
     for (final intent in sortedIntents) {
       // Normalize path by removing leading/trailing slashes
-      final normalizedPath = intent.path.trim().replaceAll(
-        RegExp(r'^/+|/+$'),
-        '',
-      );
+      final normalizedPath = intent
+          .getRelativePath(projectPath)
+          .trim()
+          .replaceAll(RegExp(r'^/+|/+$'), '');
       if (normalizedPath.isEmpty) continue;
 
       intentsByPath[normalizedPath] = intent;
-      _addParentPaths(normalizedPath, allPaths);
+      _addParentPaths(normalizedPath, allParentPaths);
 
       // Debug logging
       debugPrint('Added intent path: $normalizedPath');
-      debugPrint('Current allPaths: $allPaths');
+      debugPrint('Current allParentPaths: $allParentPaths');
     }
 
-    if (allPaths.isEmpty) {
+    if (allParentPaths.isEmpty) {
       debugPrint('No paths were processed. Input intents: $sortedIntents');
       return const TreeNode(name: 'root', path: '', children: {});
     }
 
     // Build tree recursively starting from root
-    return _buildNode('', allPaths, intentsByPath);
+    return _buildNode('', allParentPaths, intentsByPath);
   }
 
   /// Adds all parent paths for a given path to the paths set
@@ -109,13 +112,13 @@ class IntentTreeBuilder {
   /// Recursively builds a node and its children for a given path
   static TreeNode _buildNode(
     final String path,
-    final Set<String> allPaths,
+    final Set<String> allParentPaths,
     final Map<String, SemanticIntentFile> intentsByPath,
   ) {
     debugPrint('Building node for path: "$path"');
 
     final List<String> childPaths =
-        allPaths.where((final p) {
+        allParentPaths.where((final p) {
             if (path.isEmpty) {
               // For root, get top-level paths (no slashes)
               return !p.contains('/');
@@ -147,7 +150,7 @@ class IntentTreeBuilder {
                 path: childPath,
                 intent: intent,
               )
-              : _buildNode(childPath, allPaths, intentsByPath);
+              : _buildNode(childPath, allParentPaths, intentsByPath);
     }
 
     final nodeName = path.isEmpty ? 'root' : path.split('/').last;

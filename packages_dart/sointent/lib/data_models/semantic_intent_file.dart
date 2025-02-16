@@ -27,6 +27,9 @@ enum SemanticIntentType {
     }
     return result.key;
   }
+
+  String get json => _all[this]!;
+
   static const _all = <SemanticIntentType, String>{
     type: 'SemanticTypeIntent',
     api: 'SemanticApiIntent',
@@ -72,8 +75,7 @@ class SemanticIntentFile {
         'name': name.value,
         'description': description,
         'meaning': meaning,
-        // TODO(arenukvern): description
-        'type': type.name,
+        'type': type.json,
       },
     };
     final yamlEditor = YamlEditor('')..update([], yamlMap);
@@ -81,6 +83,10 @@ class SemanticIntentFile {
     return yamlEditor.toString();
   }
 
+  /// The relative path to the project containing this intent
+  String getRelativePath(final String projectPath) =>
+      path.replaceFirst(projectPath, '');
+  String get intentFileName => path.split('/').last.split('.').first;
   final SemanticIntentName name;
   final String meaning;
   final String description;

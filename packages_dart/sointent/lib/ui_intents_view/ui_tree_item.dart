@@ -15,8 +15,12 @@ class UiTreeItem extends StatelessWidget {
     required this.onExpand,
     required this.onSelect,
     required this.children,
+    required this.rootName,
     super.key,
   });
+
+  /// The name of the root folder
+  final String rootName;
 
   /// The tree node to display
   final TreeNode node;
@@ -38,98 +42,115 @@ class UiTreeItem extends StatelessWidget {
 
   /// Children of the node
   final List<Widget> children;
-
+  static const fileDepth = 8;
+  static const folderDepth = 8;
   @override
   Widget build(final BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = ColorScheme.of(context);
 
     if (node.isFile) {
-      return Padding(
-        padding: EdgeInsets.only(left: (depth * 12).toDouble()),
-        child: InkWell(
-          onTap: onSelect,
-          child: Container(
-            color:
-                isSelected
-                    ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-                    : null,
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              children: [
-                const SizedBox(width: 16),
-                Icon(
-                  Icons.description,
-                  size: 16,
-                  color: theme.colorScheme.primary.withOpacity(0.7),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        node.name,
-                        style: theme.textTheme.bodySmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        node.intent!.type.name,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+      final intent = node.intent!;
+      return DefaultTextStyle.merge(
+        style: theme.textTheme.bodySmall!.copyWith(
+          color: colorScheme.onSurface.withOpacity(0.9),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(left: (depth * fileDepth).toDouble()),
+          child: InkWell(
+            onTap: onSelect,
+            child: Container(
+              color:
+                  isSelected
+                      ? colorScheme.primaryContainer.withOpacity(0.3)
+                      : null,
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.description,
+                    size: 16,
+                    color: colorScheme.primary.withOpacity(0.7),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          intent.intentFileName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          intent.type.name,
+                          style: theme.textTheme.labelSmall!.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        InkWell(
-          onTap: onExpand,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: (depth * 10).toDouble(),
-              top: 2,
-              bottom: 2,
-              right: 2,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isExpanded ? Icons.expand_more : Icons.chevron_right,
-                  size: 16,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 1),
-                Icon(Icons.folder, size: 16, color: theme.colorScheme.primary),
-                const SizedBox(width: 2),
-                Expanded(
-                  child: Text(
-                    node.name,
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+    return DefaultTextStyle.merge(
+      style: theme.textTheme.bodySmall!.copyWith(
+        color: colorScheme.onSurface.withOpacity(0.5),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: onExpand,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: (depth * folderDepth).toDouble(),
+                top: 4,
+                bottom: 4,
+                right: 2,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isExpanded ? Icons.expand_more : Icons.chevron_right,
+                    size: 16,
+                    color: colorScheme.primary.withOpacity(0.7),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 1),
+                  Icon(
+                    Icons.folder,
+                    size: 16,
+                    color: colorScheme.primary.withOpacity(0.7),
+                  ),
+                  const SizedBox(width: 2),
+                  Expanded(
+                    child: Text(
+                      switch (node.name) {
+                        'root' => rootName,
+                        _ => node.name,
+                      },
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        if (isExpanded) ...[...children],
-      ],
+          if (isExpanded) ...[...children],
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/di/providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +26,7 @@ class SoIntentApp extends StatelessWidget {
           ),
           darkTheme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue,
+              seedColor: Colors.indigoAccent,
               brightness: Brightness.dark,
             ),
             useMaterial3: true,

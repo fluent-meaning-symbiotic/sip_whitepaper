@@ -47,6 +47,14 @@ class ImmutableOrderedList<V> with Iterable<V> {
     _items = [..._items, value].unmodifiable;
   }
 
+  /// Adds item with validation if it doesn't already exist
+  @mustCallSuper
+  bool addUnique(final V value) {
+    if (_items.contains(value)) return false;
+    add(value);
+    return true;
+  }
+
   @mustCallSuper
   void remove(final V value) {
     _items = _items.where((final item) => item != value).toList().unmodifiable;

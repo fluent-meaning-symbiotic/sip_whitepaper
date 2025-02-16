@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/core/utils/ordered_list.dart';
 
 class OrderedListNotifier<V> extends ImmutableOrderedList<V>
     with ChangeNotifier {
@@ -8,6 +7,14 @@ class OrderedListNotifier<V> extends ImmutableOrderedList<V>
   void add(final V value) {
     super.add(value);
     notifyListeners();
+  }
+
+  @override
+  @mustCallSuper
+  bool addUnique(final V value) {
+    final result = super.addUnique(value);
+    if (result) notifyListeners();
+    return result;
   }
 
   @override

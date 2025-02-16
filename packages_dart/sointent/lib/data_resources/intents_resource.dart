@@ -9,3 +9,15 @@ class IntentsResource
   /// Singleton instance
   static late IntentsResource instance;
 }
+
+/// Current root folder path of intents
+class IntentsFolderResource extends ValueNotifier<String> {
+  /// Creates a new [IntentsFolderResource]
+  IntentsFolderResource() : super('');
+
+  /// The name of the folder
+  String get folderName => value.split('/').last;
+
+  /// Singleton instance
+  static late IntentsFolderResource instance;
+}

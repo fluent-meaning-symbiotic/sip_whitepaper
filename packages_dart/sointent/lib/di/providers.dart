@@ -35,6 +35,13 @@ List<InheritedProvider> resourceProviders = [
             DialogMessagesResource()
               ..also((final it) => DialogMessagesResource.instance = it),
   ),
+  ChangeNotifierProvider<IntentsFolderResource>(
+    lazy: false,
+    create:
+        (final context) =>
+            IntentsFolderResource()
+              ..also((final it) => IntentsFolderResource.instance = it),
+  ),
   ChangeNotifierProvider<IntentsResource>(
     lazy: false,
     create:

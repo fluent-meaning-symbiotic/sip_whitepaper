@@ -15,6 +15,7 @@ class LoadIntentsCommand extends SemanticCommand {
         toValue: (final intent) => intent,
       ),
     );
-    FoldersResource.instance.add(dirPath);
+    FoldersResource.instance.addUnique(dirPath);
+    IntentsFolderResource.instance.value = dirPath;
   }
 }
