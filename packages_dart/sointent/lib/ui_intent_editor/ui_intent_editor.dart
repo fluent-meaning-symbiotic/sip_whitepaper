@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_resources/selected_intent_resource.dart';
 import 'package:sointent/ui_intent_editor/yaml_editor.dart';
 
 /// {@template ui_intent_editor}
@@ -36,6 +35,7 @@ class UiIntentEditor extends HookWidget {
             const SizedBox(height: 16),
             Expanded(
               child: YamlEditor(
+                key: ValueKey(currentIntent.path),
                 initialValue: currentIntent.toYaml(),
                 onChanged: (final yaml) {
                   // TODO: Implement save functionality

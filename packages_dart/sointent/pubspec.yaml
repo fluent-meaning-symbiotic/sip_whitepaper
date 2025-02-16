@@ -41,6 +41,9 @@ dependencies:
   # UI Components
   flutter_animate: ^4.5.2
   flutter_hooks: ^0.20.5
+  code_text_field: ^1.1.0
+  flutter_highlight: ^0.7.0
+  highlight: ^0.7.0
 
   # Code Generation
   freezed_annotation: ^2.4.1
