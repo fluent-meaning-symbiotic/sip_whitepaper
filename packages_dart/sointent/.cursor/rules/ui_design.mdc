@@ -1,0 +1,71 @@
+---
+description: ui design rules
+globs: *.dart
+---
+**1. Spatial Hierarchy**
+- 8px base unit grid (4px for micro-spacing)
+- Section padding: 16px (24px for major groups)
+- Nested element spacing: 8-12px
+- Compact but legible - 4px between form labels/inputs
+
+**2. Type Scale** 
+- Body: 13-14px (400)
+- Headers: 15px semibold
+- Secondary text: 12px (380)
+- Monospace: 13px Mono
+- Line height: 1.2-1.4x
+
+**3. Component Anatomy**
+- Inputs: 28-32px height (text fields/buttons)
+- Icons: 16x16px (action), 20x20px (navigation)
+- Subtle depth: 0.5-1px borders (#E5E5EA)
+- Roundedness: 4-6px radius (windows), 20px (buttons)
+
+**4. Visual Techniques**
+- Layered grays (5% increments) for hierarchy
+- Accent colors at 85% saturation (primary=#536DFE)
+- Status indicators use purple/teal spectrum
+- Hover states: +8% lightness on base colors
+- Focus rings: 1.5px #536DFE (90% opacity)
+- Warm Red for destructive actions only
+
+
+**5. Interaction Patterns**
+- Hover: 10% background lightening
+- Focus rings: 2px blue outline (80% opacity)
+- Context menus: 9px padding, 1px divider
+- Keyboard nav: 2px highlight on focused elements
+
+**Cozy Optimization**
+- Warm grays instead of pure white (#FBFBFD bg)
+- 1px hairline dividers between sections
+- Status indicators using subtle opacity changes
+- Progressive disclosure for advanced controls
+
+
+**Color System** 
+1. Primary Accent:
+   - Base: #536DFE (85% saturation)
+   - Hover: #6B82FF (+10% lightness)
+   - Active: #3A55D5 (-15% lightness)
+
+2. Secondary Palette:
+   - Purple: #8A63FF (data visual)
+   - Teal: #00C7BE (success states)
+   - Warm Red: #FF5F5A (errors)
+
+3. Neutrals:
+   - Text: #2D2D33 (90% black)
+   - Secondary: #6C6C70 (60% opacity)
+   - Backgrounds: #F8F9FF (soft blue-white)
+
+4. Interface Rules:
+   - Borders: #D8D8DD (12% opacity)
+   - Dividers: #E0E0E8 (8% opacity)
+   - Disabled: 40% opacity + grayscale
+
+
+
+Key sources:  
+[Sketch's focus on minimal interface design](https://www.sketch.com)  
+[Apple Design Award winners' patterns](https://developer.apple.com)  
