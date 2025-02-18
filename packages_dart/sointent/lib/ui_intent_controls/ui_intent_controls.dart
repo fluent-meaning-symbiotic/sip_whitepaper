@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// {@template ui_intent_controls}
 /// Right panel of the workbench that displays controls and actions
@@ -11,6 +12,7 @@ class UiIntentControls extends HookWidget {
   @override
   Widget build(final BuildContext context) {
     final intents = context.watch<IntentsResource>();
+    final theme = Theme.of(context);
 
     return Card(
       margin: const EdgeInsets.all(8),
@@ -19,34 +21,31 @@ class UiIntentControls extends HookWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Intent Controls',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            Text('Intent Controls', style: theme.textTheme.titleMedium),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
+            NeumorphicButton(
+              label: 'Create Intent',
               onPressed: () {
                 // TODO: Implement create intent
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Create Intent'),
+              icon: Icons.add,
             ),
             const SizedBox(height: 8),
-            ElevatedButton.icon(
+            NeumorphicButton(
+              label: 'Save Intent',
               onPressed: () {
                 // TODO: Implement save intent
               },
-              icon: const Icon(Icons.save),
-              label: const Text('Save Intent'),
+              icon: Icons.save,
             ),
             const SizedBox(height: 8),
-            OutlinedButton.icon(
+            NeumorphicButton(
+              label: 'Delete Intent',
               onPressed: () {
                 // TODO: Implement delete intent
               },
-              icon: const Icon(Icons.delete),
-              label: const Text('Delete Intent'),
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+              icon: Icons.delete,
+              variant: ButtonVariant.secondary,
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/data_commands/data_commands.dart';
+import 'package:sointent/ui_kit/ui_kit.dart';
 
 /// {@template ui_root_screen}
 /// Initial screen of the application that handles app loading and folder selection.
@@ -39,13 +40,33 @@ class _UiRootScreenState extends State<UiRootScreen> {
     final appStateResource = context.watch<AppStateResource>();
     final foldersResource = context.watch<FoldersResource>();
     final isLoading = appStateResource.value == AppState.loading;
+    final theme = Theme.of(context);
+    final neumorphicTheme = AppTheme.of(context);
 
     return Scaffold(
-      body: Center(
+      backgroundColor: neumorphicTheme.baseBackground,
+      body: AnimatedSwitcher(
+        duration: AnimationTokens.stateDuration,
+        switchInCurve: AnimationTokens.stateCurve,
+        switchOutCurve: AnimationTokens.stateCurve,
         child:
             isLoading
-                ? const CircularProgressIndicator()
-                : FolderSelectionPanel(foldersResource: foldersResource),
+                ? Center(
+                  child: CircularProgressIndicator(
+                    color: neumorphicTheme.primaryAccent,
+                  ),
+                )
+                : Padding(
+                  padding: Spacing.sectionPadding,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: FolderSelectionPanel(
+                        foldersResource: foldersResource,
+                      ),
+                    ),
+                  ),
+                ),
       ),
     );
   }
@@ -73,7 +94,6 @@ class FolderSelectionPanel extends StatelessWidget {
         context.go('/workbench');
       }
     } catch (e) {
-      // TODO: Handle error state
       debugPrint('Error loading intents: $e');
     }
   }
@@ -83,47 +103,80 @@ class FolderSelectionPanel extends StatelessWidget {
     final recentFolders = context.select<FoldersResource, List<String>>(
       (final resource) => resource.toList(),
     );
+    final theme = Theme.of(context);
+    final neumorphicTheme = AppTheme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              await _handleFolderSelection(context);
-            },
-            child: const Text('Open Folder'),
-          ),
-          const SizedBox(height: 16),
-          if (recentFolders.isNotEmpty) ...[
-            const Text(
-              'Recent Folders',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 200),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: recentFolders.length,
-                itemBuilder: (final context, final index) {
-                  final folderPath = recentFolders[index];
-                  return ListTile(
-                    title: Text(folderPath.split('/').last),
-                    subtitle: Text(folderPath),
-                    onTap: () async {
-                      await _handleFolderSelection(
-                        context,
-                        folderPath: folderPath,
-                      );
-                    },
-                  );
-                },
+    return Card(
+      margin: EdgeInsets.zero,
+      color: neumorphicTheme.surfaceBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ComponentSize.cardRadius),
+      ),
+      elevation: Elevation.defaultDesktop,
+      child: Padding(
+        padding: Spacing.sectionPadding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: ComponentSize.buttonHeight,
+              child: ElevatedButton(
+                onPressed: () async => _handleFolderSelection(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: neumorphicTheme.primaryAccent,
+                  foregroundColor: Colors.white,
+                  elevation: Elevation.defaultDesktop,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      ComponentSize.buttonRadius,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.horizontalElement,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.folder_open,
+                      size: ComponentSize.actionIconSize,
+                    ),
+                    const SizedBox(width: Spacing.micro * 2),
+                    Text('Open Folder', style: theme.textTheme.bodyLarge),
+                  ],
+                ),
               ),
             ),
+            if (recentFolders.isNotEmpty) ...[
+              const SizedBox(height: Spacing.verticalElement),
+              Text('Recent Folders', style: theme.textTheme.labelLarge),
+              const SizedBox(height: Spacing.micro * 2),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: recentFolders.length,
+                  itemBuilder: (final context, final index) {
+                    final folderPath = recentFolders[index];
+                    final folderName = folderPath.split('/').last;
+
+                    return ListItemCard(
+                      title: folderName,
+                      subtitle: folderPath,
+                      onTap:
+                          () async => _handleFolderSelection(
+                            context,
+                            folderPath: folderPath,
+                          ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

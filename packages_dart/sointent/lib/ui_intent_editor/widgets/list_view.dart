@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// A widget that displays a list of strings as chips
 class ChipListView extends StatelessWidget {
@@ -37,26 +38,8 @@ class ChipListView extends StatelessWidget {
       children:
           items
               .map(
-                (final item) => Chip(
-                  label: Text(
-                    item,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  backgroundColor: colorScheme.surface,
-                  side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
-                  deleteIcon: Icon(
-                    Icons.cancel,
-                    size: 18,
-                    color: colorScheme.error,
-                  ),
-                  onDeleted: () => onRemove(item),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                ),
+                (final item) =>
+                    CustomChip(label: item, onDeleted: () => onRemove(item)),
               )
               .toList(),
     );

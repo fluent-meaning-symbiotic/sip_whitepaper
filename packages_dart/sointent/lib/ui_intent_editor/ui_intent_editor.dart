@@ -85,42 +85,13 @@ class _TabButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(final BuildContext context) {
-    final neumorphic = AppTheme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(ComponentSize.buttonRadius),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? neumorphic.primaryAccent.withOpacity(0.1)
-                    : Colors.transparent,
-            borderRadius: BorderRadius.circular(ComponentSize.buttonRadius),
-            border: Border.all(
-              color:
-                  isSelected
-                      ? neumorphic.primaryAccent.withOpacity(0.2)
-                      : Colors.transparent,
-            ),
-          ),
-          child: Text(
-            label,
-            style: context.labelStyle.copyWith(
-              color:
-                  isSelected
-                      ? neumorphic.primaryAccent
-                      : neumorphic.secondaryText,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(final BuildContext context) => NeumorphicButton(
+    label: label,
+    onPressed: onTap,
+    isSelected: isSelected,
+    variant: ButtonVariant.secondary,
+    size: ButtonSize.small,
+  );
 }
 
 /// Header section of the intent editor with title and actions
@@ -139,8 +110,6 @@ class _IntentEditorHeader extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final neumorphic = AppTheme.of(context);
 
     return Container(
@@ -173,40 +142,17 @@ class _IntentEditorHeader extends StatelessWidget {
             ),
           ),
           if (isDirty) ...[
-            OutlinedButton.icon(
+            NeumorphicButton(
+              label: 'Discard',
               onPressed: onDiscard,
-              icon: const Icon(Icons.undo, size: ComponentSize.actionIconSize),
-              label: const Text('Discard'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.horizontalElement,
-                  vertical: Spacing.base,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    ComponentSize.buttonRadius,
-                  ),
-                ),
-                side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
-              ),
+              icon: Icons.undo,
+              variant: ButtonVariant.secondary,
             ),
             const SizedBox(width: Spacing.horizontalElement),
-            FilledButton.icon(
+            NeumorphicButton(
+              label: 'Save',
               onPressed: onSave,
-              icon: const Icon(Icons.save, size: ComponentSize.actionIconSize),
-              label: const Text('Save'),
-              style: FilledButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.horizontalElement,
-                  vertical: Spacing.base,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    ComponentSize.buttonRadius,
-                  ),
-                ),
-              ),
+              icon: Icons.save,
             ),
           ],
         ],
@@ -294,43 +240,9 @@ class _UiIntentEditorState extends State<UiIntentEditor> {
               (final index) => setState(() => _selectedTabIndex = index),
         ),
         if (_errorMessage != null)
-          Container(
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: colorScheme.error.withOpacity(0.2)),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.error.withOpacity(0.05),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline, color: colorScheme.error, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _errorMessage!,
-                    style: context.bodyStyle.copyWith(color: colorScheme.error),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => _setErrorMessage(null),
-                  color: colorScheme.error,
-                  padding: const EdgeInsets.all(8),
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                ),
-              ],
-            ),
+          ErrorMessage(
+            message: _errorMessage!,
+            onDismiss: () => _setErrorMessage(null),
           ),
         Expanded(
           child: StructuredIntentEditor(

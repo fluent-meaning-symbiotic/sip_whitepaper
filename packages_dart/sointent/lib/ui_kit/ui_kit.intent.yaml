@@ -66,12 +66,62 @@ semantic_intent:
 
     components:
       button:
-        height: 32
-        radius: 10
-        extrusion: 1.5
-      input:
-        height: 36
-        shadow: "inset 0 1px 2px rgba(0,0,0,0.1)"
+        variants:
+          - primary
+          - secondary
+        sizes:
+          - small
+          - medium
+          - large
+        properties:
+          height:
+            small: 24
+            medium: 32
+            large: 40
+          radius: 10
+          extrusion: 1.5
+          icon_size: 18
+          padding:
+            small:
+              horizontal: 12
+            medium:
+              horizontal: 16
+            large:
+              horizontal: 20
+
+      error_message:
+        properties:
+          padding: 12
+          radius: 10
+          icon_size: 18
+          border_opacity: 0.2
+          background_opacity: 0.1
+          shadow_opacity: 0.05
+
+      input_field:
+        properties:
+          height: 36
+          radius: 10
+          padding:
+            horizontal: 16
+            vertical: 12
+          border_opacity: 0.2
+          shadow:
+            blur: 2
+            spread: -1
+
+      chip:
+        properties:
+          height: 28
+          radius: 14
+          padding:
+            horizontal: 12
+            vertical: 6
+          border_opacity: 0.15
+          shadow:
+            blur: 1.5
+            spread: -0.5
+
       card:
         radius: 16
         depth: 2.5
