@@ -2,70 +2,76 @@
 description: ui design rules
 globs: *.dart
 ---
-**1. Spatial Hierarchy**
-- 8px base unit grid (4px for micro-spacing)
-- Section padding: 16px (24px for major groups)
-- Nested element spacing: 8-12px
-- Compact but legible - 4px between form labels/inputs
+// ======== CORE PRINCIPLES ======== //
+1. Spatial Hierarchy
+   - Base unit: 8px (4px for micro-interactions)
+   - Section padding: 24px (light) / 20px (dark)
+   - Element spacing: 12px vertical, 16px horizontal
+   - Nested group indent: 20px (both themes)
 
-**2. Type Scale** 
-- Body: 13-14px (400)
-- Headers: 15px semibold
-- Secondary text: 12px (380)
-- Monospace: 13px Mono
-- Line height: 1.2-1.4x
+2. Type Scale (Space Grotesk-based)
+   - Primary: 14px/1.3 (500) + 0.2 tracking → 15px in dark mode
+   - Secondary: 13px/1.4 (400) + 0.5 tracking
+   - Headers: 16px (600) with +0.1 letter spacing
+   - Code: 13px Fira Code (400) with 0.5 tracking
 
-**3. Component Anatomy**
-- Inputs: 28-32px height (text fields/buttons)
-- Icons: 16x16px (action), 20x20px (navigation)
-- Subtle depth: 0.5-1px borders (#E5E5EA)
-- Roundedness: 4-6px radius (windows), 20px (buttons)
+3. Component Anatomy
+   - Buttons: 32px height, 10px radius, 1.5px extrusion
+   - Inputs: 36px height, recessed 1px inner shadow
+   - Cards: 16px radius, 2.5px dual-layer depth
+   - Icons: 20px (nav), 18px (actions), 2px padding
 
-**4. Visual Techniques**
-- Layered grays (5% increments) for hierarchy
-- Accent colors at 85% saturation (primary=#536DFE)
-- Status indicators use purple/teal spectrum
-- Hover states: +8% lightness on base colors
-- Focus rings: 1.5px #536DFE (90% opacity)
-- Warm Red for destructive actions only
+// ======== VISUAL TECHNIQUES ======== //
+4. Light Theme (Cosmic Day)
+   - Background: #1E1B2E (base), #2A2639 (surface)
+   - Shadows: 
+     ▸ Light: rgba(107,99,255,0.1) 2px
+     ▸ Dark: rgba(0,0,0,0.2) 3px
+   - Accents: #8E7CFF (primary), #4A90E2 (secondary)
+   - Text: #E0E0EC (90%), #B0B0C0 (60%)
 
+5. Dark Theme (Deep Space)
+   - Background: #0F0B1E (base), #1A1628 (surface)
+   - Shadows:
+     ▸ Light: rgba(123,99,255,0.06) 2px
+     ▸ Dark: rgba(0,0,0,0.3) 3px  
+   - Accents: #9D8FFF (primary), #5B9FE2 (secondary)
+   - Text: #F0F0FF (90%), #A0A0C0 (60%)
 
-**5. Interaction Patterns**
-- Hover: 10% background lightening
-- Focus rings: 2px blue outline (80% opacity)
-- Context menus: 9px padding, 1px divider
-- Keyboard nav: 2px highlight on focused elements
+6. Depth System
+   - Default: 1.5px extrusion (0.8px for mobile)
+   - Active: Reverse shadow direction + 0.5px inset
+   - Floating: 4px elevation (3px in dark mode)
 
-**Cozy Optimization**
-- Warm grays instead of pure white (#FBFBFD bg)
-- 1px hairline dividers between sections
-- Status indicators using subtle opacity changes
-- Progressive disclosure for advanced controls
+// ======== INTERACTION PATTERNS ======== //
+7. States & Feedback
+   - Hover: +8% lightness (light)/+6% (dark)
+   - Pressed: -2px depth + 0.5px border highlight
+   - Focus: 1.5px accent ring (30% opacity overlay)
+   - Disabled: 40% opacity + grayscale filter
 
+8. Transitions
+   - Micro-interactions: 120ms ease-in-out
+   - State changes: 180ms cubic-bezier(0.2,0,0,1)
+   - Complex animations: 300ms staged reveals
 
-**Color System** 
-1. Primary Accent:
-   - Base: #536DFE (85% saturation)
-   - Hover: #6B82FF (+10% lightness)
-   - Active: #3A55D5 (-15% lightness)
+// ======== ACCESSORY RULES ======== //
+9. Cosmic Enhancements
+   - 1px radial gradient borders (3% luminosity diff)
+   - 2% noise texture on surfaces (5% in dark mode)
+   - Subtle purple glow on active elements
+   - Star-like sparkles on primary actions
 
-2. Secondary Palette:
-   - Purple: #8A63FF (data visual)
-   - Teal: #00C7BE (success states)
-   - Warm Red: #FF5F5A (errors)
-
-3. Neutrals:
-   - Text: #2D2D33 (90% black)
-   - Secondary: #6C6C70 (60% opacity)
-   - Backgrounds: #F8F9FF (soft blue-white)
-
-4. Interface Rules:
-   - Borders: #D8D8DD (12% opacity)
-   - Dividers: #E0E0E8 (8% opacity)
-   - Disabled: 40% opacity + grayscale
-
-
+10. Accessibility
+    - Minimum 4.6:1 text contrast
+    - 3px focus indicator (WCAG AAA)
+    - Optional motion reduction toggle
+    - High contrast mode support
 
 Key sources:  
-[Sketch's focus on minimal interface design](https://www.sketch.com)  
-[Apple Design Award winners' patterns](https://developer.apple.com)  
+https://fonts.google.com/specimen/Space+Grotesk Space Grotesk's geometric precision
+https://fonts.google.com/specimen/Fira+Code Fira Code's programming ligatures
+https://www.justinmind.com/ui-design/neumorphism Neumorphic design principles
+https://developer.apple.com/design/human-interface-guidelines/dark-mode Dark mode best practices
+
+

@@ -6,6 +6,7 @@ import 'package:sointent/ui_intent_editor/widgets/llm_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_interactions_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_properties_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/testing_section.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// {@template structured_intent_editor}
 /// A structured editor for semantic intents that provides a form-based interface
@@ -42,30 +43,71 @@ class StructuredIntentEditor extends HookWidget {
 
     useEffect(() => controller.dispose, [controller]);
 
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BasicPropertiesSection(controller: controller),
-                const SizedBox(height: 16),
-                SemanticPropertiesSection(controller: controller),
-                const SizedBox(height: 16),
-                SemanticInteractionsSection(controller: controller),
-                const SizedBox(height: 16),
-                TestingSection(controller: controller),
-                const SizedBox(height: 16),
-                ArtifactsSection(controller: controller),
-                const SizedBox(height: 16),
-                LlmSection(controller: controller),
-              ],
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [colorScheme.primary.withOpacity(0.03), Colors.transparent],
+        ),
+      ),
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: BasicPropertiesSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: SemanticPropertiesSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: SemanticInteractionsSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: TestingSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: ArtifactsSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SectionCard(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: LlmSection(controller: controller),
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ]),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

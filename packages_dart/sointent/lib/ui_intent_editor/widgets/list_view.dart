@@ -13,13 +13,19 @@ class ChipListView extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (items.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Text(
             'No items yet. Click + to add.',
-            style: TextStyle(fontStyle: FontStyle.italic),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontStyle: FontStyle.italic,
+              color: colorScheme.onSurface.withOpacity(0.6),
+            ),
           ),
         ),
       );
@@ -31,8 +37,26 @@ class ChipListView extends StatelessWidget {
       children:
           items
               .map(
-                (final item) =>
-                    Chip(label: Text(item), onDeleted: () => onRemove(item)),
+                (final item) => Chip(
+                  label: Text(
+                    item,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  backgroundColor: colorScheme.surface,
+                  side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+                  deleteIcon: Icon(
+                    Icons.cancel,
+                    size: 18,
+                    color: colorScheme.error,
+                  ),
+                  onDeleted: () => onRemove(item),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                ),
               )
               .toList(),
     );

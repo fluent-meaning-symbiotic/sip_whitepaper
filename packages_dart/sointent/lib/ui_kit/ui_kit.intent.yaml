@@ -1,0 +1,158 @@
+semantic_intent:
+  version: 1
+  name: UiKitSeedIntent
+  type: SeedSemanticIntent
+  meaning: "Foundational design system and UI component library following neumorphic design principles with accessibility and theme adaptability"
+  description: "A comprehensive UI kit that implements a modern neumorphic design system with strong accessibility, consistent spatial hierarchy, and seamless theme transitions. Provides core building blocks for creating cohesive user interfaces."
+
+  semantic_properties:
+    spacing:
+      base_unit: 8 # Base spacing unit in pixels
+      micro_unit: 4 # For micro-interactions
+      section_padding:
+        light: 24
+        dark: 20
+      element_spacing:
+        vertical: 12
+        horizontal: 16
+      nested_indent: 20
+
+    typography:
+      font_family: "SF Pro"
+      styles:
+        primary:
+          size: 14
+          line_height: 1.3
+          weight: 500
+          dark_mode_size: 15
+        secondary:
+          size: 13
+          line_height: 1.4
+          weight: 400
+          tracking: 0.5
+        header:
+          size: 16
+          weight: 600
+          letter_spacing: -10
+        code:
+          family: "SF Mono"
+          size: 13
+          optical_adjustment: 2
+
+    components:
+      button:
+        height: 32
+        radius: 10
+        extrusion: 1.5
+      input:
+        height: 36
+        shadow: "inset 0 1px 2px rgba(0,0,0,0.1)"
+      card:
+        radius: 16
+        depth: 2.5
+      icon:
+        sizes:
+          nav: 20
+          action: 18
+        padding: 2
+
+    themes:
+      light:
+        background:
+          base: "#F6F6FC"
+          surface: "#EFEFF7"
+        shadows:
+          light: "rgba(255,255,255,0.8) 2px"
+          dark: "rgba(50,50,60,0.12) 3px"
+        accents:
+          primary: "#6B82FF"
+          secondary: "#FF9F4A"
+        text:
+          primary: "#3A3A45"
+          secondary: "#6C6C70"
+      dark:
+        background:
+          base: "#1A1A24"
+          surface: "#242430"
+        shadows:
+          light: "rgba(255,255,255,0.06) 2px"
+          dark: "rgba(0,0,0,0.24) 3px"
+        accents:
+          primary: "#7D94FF"
+          secondary: "#FFB074"
+        text:
+          primary: "#E0E0EC"
+          secondary: "#A0A0B0"
+
+    depth:
+      default:
+        desktop: 1.5
+        mobile: 0.8
+      active:
+        shadow_direction: "inset"
+        border_highlight: 0.5
+      floating:
+        light: 4
+        dark: 3
+
+    interactions:
+      states:
+        hover:
+          light_mode_lightness: 8
+          dark_mode_lightness: 6
+        pressed:
+          depth_reduction: 2
+          border_highlight: 0.5
+        focus:
+          ring_width: 1.5
+          ring_opacity: 0.3
+        disabled:
+          opacity: 0.4
+          filter: "grayscale(100%)"
+
+      transitions:
+        micro:
+          duration: 120
+          timing: "ease-in-out"
+        state:
+          duration: 180
+          timing: "cubic-bezier(0.2,0,0,1)"
+        complex:
+          duration: 300
+          type: "staged"
+
+    enhancements:
+      borders:
+        gradient:
+          width: 1
+          luminosity_diff: 3
+      noise:
+        light_opacity: 2
+        dark_opacity: 5
+      lighting:
+        type: "radial-gradient"
+        context: "warm"
+
+    accessibility:
+      text_contrast_ratio: 4.6
+      focus_indicator_width: 3
+      motion_reduction: true
+
+  output_artifacts:
+    - "lib/ui_kit/atoms/*.dart"
+    - "lib/ui_kit/molecules/*.dart"
+    - "lib/ui_kit/organisms/*.dart"
+    - "lib/ui_kit/themes/*.dart"
+    - "lib/ui_kit/tokens/*.dart"
+
+  semantic_validations:
+    - "All components must maintain minimum contrast ratios"
+    - "Interactive elements must have focus states"
+    - "Animations must respect reduced motion preferences"
+    - "Spacing must follow 8px grid system"
+    - "Theme transitions must be smooth and consistent"
+
+  llm_prompts:
+    component_generation: "Generate Flutter widget following neumorphic design system with proper theming support and accessibility features"
+    theme_generation: "Create theme data structure that supports both light and dark modes with proper color relationships"
+    token_generation: "Define design tokens that maintain consistency across the design system"

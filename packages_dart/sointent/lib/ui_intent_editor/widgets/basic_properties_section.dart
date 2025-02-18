@@ -1,5 +1,6 @@
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/ui_intent_editor/controllers/structured_intent_controller.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// Section for editing basic intent properties
 class BasicPropertiesSection extends StatefulWidget {
@@ -49,33 +50,27 @@ class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
   }
 
   @override
-  Widget build(final BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
+  Widget build(final BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Basic Properties',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              border: OutlineInputBorder(),
-            ),
+          const SectionHeader(title: 'Basic Properties'),
+          const SizedBox(height: 24),
+          InputField(
+            label: 'Name',
             controller: _nameController,
             onChanged:
                 (final value) =>
                     widget.controller.updateBasicProperties(name: value),
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<SemanticIntentType>(
-            decoration: const InputDecoration(
-              labelText: 'Type',
-              border: OutlineInputBorder(),
-            ),
+          DropdownField<SemanticIntentType>(
+            label: 'Type',
             value: SemanticIntentType.values.firstWhere(
               (final t) => t.json == widget.controller.data.type,
               orElse: () => SemanticIntentType.type,
@@ -83,8 +78,10 @@ class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
             items:
                 SemanticIntentType.values
                     .map(
-                      (final type) =>
-                          DropdownMenuItem(value: type, child: Text(type.json)),
+                      (final type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(type.json, style: context.bodyStyle),
+                      ),
                     )
                     .toList(),
             onChanged: (final value) {
@@ -94,35 +91,25 @@ class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
             },
           ),
           const SizedBox(height: 16),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'Meaning',
-              border: OutlineInputBorder(),
-              helperText: "Core meaning of the intent's purpose",
-            ),
-            scrollPhysics: const NeverScrollableScrollPhysics(),
+          InputField(
+            label: 'Meaning',
             controller: _meaningController,
-            maxLines: null,
+            helperText: "Core meaning of the intent's purpose",
             onChanged:
                 (final value) =>
                     widget.controller.updateBasicProperties(meaning: value),
           ),
           const SizedBox(height: 16),
-          TextField(
-            scrollPhysics: const NeverScrollableScrollPhysics(),
-            maxLines: null,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              border: OutlineInputBorder(),
-              helperText: 'Detailed description of the intent',
-            ),
+          InputField(
+            label: 'Description',
             controller: _descriptionController,
+            helperText: 'Detailed description of the intent',
             onChanged:
                 (final value) =>
                     widget.controller.updateBasicProperties(description: value),
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }

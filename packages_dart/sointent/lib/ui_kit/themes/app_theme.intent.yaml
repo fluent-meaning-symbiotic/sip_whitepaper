@@ -1,0 +1,51 @@
+semantic_intent:
+  version: 1
+  name: AppThemeIntent
+  type: SemanticUiIntent
+  meaning: "Defines the application's theme system with neumorphic design principles and accessibility support"
+  description: "Comprehensive theme system that provides both light and dark modes with neumorphic design elements, proper color relationships, and accessibility considerations"
+
+  semantic_properties:
+    theme_modes:
+      - light
+      - dark
+    color_properties:
+      - base_background
+      - surface_background
+      - light_shadow
+      - dark_shadow
+      - primary_accent
+      - secondary_accent
+      - primary_text
+      - secondary_text
+    theme_features:
+      - neumorphic_shadows
+      - color_relationships
+      - accessibility_support
+      - motion_reduction
+      - dark_mode_adaptation
+
+  semantic_validations:
+    - "All color combinations must meet WCAG 2.1 AA contrast requirements"
+    - "Theme transitions must be smooth and performant"
+    - "Dark mode must maintain readability and reduce eye strain"
+    - "All interactive elements must have proper focus states"
+    - "Motion effects must respect user preferences"
+
+  test_categories:
+    - type: golden
+      priority: high
+      meanings:
+        - "Verify light theme color relationships"
+        - "Verify dark theme color relationships"
+        - "Verify theme transitions"
+        - "Verify accessibility compliance"
+
+  output_artifacts:
+    - "lib/ui_kit/themes/app_theme.dart"
+    - "lib/ui_kit/themes/neumorphic_theme.dart"
+    - "test/ui_kit/themes/app_theme_test.dart"
+
+  llm_prompts:
+    theme_generation: "Generate theme data structure that supports both light and dark modes with proper color relationships and accessibility features"
+    test_generation: "Generate golden tests to verify theme color relationships and accessibility compliance"

@@ -1,4 +1,5 @@
-import 'package:sointent/common_imports.dart';
+import 'package:flutter/material.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// Dialog for editing map entries
 class MapEditorDialog extends StatefulWidget {
@@ -24,44 +25,43 @@ class _MapEditorDialogState extends State<MapEditorDialog> {
   }
 
   @override
-  Widget build(final BuildContext context) => AlertDialog(
-    title: Text(widget.title),
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: _keyController,
-          decoration: const InputDecoration(
-            labelText: 'Key',
-            border: OutlineInputBorder(),
+  Widget build(final BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return AlertDialog(
+      title: Text(widget.title, style: context.sectionTitleStyle),
+      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InputField(label: 'Key', controller: _keyController),
+          const SizedBox(height: 16),
+          InputField(label: 'Value', controller: _valueController, maxLines: 3),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            'Cancel',
+            style: context.labelStyle.copyWith(color: colorScheme.primary),
           ),
         ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _valueController,
-          decoration: const InputDecoration(
-            labelText: 'Value',
-            border: OutlineInputBorder(),
+        FilledButton(
+          onPressed:
+              _keyController.text.isEmpty || _valueController.text.isEmpty
+                  ? null
+                  : () => Navigator.of(
+                    context,
+                  ).pop(MapEntry(_keyController.text, _valueController.text)),
+          child: Text(
+            'Add',
+            style: context.labelStyle.copyWith(color: colorScheme.onPrimary),
           ),
-          maxLines: 3,
         ),
       ],
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        onPressed:
-            _keyController.text.isEmpty || _valueController.text.isEmpty
-                ? null
-                : () => Navigator.of(
-                  context,
-                ).pop(MapEntry(_keyController.text, _valueController.text)),
-        child: const Text('Add'),
-      ),
-    ],
-  );
+    );
+  }
 }

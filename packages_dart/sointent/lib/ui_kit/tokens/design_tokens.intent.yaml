@@ -1,0 +1,82 @@
+semantic_intent:
+  version: 1
+  name: DesignTokensIntent
+  type: SemanticThemeTokensIntent
+  meaning: "Defines the foundational design tokens for consistent visual language across the application"
+  description: "Comprehensive set of design tokens that define spacing, typography, component dimensions, animations, and other visual properties"
+
+  semantic_properties:
+    token_categories:
+      spacing:
+        base_unit: 8
+        properties:
+          - section_padding
+          - element_spacing
+          - nested_indent
+      typography:
+        font_families:
+          - SF Pro
+          - SF Mono
+        styles:
+          - primary
+          - secondary
+          - header
+          - code
+      component_dimensions:
+        properties:
+          - height
+          - radius
+          - extrusion
+          - padding
+      animation:
+        duration_types:
+          - micro
+          - state
+          - complex
+        curve_types:
+          - ease_in_out
+          - custom_bezier
+      depth:
+        properties:
+          - desktop
+          - mobile
+          - floating
+      state_modifiers:
+        properties:
+          - hover
+          - pressed
+          - focus
+          - disabled
+      enhancements:
+        properties:
+          - borders
+          - noise
+          - lighting
+      accessibility:
+        properties:
+          - contrast_ratio
+          - focus_indicator
+          - motion_reduction
+
+  semantic_validations:
+    - "All measurements must follow 8px grid system"
+    - "Typography must maintain proper hierarchy"
+    - "Animation durations must be appropriate for interaction type"
+    - "Accessibility tokens must meet WCAG guidelines"
+
+  test_categories:
+    - type: golden
+      priority: high
+      meanings:
+        - "Verify spacing relationships"
+        - "Verify typography scale"
+        - "Verify component dimensions"
+        - "Verify animation timing"
+
+  output_artifacts:
+    - "lib/ui_kit/tokens/design_tokens.dart"
+    - "test/ui_kit/tokens/design_tokens_test.dart"
+
+  llm_prompts:
+    token_generation: "Generate design tokens that maintain consistency and follow the 8px grid system"
+    test_generation: "Generate golden tests to verify design token relationships and visual consistency"
