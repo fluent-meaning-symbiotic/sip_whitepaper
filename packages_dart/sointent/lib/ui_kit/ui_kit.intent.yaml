@@ -18,26 +18,51 @@ semantic_intent:
       nested_indent: 20
 
     typography:
-      font_family: "SF Pro"
+      font_family: "Space Grotesk"
       styles:
         primary:
           size: 14
           line_height: 1.3
           weight: 500
+          tracking: 0.2
           dark_mode_size: 15
         secondary:
           size: 13
           line_height: 1.4
           weight: 400
           tracking: 0.5
+        tertiary:
+          size: 12
+          line_height: 1.5
+          weight: 400
+          tracking: 0.6
+          dark_mode_size: 13
+        micro:
+          size: 11
+          line_height: 1.6
+          weight: 300
+          tracking: 0.7
+          caps: true
+        ultra_micro:
+          size: 10
+          line_height: 1.7
+          weight: 500
+          tracking: 0.8
+          numeric_only: true
         header:
           size: 16
           weight: 600
-          letter_spacing: -10
+          letter_spacing: 0.1
         code:
-          family: "SF Mono"
+          family: "Fira Code"
           size: 13
-          optical_adjustment: 2
+          weight: 400
+          tracking: 0.5
+        code_micro:
+          family: "Fira Code"
+          size: 11
+          weight: 300
+          tracking: 0.7
 
     components:
       button:
@@ -59,30 +84,30 @@ semantic_intent:
     themes:
       light:
         background:
-          base: "#F6F6FC"
-          surface: "#EFEFF7"
+          base: "#1E1B2E"
+          surface: "#2A2639"
         shadows:
-          light: "rgba(255,255,255,0.8) 2px"
-          dark: "rgba(50,50,60,0.12) 3px"
+          light: "rgba(107,99,255,0.1) 2px"
+          dark: "rgba(0,0,0,0.2) 3px"
         accents:
-          primary: "#6B82FF"
-          secondary: "#FF9F4A"
-        text:
-          primary: "#3A3A45"
-          secondary: "#6C6C70"
-      dark:
-        background:
-          base: "#1A1A24"
-          surface: "#242430"
-        shadows:
-          light: "rgba(255,255,255,0.06) 2px"
-          dark: "rgba(0,0,0,0.24) 3px"
-        accents:
-          primary: "#7D94FF"
-          secondary: "#FFB074"
+          primary: "#8E7CFF"
+          secondary: "#4A90E2"
         text:
           primary: "#E0E0EC"
-          secondary: "#A0A0B0"
+          secondary: "#B0B0C0"
+      dark:
+        background:
+          base: "#0F0B1E"
+          surface: "#1A1628"
+        shadows:
+          light: "rgba(123,99,255,0.06) 2px"
+          dark: "rgba(0,0,0,0.3) 3px"
+        accents:
+          primary: "#9D8FFF"
+          secondary: "#5B9FE2"
+        text:
+          primary: "#F0F0FF"
+          secondary: "#A0A0C0"
 
     depth:
       default:
@@ -137,6 +162,7 @@ semantic_intent:
       text_contrast_ratio: 4.6
       focus_indicator_width: 3
       motion_reduction: true
+      high_contrast_support: true
 
   output_artifacts:
     - "lib/ui_kit/atoms/*.dart"
@@ -151,8 +177,18 @@ semantic_intent:
     - "Animations must respect reduced motion preferences"
     - "Spacing must follow 8px grid system"
     - "Theme transitions must be smooth and consistent"
+    - "Typography must maintain readability across all sizes"
+    - "All small text requires minimum 4.6:1 contrast"
 
   llm_prompts:
     component_generation: "Generate Flutter widget following neumorphic design system with proper theming support and accessibility features"
     theme_generation: "Create theme data structure that supports both light and dark modes with proper color relationships"
     token_generation: "Define design tokens that maintain consistency across the design system"
+    typography_generation: "Generate typography styles following Space Grotesk and Fira Code font families with proper scaling"
+
+  scratchpad_todo:
+    - "Create SemanticTypeIntents for typography scales"
+    - "Implement theme token system"
+    - "Set up font loading and configuration"
+    - "Create accessibility utilities"
+    - "Build component library documentation"
