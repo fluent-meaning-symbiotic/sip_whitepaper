@@ -36,5 +36,4 @@ semantic_intent:
   output_artifacts:
     - "ui_intent_editor.dart"
   dependencies:
-    - YamlEditorIntent
     - SelectedIntentResource
