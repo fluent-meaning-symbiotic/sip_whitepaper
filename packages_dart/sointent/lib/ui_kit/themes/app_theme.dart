@@ -92,7 +92,12 @@ class AppTheme {
       textTheme: TextTheme(
         bodyLarge: tokens.Typography.primary,
         bodyMedium: tokens.Typography.secondary,
-        titleMedium: tokens.Typography.header,
+        bodySmall: tokens.Typography.tertiary,
+        labelSmall: tokens.Typography.micro,
+        labelLarge: tokens.Typography.header,
+        titleMedium: tokens.Typography.header.copyWith(fontSize: 18),
+        displaySmall: tokens.Typography.code,
+        labelMedium: tokens.Typography.codeMicro,
       ),
       extensions: const [neumorphicTheme],
     );
@@ -124,7 +129,12 @@ class AppTheme {
       textTheme: TextTheme(
         bodyLarge: tokens.Typography.primaryDark,
         bodyMedium: tokens.Typography.secondary,
-        titleMedium: tokens.Typography.header,
+        bodySmall: tokens.Typography.tertiaryDark,
+        labelSmall: tokens.Typography.micro,
+        labelLarge: tokens.Typography.header,
+        titleMedium: tokens.Typography.header.copyWith(fontSize: 18),
+        displaySmall: tokens.Typography.code,
+        labelMedium: tokens.Typography.codeMicro,
       ),
       extensions: const [neumorphicTheme],
     );

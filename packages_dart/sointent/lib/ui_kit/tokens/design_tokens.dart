@@ -18,19 +18,16 @@ class Spacing {
 class Typography {
   Typography._();
 
+  // Base styles
   static TextStyle get primary => GoogleFonts.spaceGrotesk(
     fontSize: 14,
     height: 1.3,
     fontWeight: FontWeight.w500,
-    letterSpacing: 0.2, // Slightly increased for futuristic feel
-  );
-
-  static TextStyle get primaryDark => GoogleFonts.spaceGrotesk(
-    fontSize: 15,
-    height: 1.3,
-    fontWeight: FontWeight.w500,
     letterSpacing: 0.2,
   );
+
+  static TextStyle get primaryDark =>
+      primary.copyWith(fontSize: 15, color: const Color(0xFFF0F0FF));
 
   static TextStyle get secondary => GoogleFonts.spaceGrotesk(
     fontSize: 13,
@@ -39,10 +36,34 @@ class Typography {
     letterSpacing: 0.5,
   );
 
+  static TextStyle get tertiary => GoogleFonts.spaceGrotesk(
+    fontSize: 12,
+    height: 1.5,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.6,
+  );
+
+  static TextStyle get tertiaryDark => tertiary.copyWith(fontSize: 13);
+
+  static TextStyle get micro => GoogleFonts.spaceGrotesk(
+    fontSize: 11,
+    height: 1.6,
+    fontWeight: FontWeight.w300,
+    letterSpacing: 0.7,
+  ).copyWith(fontFeatures: const [FontFeature.enable('smcp')]);
+
+  static TextStyle get ultraMicro => GoogleFonts.spaceGrotesk(
+    fontSize: 10,
+    height: 1.7,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.8,
+  );
+
   static TextStyle get header => GoogleFonts.spaceGrotesk(
     fontSize: 16,
+    height: 1.2,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.1, // Positive tracking for headers
+    letterSpacing: 0.1,
   );
 
   static TextStyle get code => GoogleFonts.firaCode(
@@ -50,6 +71,13 @@ class Typography {
     height: 1.2,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
+  );
+
+  static TextStyle get codeMicro => GoogleFonts.firaCode(
+    fontSize: 11,
+    height: 1.3,
+    fontWeight: FontWeight.w300,
+    letterSpacing: 0.7,
   );
 }
 

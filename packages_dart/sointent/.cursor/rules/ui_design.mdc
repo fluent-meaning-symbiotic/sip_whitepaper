@@ -12,8 +12,12 @@ globs: *.dart
 2. Type Scale (Space Grotesk-based)
    - Primary: 14px/1.3 (500) + 0.2 tracking → 15px in dark mode
    - Secondary: 13px/1.4 (400) + 0.5 tracking
+   - Tertiary: 12px/1.5 (400) + 0.6 tracking → 13px in dark mode
+   - Micro: 11px/1.6 (300) + 0.7 tracking (caps only)
+   - Ultra-micro: 10px/1.7 (500) + 0.8 tracking (numeric only)
    - Headers: 16px (600) with +0.1 letter spacing
    - Code: 13px Fira Code (400) with 0.5 tracking
+   - Code Micro: 11px Fira Code (300) with 0.7 tracking
 
 3. Component Anatomy
    - Buttons: 32px height, 10px radius, 1.5px extrusion
@@ -68,6 +72,13 @@ globs: *.dart
     - Optional motion reduction toggle
     - High contrast mode support
 
+11. Small Text Applications
+    - Tertiary: Metadata, form helper text, chart labels
+    - Micro: Timestamps, pagination, table footers
+    - Ultra-micro: Legal text, copyright notices
+    - Code Micro: Comments, linting annotations
+    - All small text requires minimum 4.6:1 contrast
+    
 Key sources:  
 https://fonts.google.com/specimen/Space+Grotesk Space Grotesk's geometric precision
 https://fonts.google.com/specimen/Fira+Code Fira Code's programming ligatures

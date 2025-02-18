@@ -6,6 +6,8 @@ import 'package:sointent/data_commands/intent_editor/update_content.cmd.dart';
 import 'package:sointent/data_resources/intent_editor_resource.dart';
 import 'package:sointent/ui_intent_editor/structured_intent_editor.dart';
 import 'package:sointent/ui_kit/atoms/atoms.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
+import 'package:sointent/ui_kit/tokens/design_tokens.dart';
 
 /// {@template ui_intent_editor}
 /// Center panel of the workbench that provides editing capabilities
@@ -19,16 +21,210 @@ class UiIntentEditor extends StatefulWidget {
   State<UiIntentEditor> createState() => _UiIntentEditorState();
 }
 
+/// Navigation tabs for the intent editor sections
+class _IntentEditorTabs extends StatelessWidget {
+  const _IntentEditorTabs({
+    required this.selectedIndex,
+    required this.onTabSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onTabSelected;
+
+  static const _tabs = [
+    'General',
+    'Properties',
+    'Interactions',
+    'Testing',
+    'Artifacts',
+    'Prompts',
+  ];
+
+  @override
+  Widget build(final BuildContext context) {
+    final neumorphic = AppTheme.of(context);
+
+    return Container(
+      height: 48,
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.sectionPadding.left,
+        vertical: Spacing.micro,
+      ),
+      decoration: BoxDecoration(
+        color: neumorphic.surfaceBackground,
+        border: Border(
+          bottom: BorderSide(color: neumorphic.primaryAccent.withOpacity(0.1)),
+        ),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < _tabs.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(right: Spacing.horizontalElement),
+              child: _TabButton(
+                label: _tabs[i],
+                isSelected: i == selectedIndex,
+                onTap: () => onTabSelected(i),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabButton extends StatelessWidget {
+  const _TabButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(final BuildContext context) {
+    final neumorphic = AppTheme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(ComponentSize.buttonRadius),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color:
+                isSelected
+                    ? neumorphic.primaryAccent.withOpacity(0.1)
+                    : Colors.transparent,
+            borderRadius: BorderRadius.circular(ComponentSize.buttonRadius),
+            border: Border.all(
+              color:
+                  isSelected
+                      ? neumorphic.primaryAccent.withOpacity(0.2)
+                      : Colors.transparent,
+            ),
+          ),
+          child: Text(
+            label,
+            style: context.labelStyle.copyWith(
+              color:
+                  isSelected
+                      ? neumorphic.primaryAccent
+                      : neumorphic.secondaryText,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Header section of the intent editor with title and actions
+class _IntentEditorHeader extends StatelessWidget {
+  const _IntentEditorHeader({
+    required this.intentName,
+    required this.isDirty,
+    required this.onSave,
+    required this.onDiscard,
+  });
+
+  final String intentName;
+  final bool isDirty;
+  final VoidCallback onSave;
+  final VoidCallback onDiscard;
+
+  @override
+  Widget build(final BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final neumorphic = AppTheme.of(context);
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.sectionPadding.horizontal,
+        vertical: Spacing.base,
+      ),
+      decoration: BoxDecoration(
+        color: neumorphic.surfaceBackground,
+        border: Border(
+          bottom: BorderSide(color: neumorphic.primaryAccent.withOpacity(0.1)),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: neumorphic.darkShadow.withOpacity(0.1),
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              intentName,
+              style: context.sectionTitleStyle.copyWith(
+                color: neumorphic.primaryText,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (isDirty) ...[
+            OutlinedButton.icon(
+              onPressed: onDiscard,
+              icon: const Icon(Icons.undo, size: ComponentSize.actionIconSize),
+              label: const Text('Discard'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.horizontalElement,
+                  vertical: Spacing.base,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ComponentSize.buttonRadius,
+                  ),
+                ),
+                side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+              ),
+            ),
+            const SizedBox(width: Spacing.horizontalElement),
+            FilledButton.icon(
+              onPressed: onSave,
+              icon: const Icon(Icons.save, size: ComponentSize.actionIconSize),
+              label: const Text('Save'),
+              style: FilledButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.horizontalElement,
+                  vertical: Spacing.base,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ComponentSize.buttonRadius,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _UiIntentEditorState extends State<UiIntentEditor> {
   String? _errorMessage;
   SemanticIntentName? _currentIntentName;
+  int _selectedTabIndex = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final selectedIntent = context.read<SelectedIntentResource>();
 
-    // Keep editor in sync with selected intent
     if (selectedIntent.value != null &&
         _currentIntentName != selectedIntent.value!.name) {
       _currentIntentName = selectedIntent.value!.name;
@@ -67,72 +263,35 @@ class _UiIntentEditorState extends State<UiIntentEditor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Intent ${editor.currentIntent!.name} Editor',
-                  style: context.sectionTitleStyle,
-                ),
-              ),
-              if (editor.isDirty) ...[
-                OutlinedButton.icon(
-                  onPressed: () => const DiscardChangesCommand().execute(),
-                  icon: const Icon(Icons.undo, size: 18),
-                  label: const Text('Discard'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: BorderSide(
-                      color: colorScheme.outline.withOpacity(0.2),
+        _IntentEditorHeader(
+          intentName: 'Intent ${editor.currentIntent!.name} Editor',
+          isDirty: editor.isDirty,
+          onSave: () async {
+            try {
+              await const SaveChangesCommand().execute();
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Changes saved successfully',
+                    style: context.bodyStyle.copyWith(
+                      color: colorScheme.onPrimary,
                     ),
                   ),
+                  backgroundColor: colorScheme.primary,
                 ),
-                const SizedBox(width: 12),
-                FilledButton.icon(
-                  onPressed: () async {
-                    try {
-                      await const SaveChangesCommand().execute();
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Changes saved successfully',
-                            style: context.bodyStyle.copyWith(
-                              color: colorScheme.onPrimary,
-                            ),
-                          ),
-                          backgroundColor: colorScheme.primary,
-                        ),
-                      );
-                    } catch (e) {
-                      if (!mounted) return;
-                      _setErrorMessage('Failed to save changes: $e');
-                    }
-                  },
-                  icon: const Icon(Icons.save, size: 18),
-                  label: const Text('Save'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              _setErrorMessage('Failed to save changes: $e');
+            }
+          },
+          onDiscard: () => const DiscardChangesCommand().execute(),
+        ),
+        _IntentEditorTabs(
+          selectedIndex: _selectedTabIndex,
+          onTabSelected:
+              (final index) => setState(() => _selectedTabIndex = index),
         ),
         if (_errorMessage != null)
           Container(

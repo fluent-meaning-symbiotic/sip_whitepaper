@@ -6,7 +6,7 @@ import 'package:sointent/ui_intent_editor/widgets/llm_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_interactions_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_properties_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/testing_section.dart';
-import 'package:sointent/ui_kit/atoms/atoms.dart';
+import 'package:sointent/ui_kit/ui_kit.dart';
 
 /// {@template structured_intent_editor}
 /// A structured editor for semantic intents that provides a form-based interface
@@ -18,6 +18,7 @@ class StructuredIntentEditor extends HookWidget {
     required this.initialValue,
     required this.onChanged,
     this.onValidationError,
+    this.selectedTabIndex = 0,
     super.key,
   });
 
@@ -29,6 +30,9 @@ class StructuredIntentEditor extends HookWidget {
 
   /// Callback when validation errors occur
   final ValueChanged<String>? onValidationError;
+
+  /// Currently selected tab index
+  final int selectedTabIndex;
 
   @override
   Widget build(final BuildContext context) {
@@ -45,6 +49,26 @@ class StructuredIntentEditor extends HookWidget {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final neumorphic = AppTheme.of(context);
+
+    Widget buildSection() {
+      switch (selectedTabIndex) {
+        case 0:
+          return BasicPropertiesSection(controller: controller);
+        case 1:
+          return SemanticPropertiesSection(controller: controller);
+        case 2:
+          return SemanticInteractionsSection(controller: controller);
+        case 3:
+          return TestingSection(controller: controller);
+        case 4:
+          return ArtifactsSection(controller: controller);
+        case 5:
+          return LlmSection(controller: controller);
+        default:
+          return const SizedBox.shrink();
+      }
+    }
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -52,58 +76,23 @@ class StructuredIntentEditor extends HookWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [colorScheme.primary.withOpacity(0.03), Colors.transparent],
+          colors: [
+            neumorphic.primaryAccent.withOpacity(0.03),
+            Colors.transparent,
+          ],
         ),
       ),
       child: CustomScrollView(
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: BasicPropertiesSection(controller: controller),
-                  ),
+            sliver: SliverToBoxAdapter(
+              child: SectionCard(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: buildSection(),
                 ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: SemanticPropertiesSection(controller: controller),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: SemanticInteractionsSection(controller: controller),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: TestingSection(controller: controller),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: ArtifactsSection(controller: controller),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: LlmSection(controller: controller),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ]),
+              ),
             ),
           ),
         ],
