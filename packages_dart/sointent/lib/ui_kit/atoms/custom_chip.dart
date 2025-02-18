@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sointent/ui_kit/atoms/text_styles.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
+import 'package:sointent/ui_kit/tokens/design_tokens.dart' as tokens;
 
 /// A reusable chip component with consistent styling
 class CustomChip extends StatelessWidget {
@@ -14,34 +16,31 @@ class CustomChip extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final neumorphicTheme = AppTheme.of(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: neumorphicTheme.surfaceBackground,
+        borderRadius: BorderRadius.circular(tokens.ComponentSize.cardRadius),
         boxShadow: [
           // Light shadow (top-left)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x1A6B63FF)
-                    : const Color(0x0F7B63FF),
-            blurRadius: 2,
+            color: neumorphicTheme.lightShadow,
+            blurRadius: tokens.Elevation.defaultMobile,
             offset: const Offset(-0.5, -0.5),
           ),
           // Dark shadow (bottom-right)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x33000000)
-                    : const Color(0x4D000000),
-            blurRadius: 2,
+            color: neumorphicTheme.darkShadow,
+            blurRadius: tokens.Elevation.defaultMobile,
             offset: const Offset(0.5, 0.5),
           ),
         ],
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.03)),
+        border: Border.all(
+          color: neumorphicTheme.primaryText.withOpacity(
+            tokens.EnhancementTokens.borderLuminosityDiff,
+          ),
+        ),
       ),
       child: Chip(
         label: Text(label, style: context.bodyStyle),
@@ -51,12 +50,17 @@ class CustomChip extends StatelessWidget {
             onDeleted != null
                 ? Icon(
                   Icons.cancel,
-                  size: 18,
-                  color: colorScheme.error.withOpacity(0.8),
+                  size: tokens.ComponentSize.actionIconSize,
+                  color: neumorphicTheme.primaryAccent.withOpacity(
+                    tokens.StateModifiers.disabledOpacity,
+                  ),
                 )
                 : null,
         onDeleted: onDeleted,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: tokens.Spacing.horizontalElement / 2,
+          vertical: tokens.Spacing.micro,
+        ),
       ),
     );
   }

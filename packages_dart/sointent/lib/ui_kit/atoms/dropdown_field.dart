@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sointent/ui_kit/atoms/text_styles.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
+import 'package:sointent/ui_kit/tokens/design_tokens.dart' as tokens;
 
 /// A reusable dropdown field component with consistent styling
 class DropdownField<T> extends StatelessWidget {
@@ -26,8 +28,7 @@ class DropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final neumorphicTheme = AppTheme.of(context);
 
     // Find the currently selected item to display its child
     final selectedItem = items.firstWhere(
@@ -39,94 +40,107 @@ class DropdownField<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: context.labelStyle),
-        const SizedBox(height: 8),
-        Container(
-          height: 36, // From design tokens
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              // Light shadow (top-left)
-              BoxShadow(
-                color:
-                    colorScheme.brightness == Brightness.light
-                        ? const Color(0x1A6B63FF)
-                        : const Color(0x0F7B63FF),
-                blurRadius: 2,
-                offset: const Offset(-0.5, -0.5),
+        const SizedBox(height: tokens.Spacing.micro * 2),
+        SizedBox(
+          height: tokens.ComponentSize.inputHeight,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: neumorphicTheme.surfaceBackground,
+              borderRadius: BorderRadius.circular(
+                tokens.ComponentSize.buttonRadius,
               ),
-              // Dark shadow (bottom-right)
-              BoxShadow(
-                color:
-                    colorScheme.brightness == Brightness.light
-                        ? const Color(0x33000000)
-                        : const Color(0x4D000000),
-                blurRadius: 2,
-                offset: const Offset(0.5, 0.5),
+              boxShadow: [
+                // Light shadow (top-left)
+                BoxShadow(
+                  color: neumorphicTheme.lightShadow,
+                  blurRadius: tokens.Elevation.defaultDesktop,
+                  offset: const Offset(-0.5, -0.5),
+                ),
+                // Dark shadow (bottom-right)
+                BoxShadow(
+                  color: neumorphicTheme.darkShadow,
+                  blurRadius: tokens.Elevation.defaultDesktop,
+                  offset: const Offset(0.5, 0.5),
+                ),
+              ],
+              border: Border.all(
+                color: neumorphicTheme.primaryText.withOpacity(
+                  tokens.EnhancementTokens.borderLuminosityDiff,
+                ),
               ),
-            ],
-            border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
-          ),
-          child: PopupMenuButton<T>(
-            initialValue: value,
-            onSelected: onChanged,
-            position: PopupMenuPosition.under,
-            offset: const Offset(0, 4),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: colorScheme.outline.withOpacity(0.1)),
             ),
-            color: colorScheme.surface,
-            elevation: 8,
-            itemBuilder:
-                (final context) =>
-                    items.map((final item) {
-                      final isSelected = item.value == value;
-                      return PopupMenuItem<T>(
-                        value: item.value,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: DefaultTextStyle(
-                                style: context.bodyStyle.copyWith(
-                                  color:
-                                      isSelected
-                                          ? colorScheme.primary
-                                          : colorScheme.onSurface,
-                                  fontWeight:
-                                      isSelected
-                                          ? FontWeight.w500
-                                          : FontWeight.w400,
+            child: PopupMenuButton<T>(
+              initialValue: value,
+              onSelected: onChanged,
+              position: PopupMenuPosition.under,
+              offset: const Offset(0, tokens.Spacing.micro),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  tokens.ComponentSize.buttonRadius,
+                ),
+                side: BorderSide(
+                  color: neumorphicTheme.primaryText.withOpacity(
+                    tokens.EnhancementTokens.borderLuminosityDiff,
+                  ),
+                ),
+              ),
+              color: neumorphicTheme.surfaceBackground,
+              elevation: tokens.Elevation.floatingDark,
+              itemBuilder:
+                  (final context) =>
+                      items.map((final item) {
+                        final isSelected = item.value == value;
+                        return PopupMenuItem<T>(
+                          value: item.value,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: DefaultTextStyle(
+                                  style: context.bodyStyle.copyWith(
+                                    color:
+                                        isSelected
+                                            ? neumorphicTheme.primaryAccent
+                                            : neumorphicTheme.primaryText,
+                                    fontWeight:
+                                        isSelected
+                                            ? FontWeight.w500
+                                            : FontWeight.w400,
+                                  ),
+                                  child: item.child,
                                 ),
-                                child: item.child,
                               ),
-                            ),
-                            if (isSelected)
-                              Icon(
-                                Icons.check,
-                                size: 18,
-                                color: colorScheme.primary,
-                              ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DefaultTextStyle(
-                      style: context.bodyStyle,
-                      child: selectedItem.child,
+                              if (isSelected)
+                                Icon(
+                                  Icons.check,
+                                  size: tokens.ComponentSize.actionIconSize,
+                                  color: neumorphicTheme.primaryAccent,
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: tokens.Spacing.horizontalElement,
+                  vertical: tokens.Spacing.verticalElement / 1.5,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DefaultTextStyle(
+                        style: context.bodyStyle,
+                        child: selectedItem.child,
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.expand_more,
-                    size: 20,
-                    color: colorScheme.onSurface.withOpacity(0.8),
-                  ),
-                ],
+                    Icon(
+                      Icons.expand_more,
+                      size: tokens.ComponentSize.navIconSize,
+                      color: neumorphicTheme.primaryText.withOpacity(
+                        tokens.StateModifiers.disabledOpacity,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
