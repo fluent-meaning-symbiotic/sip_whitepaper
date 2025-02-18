@@ -51,52 +51,33 @@ class StructuredIntentEditor extends HookWidget {
     final colorScheme = theme.colorScheme;
     final neumorphic = AppTheme.of(context);
 
-    Widget buildSection() {
-      switch (selectedTabIndex) {
-        case 0:
-          return BasicPropertiesSection(controller: controller);
-        case 1:
-          return SemanticPropertiesSection(controller: controller);
-        case 2:
-          return SemanticInteractionsSection(controller: controller);
-        case 3:
-          return TestingSection(controller: controller);
-        case 4:
-          return ArtifactsSection(controller: controller);
-        case 5:
-          return LlmSection(controller: controller);
-        default:
-          return const SizedBox.shrink();
-      }
-    }
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            neumorphic.primaryAccent.withOpacity(0.03),
-            Colors.transparent,
-          ],
+    return Card(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Spacing.base),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: _buildSection(controller),
         ),
       ),
-      child: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(24),
-            sliver: SliverToBoxAdapter(
-              child: SectionCard(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: buildSection(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
+  }
+
+  Widget _buildSection(final StructuredIntentController controller) {
+    switch (selectedTabIndex) {
+      case 0:
+        return BasicPropertiesSection(controller: controller);
+      case 1:
+        return SemanticPropertiesSection(controller: controller);
+      case 2:
+        return SemanticInteractionsSection(controller: controller);
+      case 3:
+        return TestingSection(controller: controller);
+      case 4:
+        return ArtifactsSection(controller: controller);
+      case 5:
+        return LlmSection(controller: controller);
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }

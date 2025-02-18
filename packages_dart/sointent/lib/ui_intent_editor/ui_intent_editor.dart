@@ -167,6 +167,30 @@ class _IntentEditorHeader extends StatelessWidget {
   }
 }
 
+/// Content section of the intent editor that changes based on selected tab
+class _IntentEditorContent extends StatelessWidget {
+  const _IntentEditorContent({
+    required this.selectedTabIndex,
+    required this.intentFile,
+    required this.onChanged,
+    required this.onValidationError,
+  });
+
+  final int selectedTabIndex;
+  final SemanticIntentFile intentFile;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onValidationError;
+
+  @override
+  Widget build(final BuildContext context) => StructuredIntentEditor(
+    key: ValueKey('${intentFile.path}_$selectedTabIndex'),
+    initialValue: intentFile,
+    onChanged: onChanged,
+    onValidationError: onValidationError,
+    selectedTabIndex: selectedTabIndex,
+  );
+}
+
 class _UiIntentEditorState extends State<UiIntentEditor> {
   String? _errorMessage;
   SemanticIntentName? _currentIntentName;
@@ -251,9 +275,9 @@ class _UiIntentEditorState extends State<UiIntentEditor> {
             onDismiss: () => _setErrorMessage(null),
           ),
         Expanded(
-          child: StructuredIntentEditor(
-            key: ValueKey(editor.currentIntent!.path),
-            initialValue: editor.currentIntent!,
+          child: _IntentEditorContent(
+            selectedTabIndex: _selectedTabIndex,
+            intentFile: editor.currentIntent!,
             onChanged:
                 (final yaml) => UpdateContentCommand(yaml: yaml).execute(),
             onValidationError: _setErrorMessage,
