@@ -63,8 +63,9 @@ class FolderSelectionPanel extends StatelessWidget {
     final String? folderPath,
   }) async {
     try {
-      final dirPath =
-          folderPath ?? await FilePicker.platform.getDirectoryPath();
+      final dirPath = await FilePicker.platform.getDirectoryPath(
+        initialDirectory: folderPath,
+      );
       if (dirPath == null || dirPath.isEmpty) return;
       await SaveFolderCommand(folderPath: dirPath).execute();
       await LoadIntentsCommand(dirPath: dirPath).execute();

@@ -8,48 +8,59 @@ semantic_intent:
   description: |
     The screen transitions through two main states:
     1. Loading State: Shows a centered loading indicator while LoadAppCommand executes
-    2. Ready State: Displays a folder selection interface with recently opened folders
+    2. Ready State:
+      Displays a neumorphic card-based folder selection interface with:
+      - A primary "Open Folder" button (32px height, 10px radius)
+      - A "Recent Folders" header (16px Space Grotesk, 600 weight)
+      - A scrollable list of recent folder cards (16px radius, dual-layer depth)
+      - Each folder card shows:
+        - Folder name (14px/1.3 primary text)
+        - Full path (12px/1.5 tertiary text)
+      - Micro-interaction animations (120ms ease-in-out)
+      - Hover and active states following neumorphic principles
 
   semantic_properties:
     states:
       - name: loading
-        description: "Initial loading state while app resources are being initialized"
+        description: "Initial loading state showing centered CircularProgressIndicator with primary accent color"
       - name: ready
-        description: "Main interactive state showing folder selection interface"
+        description: "Main interactive state with neumorphic folder selection interface"
 
-    ui_components:
-      - name: loadingIndicator
-        type: CircularProgressIndicator
-        visibility: "state == loading"
-        position: center
-
-      - name: folderSelectionPanel
-        type: Column
-        visibility: "state == ready"
-        children:
-          - name: openFolderButton
-            type: ElevatedButton
-            text: "Open Folder"
-          - name: recentFoldersList
-            type: ListView
-            description: "Displays recently opened folders"
+    visual_tokens:
+      spacing:
+        - base: 8
+        - vertical: 12
+        - horizontal: 16
+        - section_padding: 24
+      typography:
+        - header: "Space Grotesk 16px/600/+0.1"
+        - primary: "Space Grotesk 14px/500/+0.2"
+        - tertiary: "Space Grotesk 12px/400/+0.6"
+      components:
+        - button_height: 32
+        - button_radius: 10
+        - card_radius: 16
+        - card_depth: 2.5
 
   semantic_interactions:
     - event: "Screen loads"
       command: LoadAppCommand
       description: "Initializes app resources and state"
+      visual_feedback: "Shows primary-colored loading indicator"
 
     - event: "Open Folder button clicked"
       commands:
         - LoadIntentsCommands
       navigation: "WorkbenchScreen"
       description: "Loads intents and navigates to workbench"
+      visual_feedback: "Button press animation (120ms) with depth change"
 
     - event: "Recent folder clicked"
       commands:
         - LoadIntentsCommands
       navigation: "WorkbenchScreen"
       description: "Loads intents for selected folder and navigates to workbench"
+      visual_feedback: "Card press animation with highlight state"
 
   test_categories:
     functional:
@@ -57,15 +68,22 @@ semantic_intent:
       - "Verify navigation to WorkbenchScreen after folder selection"
     visual:
       - "Verify loading indicator visibility and position"
-      - "Verify folder selection interface layout"
+      - "Verify folder selection interface layout and spacing"
+      - "Verify neumorphic effects on cards and buttons"
+      - "Verify typography scale and hierarchy"
+      - "Verify hover and active state animations"
     integration:
       - "Verify proper command execution sequence"
       - "Verify state transitions"
+      - "Verify responsive layout adaptations"
 
   semantic_validations:
     - rule: "LoadAppCommand must complete before showing folder selection"
     - rule: "Recent folders list should be scrollable if items exceed available space"
     - rule: "Loading indicator should be centered on screen"
+    - rule: "All text elements must meet 4.6:1 contrast ratio"
+    - rule: "Interactive elements must have visible hover and active states"
+    - rule: "Animations must respect user's reduced motion preferences"
 
   output_artifacts:
     - type: dart_file
