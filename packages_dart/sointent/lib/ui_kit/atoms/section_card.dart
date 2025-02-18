@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
+import 'package:sointent/ui_kit/tokens/design_tokens.dart' as tokens;
 
 /// A reusable card component for sections with consistent styling
 class SectionCard extends StatelessWidget {
   /// Creates a new [SectionCard] instance
-  const SectionCard({required this.child, this.elevation = 1, super.key});
+  const SectionCard({
+    required this.child,
+    this.elevation = tokens.Elevation.defaultDesktop,
+    super.key,
+  });
 
   /// The content of the card
   final Widget child;
@@ -13,34 +19,31 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final neumorphicTheme = AppTheme.of(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: neumorphicTheme.surfaceBackground,
+        borderRadius: BorderRadius.circular(tokens.ComponentSize.cardRadius),
         boxShadow: [
           // Light shadow (top-left)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x1A6B63FF) // Light theme purple glow
-                    : const Color(0x0F7B63FF), // Dark theme purple glow
-            blurRadius: 2,
+            color: neumorphicTheme.lightShadow,
+            blurRadius: elevation,
             offset: const Offset(-1, -1),
           ),
           // Dark shadow (bottom-right)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x33000000) // Light theme shadow
-                    : const Color(0x4D000000), // Dark theme shadow
-            blurRadius: 3,
+            color: neumorphicTheme.darkShadow,
+            blurRadius: elevation + 1,
             offset: const Offset(1, 1),
           ),
         ],
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.03)),
+        border: Border.all(
+          color: neumorphicTheme.primaryText.withOpacity(
+            tokens.EnhancementTokens.borderLuminosityDiff,
+          ),
+        ),
       ),
       child: child,
     );

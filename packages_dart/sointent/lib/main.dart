@@ -1,4 +1,5 @@
 import 'package:sointent/common_imports.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,17 +21,11 @@ class SoIntentApp extends StatelessWidget {
     builder:
         (final context, final child) => MaterialApp.router(
           title: 'SoIntent',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.indigoAccent,
-              brightness: Brightness.dark,
-            ),
-            useMaterial3: true,
-          ),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode:
+              ThemeMode
+                  .dark, // Default to dark theme for better developer experience
           routerConfig: appRouter,
         ),
   );

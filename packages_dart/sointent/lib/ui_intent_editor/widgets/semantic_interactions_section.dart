@@ -2,6 +2,7 @@ import 'package:sointent/common_imports.dart';
 import 'package:sointent/ui_intent_editor/controllers/structured_intent_controller.dart';
 import 'package:sointent/ui_intent_editor/widgets/map_editor_dialog.dart';
 import 'package:sointent/ui_intent_editor/widgets/map_view.dart';
+import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// Section for editing semantic interactions
 class SemanticInteractionsSection extends StatelessWidget {
@@ -14,37 +15,33 @@ class SemanticInteractionsSection extends StatelessWidget {
   @override
   Widget build(final BuildContext context) => Card(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Semantic Interactions',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+          SectionHeader(
+            title: 'Semantic Interactions',
+            action: IconButton(
+              icon: Icon(
+                Icons.add_circle_outline,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () async {
-                  final result = await showDialog<MapEntry<String, dynamic>>(
-                    context: context,
-                    builder:
-                        (final context) => const MapEditorDialog(
-                          title: 'Add Semantic Interaction',
-                        ),
-                  );
+              onPressed: () async {
+                final result = await showDialog<MapEntry<String, dynamic>>(
+                  context: context,
+                  builder:
+                      (final context) => const MapEditorDialog(
+                        title: 'Add Semantic Interaction',
+                      ),
+                );
 
-                  if (result != null) {
-                    controller.updateSemanticInteractions({
-                      result.key: result.value,
-                    });
-                  }
-                },
-              ),
-            ],
+                if (result != null) {
+                  controller.updateSemanticInteractions({
+                    result.key: result.value,
+                  });
+                }
+              },
+            ),
           ),
           const SizedBox(height: 16),
           MapView(

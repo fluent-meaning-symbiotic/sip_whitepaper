@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sointent/ui_kit/atoms/text_styles.dart';
+import 'package:sointent/ui_kit/themes/app_theme.dart';
+import 'package:sointent/ui_kit/tokens/design_tokens.dart' as tokens;
 
 /// A reusable card component for list items with consistent styling
 class ListItemCard extends StatelessWidget {
@@ -22,42 +24,39 @@ class ListItemCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final neumorphicTheme = AppTheme.of(context);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: tokens.Spacing.verticalElement),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: neumorphicTheme.surfaceBackground,
+        borderRadius: BorderRadius.circular(tokens.ComponentSize.cardRadius),
         boxShadow: [
           // Light shadow (top-left)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x1A6B63FF)
-                    : const Color(0x0F7B63FF),
-            blurRadius: 2,
+            color: neumorphicTheme.lightShadow,
+            blurRadius: tokens.Elevation.defaultDesktop,
             offset: const Offset(-1, -1),
           ),
           // Dark shadow (bottom-right)
           BoxShadow(
-            color:
-                colorScheme.brightness == Brightness.light
-                    ? const Color(0x33000000)
-                    : const Color(0x4D000000),
-            blurRadius: 3,
+            color: neumorphicTheme.darkShadow,
+            blurRadius: tokens.Elevation.defaultDesktop + 1,
             offset: const Offset(1, 1),
           ),
         ],
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.03)),
+        border: Border.all(
+          color: neumorphicTheme.primaryText.withOpacity(
+            tokens.EnhancementTokens.borderLuminosityDiff,
+          ),
+        ),
       ),
       child: Material(
         type: MaterialType.transparency,
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
+            horizontal: tokens.Spacing.horizontalElement,
+            vertical: tokens.Spacing.verticalElement,
           ),
           title: Text(
             title,
@@ -66,13 +65,8 @@ class ListItemCard extends StatelessWidget {
           subtitle:
               subtitle != null
                   ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      subtitle!,
-                      style: context.helperStyle.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.8),
-                      ),
-                    ),
+                    padding: const EdgeInsets.only(top: tokens.Spacing.micro),
+                    child: Text(subtitle!, style: context.helperStyle),
                   )
                   : null,
           trailing:
@@ -80,8 +74,10 @@ class ListItemCard extends StatelessWidget {
                   ? IconButton(
                     icon: Icon(
                       Icons.delete_outline,
-                      color: colorScheme.error.withOpacity(0.8),
-                      size: 20,
+                      color: neumorphicTheme.primaryAccent.withOpacity(
+                        tokens.StateModifiers.disabledOpacity,
+                      ),
+                      size: tokens.ComponentSize.actionIconSize,
                     ),
                     onPressed: onDelete,
                   )

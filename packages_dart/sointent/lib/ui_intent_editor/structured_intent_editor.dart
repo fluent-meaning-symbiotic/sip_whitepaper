@@ -67,42 +67,42 @@ class StructuredIntentEditor extends HookWidget {
                     child: BasicPropertiesSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 SectionCard(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: SemanticPropertiesSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 SectionCard(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: SemanticInteractionsSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 SectionCard(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: TestingSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 SectionCard(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: ArtifactsSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 SectionCard(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: LlmSection(controller: controller),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
               ]),
             ),
           ),

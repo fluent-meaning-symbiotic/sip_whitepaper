@@ -66,6 +66,7 @@ class NeumorphicTheme extends ThemeExtension<NeumorphicTheme> {
 
 /// App theme data provider
 class AppTheme {
+  AppTheme._();
   static ThemeData get lightTheme {
     const neumorphicTheme = NeumorphicTheme(
       baseBackground: Color(0xFF1E1B2E),
