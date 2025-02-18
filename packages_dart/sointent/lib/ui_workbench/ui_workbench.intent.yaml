@@ -12,6 +12,7 @@ semantic_intent:
     - Center panel: Detailed editor for the selected intent (UiIntentEditor)
     - Right panel: Command controls and actions for the selected intent (UiIntentControls)
     All panels have draggable vertical dividers in between them to allow for resizing.
+    The left and right panels is hidable via a buttons on the app bar.
   semantic_properties:
     layout:
       type: ThreeColumnLayout

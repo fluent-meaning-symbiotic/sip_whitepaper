@@ -22,10 +22,11 @@ class UiIntentEditor extends StatefulWidget {
 }
 
 /// Navigation tabs for the intent editor sections
-class _IntentEditorTabs extends StatelessWidget {
-  const _IntentEditorTabs({
+class UiIntentEditorTabs extends StatelessWidget {
+  const UiIntentEditorTabs({
     required this.selectedIndex,
     required this.onTabSelected,
+    super.key,
   });
 
   final int selectedIndex;
@@ -46,28 +47,33 @@ class _IntentEditorTabs extends StatelessWidget {
 
     return Container(
       height: 48,
-      padding: EdgeInsets.symmetric(
-        horizontal: Spacing.sectionPadding.left,
-        vertical: Spacing.micro,
-      ),
       decoration: BoxDecoration(
         color: neumorphic.surfaceBackground,
         border: Border(
           bottom: BorderSide(color: neumorphic.primaryAccent.withOpacity(0.1)),
         ),
       ),
-      child: Row(
-        children: [
-          for (var i = 0; i < _tabs.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(right: Spacing.horizontalElement),
-              child: _TabButton(
-                label: _tabs[i],
-                isSelected: i == selectedIndex,
-                onTap: () => onTabSelected(i),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: Spacing.sectionPadding.left,
+          vertical: Spacing.micro,
+        ),
+        child: Row(
+          children: [
+            for (var i = 0; i < _tabs.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: Spacing.horizontalElement,
+                ),
+                child: _TabButton(
+                  label: _tabs[i],
+                  isSelected: i == selectedIndex,
+                  onTap: () => onTabSelected(i),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -234,7 +240,7 @@ class _UiIntentEditorState extends State<UiIntentEditor> {
           },
           onDiscard: () => const DiscardChangesCommand().execute(),
         ),
-        _IntentEditorTabs(
+        UiIntentEditorTabs(
           selectedIndex: _selectedTabIndex,
           onTabSelected:
               (final index) => setState(() => _selectedTabIndex = index),
