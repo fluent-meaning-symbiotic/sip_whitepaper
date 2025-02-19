@@ -1,8 +1,8 @@
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/ui_intent_editor/controllers/structured_intent_controller.dart';
 import 'package:sointent/ui_intent_editor/widgets/artifacts_section.dart';
-import 'package:sointent/ui_intent_editor/widgets/basic_properties_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/llm_section.dart';
+import 'package:sointent/ui_intent_editor/widgets/meaning_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_interactions_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/semantic_properties_section.dart';
 import 'package:sointent/ui_intent_editor/widgets/testing_section.dart';
@@ -65,7 +65,7 @@ class StructuredIntentEditor extends HookWidget {
   Widget _buildSection(final StructuredIntentController controller) {
     switch (selectedTabIndex) {
       case 0:
-        return BasicPropertiesSection(controller: controller);
+        return MeaningSection(controller: controller);
       case 1:
         return SemanticPropertiesSection(controller: controller);
       case 2:

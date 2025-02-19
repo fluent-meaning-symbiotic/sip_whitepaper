@@ -1,0 +1,35 @@
+semantic_intent:
+  version: 1
+  name: RightPanelAppBarIntent
+  type: SemanticUiIntent
+  meaning: "App bar for the right panel (intent controls) of the workbench that provides visibility control"
+  description: "Provides a header for the right panel with a toggle button to show/hide the panel. The toggle button shows a right chevron when panel is visible and left chevron when hidden."
+  semantic_properties:
+    layout:
+      height: 48
+      padding:
+        horizontal: 16
+        vertical: 8
+    components:
+      - title:
+          text: "Controls"
+          style:
+            fontSize: 14
+            fontWeight: 500
+            letterSpacing: 0.2
+      - toggleButton:
+          icon:
+            type: "chevron"
+            direction: "dynamic" # right when visible, left when hidden
+          tooltip:
+            visible: "Hide controls panel"
+            hidden: "Show controls panel"
+          position: "left"
+  semantic_interactions:
+    onToggleVisibility:
+      type: "toggle"
+      affects: "panel_visibility"
+  output_artifacts:
+    - type: "dart_widget"
+      template: "app_bar"
+      name: "RightPanelAppBar"

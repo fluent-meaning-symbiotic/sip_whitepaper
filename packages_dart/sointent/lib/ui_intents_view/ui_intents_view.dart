@@ -125,7 +125,6 @@ class _UiIntentsViewState extends State<UiIntentsView> {
       _searchController.text = searchQuery;
     }
 
-    final sortMode = context.watch<IntentSortResource>().value;
     final root = _root;
     if (root == null) return const CircularProgressIndicator();
 

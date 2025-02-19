@@ -1,0 +1,100 @@
+semantic_intent:
+  version: 1
+  name: CenterPanelAppBarIntent
+  type: SemanticUiIntent
+  meaning: "App bar for the center panel (intent editor) of the workbench that displays the current intent name, actions, and panel visibility controls with hero animations"
+  description: |
+    Provides a header for the center panel showing the current intent being edited,
+    relevant actions, and dynamic panel visibility controls.
+
+    Panel Visibility Controls:
+    - Left Chevron: Appears when left panel is hidden. When clicked, shows the left panel
+      and performs a hero animation transitioning the chevron to the left panel's app bar.
+    - Right Chevron: Appears when right panel is hidden. When clicked, shows the right panel
+      and performs a hero animation transitioning the chevron to the right panel's app bar.
+
+    The chevron buttons act as visual bridges between panels, using hero animations
+    to create a smooth transition effect when showing/hiding panels.
+
+    Core Actions:
+    - Save changes to the current intent
+    - Undo last change
+    - Redo last change
+  semantic_properties:
+    layout:
+      height: 48
+      padding:
+        horizontal: 16
+        vertical: 8
+    components:
+      - leftChevronButton:
+          visibility: "visible when left panel is hidden"
+          position: "leading"
+          hero:
+            tag: "left_panel_toggle"
+            direction: "horizontal"
+          icon:
+            type: "chevron"
+            direction: "right" # Points right to indicate "show panel"
+          tooltip: "Show intents panel"
+          style:
+            iconSize: 20
+      - title:
+          text: "dynamic" # Shows current intent name
+          style:
+            fontSize: 14
+            fontWeight: 500
+            letterSpacing: 0.2
+      - actions:
+          alignment: "end"
+          spacing: 8
+          items:
+            - type: "save"
+              icon: "save"
+              tooltip: "Save changes"
+              style:
+                iconSize: 20
+            - type: "undo"
+              icon: "undo"
+              tooltip: "Undo last change"
+              style:
+                iconSize: 20
+            - type: "redo"
+              icon: "redo"
+              tooltip: "Redo last change"
+              style:
+                iconSize: 20
+      - rightChevronButton:
+          visibility: "visible when right panel is hidden"
+          position: "trailing"
+          hero:
+            tag: "right_panel_toggle"
+            direction: "horizontal"
+          icon:
+            type: "chevron"
+            direction: "left" # Points left to indicate "show panel"
+          tooltip: "Show controls panel"
+          style:
+            iconSize: 20
+  semantic_interactions:
+    onSave:
+      type: "action"
+      affects: "save_intent"
+    onUndo:
+      type: "action"
+      affects: "undo_change"
+    onRedo:
+      type: "action"
+      affects: "redo_change"
+    onShowLeftPanel:
+      type: "toggle"
+      affects: "left_panel_visibility"
+      animation: "hero_transition"
+    onShowRightPanel:
+      type: "toggle"
+      affects: "right_panel_visibility"
+      animation: "hero_transition"
+  output_artifacts:
+    - type: "dart_widget"
+      template: "app_bar"
+      name: "CenterPanelAppBar"

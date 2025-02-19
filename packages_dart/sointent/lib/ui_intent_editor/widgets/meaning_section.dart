@@ -3,18 +3,18 @@ import 'package:sointent/ui_intent_editor/controllers/structured_intent_controll
 import 'package:sointent/ui_kit/atoms/atoms.dart';
 
 /// Section for editing basic intent properties
-class BasicPropertiesSection extends StatefulWidget {
-  /// Creates a new instance of [BasicPropertiesSection]
-  const BasicPropertiesSection({required this.controller, super.key});
+class MeaningSection extends StatefulWidget {
+  /// Creates a new instance of [MeaningSection]
+  const MeaningSection({required this.controller, super.key});
 
   /// The controller managing the intent data
   final StructuredIntentController controller;
 
   @override
-  State<BasicPropertiesSection> createState() => _BasicPropertiesSectionState();
+  State<MeaningSection> createState() => _MeaningSectionState();
 }
 
-class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
+class _MeaningSectionState extends State<MeaningSection> {
   late final TextEditingController _nameController;
   late final TextEditingController _meaningController;
   late final TextEditingController _descriptionController;
@@ -40,7 +40,7 @@ class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
   }
 
   @override
-  void didUpdateWidget(final BasicPropertiesSection oldWidget) {
+  void didUpdateWidget(final MeaningSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       _nameController.text = widget.controller.data.name;
@@ -59,8 +59,6 @@ class _BasicPropertiesSectionState extends State<BasicPropertiesSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: 'Basic Properties'),
-          const SizedBox(height: 24),
           InputField(
             label: 'Name',
             controller: _nameController,

@@ -40,7 +40,6 @@ class _UiRootScreenState extends State<UiRootScreen> {
     final appStateResource = context.watch<AppStateResource>();
     final foldersResource = context.watch<FoldersResource>();
     final isLoading = appStateResource.value == AppState.loading;
-    final theme = Theme.of(context);
     final neumorphicTheme = AppTheme.of(context);
 
     return Scaffold(

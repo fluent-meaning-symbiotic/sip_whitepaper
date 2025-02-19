@@ -1,0 +1,35 @@
+semantic_intent:
+  version: 1
+  name: LeftPanelAppBarIntent
+  type: SemanticUiIntent
+  meaning: "App bar for the left panel (intents list) of the workbench that provides visibility control"
+  description: "Provides a header for the left panel with a toggle button to show/hide the panel. The toggle button shows a left chevron when panel is visible and right chevron when hidden."
+  semantic_properties:
+    layout:
+      height: 48 # Standard app bar height
+      padding:
+        horizontal: 16
+        vertical: 8
+    components:
+      - title:
+          text: "Intents"
+          style:
+            fontSize: 14
+            fontWeight: 500
+            letterSpacing: 0.2
+      - toggleButton:
+          icon:
+            type: "chevron"
+            direction: "dynamic" # left when visible, right when hidden
+          tooltip:
+            visible: "Hide intents panel"
+            hidden: "Show intents panel"
+          position: "right"
+  semantic_interactions:
+    onToggleVisibility:
+      type: "toggle"
+      affects: "panel_visibility"
+  output_artifacts:
+    - type: "dart_widget"
+      template: "app_bar"
+      name: "LeftPanelAppBar"
