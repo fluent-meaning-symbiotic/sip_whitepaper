@@ -1,0 +1,211 @@
+semantic_intent:
+  version: 2.1
+  name: TreeViewGesturesIntent
+  type: SemanticUiIntent
+  meaning: "Gesture-based semantic operations in tree view with LLM-assisted meaning refactoring"
+  description: |
+    Adds touch-friendly gestures to the intents tree for:
+    - Meaning merging through lasso selection
+    - Intent splitting via swipe gestures
+    - LLM-powered meaning extraction from text selections
+
+    Implementation details:
+      Enhanced Tree View with Gesture Layer:
+        ```dart
+        class GestureTree extends HookWidget {
+          const GestureTree({required this.child, super.key});
+
+          @override
+          Widget build(BuildContext context) {
+            final gestureState = useState<GestureContext>(InitialGestureState());
+            final lassoPoints = useState<List<Offset>>([]);
+            final selectedItems = useMemoized(() => <String>{});
+
+            return Listener(
+              onPointerDown: (e) => _handlePointer(e, gestureState),
+              onPointerMove: (e) => _handlePointer(e, gestureState),
+              onPointerUp: (e) => _processGesture(gestureState, context),
+              child: Stack(
+                children: [
+                  child,
+                  _buildGesturePalette(context, gestureState),
+                  _buildLassoOverlay(lassoPoints),
+                ],
+              ),
+            );
+          }
+
+          void _processGesture(ValueNotifier<GestureContext> state, BuildContext ctx) {
+            final gesture = state.value;
+            if (gesture is LassoGesture) {
+              final intents = _getIntentsInLasso(gesture.path);
+              ctx.read<LLMMeaningService>().analyzeSelection(
+                    intents.map((i) => i.description).join('\n'),
+                  ).then((suggestion) {
+                    showMergeDialog(ctx, intents, suggestion);
+                  });
+            }
+            state.value = InitialGestureState();
+          }
+
+          Widget _buildGesturePalette(BuildContext ctx, ValueNotifier<GestureContext> state) {
+            return Positioned(
+              left: 20,
+              bottom: 20,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: state.value is ActiveGesture 
+                  ? _GestureTools(
+                      onMerge: () => _handleToolAction(ToolAction.merge),
+                      onSplit: () => _handleToolAction(ToolAction.split),
+                    )
+                  : const SizedBox(),
+              ),
+            );
+          }
+        }
+        ```
+        LLM Meaning Service
+        ```dart
+        class LLMMeaningService {
+          Future<MeaningSuggestion> analyzeSelection(String text) async {
+            final prompt = '''
+            [Semantic Refactoring Task]
+            Input text: ${text.trim()}
+            Steps:
+            1. Identify core semantic elements (mark with ▸)
+            2. Detect relationships between elements
+            3. Propose 2-3 ways to merge/split meanings
+            4. Output in this format:
+            {
+              "elements": ["element1", "element2"],
+              "merge_options": [
+                {"description": "Combined meaning", "confidence": 0.8}
+              ],
+              "split_options": [
+                {"base_element": "element1", "new_meanings": ["meaning1", "meaning2"]}
+              ]
+            }
+            ''';
+
+            final response = await LLMClient.instance.complete(prompt);
+            return MeaningSuggestion.fromJson(response);
+          }
+        }
+        ```
+        Merge/Split Dialog
+        ```dart
+        class SemanticMergeDialog extends StatelessWidget {
+          const SemanticMergeDialog({
+            required this.suggestion,
+            required this.sourceIntents,
+            super.key,
+          });
+
+          @override
+          Widget build(BuildContext context) {
+            return AlertDialog(
+              title: const Text('Refactor Meanings'),
+              content: Column(
+                children: [
+                  _buildDiffView(),
+                  const SizedBox(height: 16),
+                  _buildLLMSuggestions(),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => _applyMerge(context),
+                  child: const Text('Merge'),
+                ),
+                TextButton(
+                  onPressed: () => _applySplit(context),
+                  child: const Text('Split'),
+                ),
+              ],
+            );
+          }
+
+          Widget _buildDiffView() {
+            return Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: MergeDiffViewer(
+                original: sourceIntents.map((i) => i.meaning).join('\n'),
+                suggested: suggestion.mergeOptions.first.description,
+              ),
+            );
+          }
+        }
+        ```
+        Key Interaction Flow:
+        1. Lasso Merge:
+        ```mermaid
+        sequenceDiagram
+          User->>TreeView: Draws lasso around items
+          TreeView->>GestureRecognizer: Capture path
+          GestureRecognizer->>LLM Service: Send selected descriptions
+          LLM Service->>Backend: Process meaning analysis
+          Backend->>UI: Return merge/split options
+          UI->>User: Show visual diff dialog
+          User->>UI: Confirm action
+          UI->>DataModel: Update semantic intents
+        ```
+        2. Swipe Split:
+        ```mermaid
+        flowchart TD
+          A[User swipes vertically] --> B{Threshold passed?}
+          B -->|Yes| C[Show split preview]
+          C --> D{Keep which parts?}
+          D --> E[Original meaning]
+          D --> F[New meaning]
+          E & F --> G[Update intent]
+        ```
+      Visual Design Principles:
+      1. Gesture Feedback:
+        Lasso path: Neon blue trail with particle effects
+        Swipe split: Laser-like red line that "cuts" the item
+        LLM processing: Floating meaning particles animation
+      2. Touch Optimization:
+        Minimum gesture sizes:
+        Lasso: 100px diameter
+        Swipe: 60px length
+        Palm rejection for accidental touches
+        200ms cooldown between gestures
+
+  semantic_properties:
+    gestures:
+      merge:
+        pattern: "lasso"
+        threshold: 5
+      split:
+        pattern: "vertical_swipe"
+        min_length: 60
+    llm_integration:
+      prompt: |
+        Analyze selected text from intent descriptions and:
+        1. Extract core semantic elements
+        2. Suggest merged/separated meanings
+        3. Propose description edits
+
+  semantic_interactions:
+    - event: lassoComplete
+      action: showMergePreview
+      params:
+        preview_style: "diff_view"
+    - event: swipeDetect
+      action: showSplitOptions
+      params:
+        split_strategies: ["meaning", "properties", "both"]
+    - event: textSelect
+      action: requestLLMAnalysis
+      params:
+        max_tokens: 500
+
+  output_artifacts:
+    - "intents_gesture_tree.dart"
+    - "llm_meaning_service.dart"
+    - "semantic_merge.cmd.dart"

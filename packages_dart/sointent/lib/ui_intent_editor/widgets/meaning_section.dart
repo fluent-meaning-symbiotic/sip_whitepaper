@@ -59,7 +59,7 @@ class _MeaningSectionState extends State<MeaningSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InputField(
+          ColumnInputField(
             label: 'Name',
             controller: _nameController,
             onChanged:
@@ -89,7 +89,7 @@ class _MeaningSectionState extends State<MeaningSection> {
             },
           ),
           const SizedBox(height: 16),
-          InputField(
+          ColumnInputField(
             label: 'Meaning',
             controller: _meaningController,
             helperText: "Core meaning of the intent's purpose",
@@ -98,7 +98,7 @@ class _MeaningSectionState extends State<MeaningSection> {
                     widget.controller.updateBasicProperties(meaning: value),
           ),
           const SizedBox(height: 16),
-          InputField(
+          ColumnInputField(
             label: 'Description',
             controller: _descriptionController,
             helperText: 'Detailed description of the intent',

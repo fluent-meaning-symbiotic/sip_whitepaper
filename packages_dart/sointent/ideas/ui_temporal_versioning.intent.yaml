@@ -1,0 +1,51 @@
+semantic_intent:
+  version: 2.1
+  name: TemporalVersioningIntent
+  type: SemanticUiIntent
+  meaning: "3D timeline interface for visualizing semantic evolution across multiple dimensions"
+  description: |
+    Implements a temporal manipulation system that:
+    - Tracks semantic drift through version vectors
+    - Visualizes meaning changes in 3D space (time, similarity, complexity)
+    - Enables branching/merging of semantic timelines
+
+  semantic_properties:
+    timeline:
+      dimensions:
+        x: "commit_time"
+        y: "semantic_similarity"
+        z: "dependency_complexity"
+      rendering:
+        mode: "volumetric_point_cloud"
+        particle_size: 4.0
+    version_vectors:
+      storage: "causal_tree"
+      merge_strategy: "semantic_consensus"
+
+  semantic_interactions:
+    - event: timelineDrag
+      action: navigateHistory
+      params:
+        temporal_resolution: "1h"
+    - event: branchCreate
+      action: forkTimeline
+      params:
+        divergence_point: "current"
+    - event: timelineMerge
+      action: reconcileSemantics
+      params:
+        strategy: "conservative"
+
+  output_artifacts:
+    - "lib/ui_timeline/temporal_slider.dart"
+    - "lib/data_models/semantic_timeline.dart"
+    - "lib/commands/rewind_semantics.cmd.dart"
+
+  dependencies:
+    - IntentVersioningResource
+    - SemanticDriftDetector
+
+  test_categories:
+    temporal:
+      - "Verify timeline scrubbing maintains causal ordering"
+      - "Test branch conflict resolution workflows"

@@ -36,9 +36,13 @@ class _MapEditorDialogState extends State<MapEditorDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InputField(label: 'Key', controller: _keyController),
+          ColumnInputField(label: 'Key', controller: _keyController),
           const SizedBox(height: 16),
-          InputField(label: 'Value', controller: _valueController, maxLines: 3),
+          ColumnInputField(
+            label: 'Value',
+            controller: _valueController,
+            maxLines: 3,
+          ),
         ],
       ),
       actions: [
