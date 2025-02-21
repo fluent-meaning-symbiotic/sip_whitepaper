@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/data_commands/search/search_intents.cmd.dart';
 import 'package:sointent/data_resources/intent_editor_resource.dart';
-import 'package:sointent/ui_intents_view/intent_tree_builder.dart';
+import 'package:sointent/ui_intents_view/card_view/ui_intent_cards_view.dart';
+import 'package:sointent/ui_intents_view/tree_view/intent_tree_builder.dart';
 import 'package:sointent/ui_intents_view/ui_tree_item.dart';
 
 /// {@template ui_intents_view}
-/// A widget that displays a hierarchical tree view of semantic intents.
-/// Each node in the tree represents a path segment or an intent file.
+/// A widget that displays semantic intents in either a hierarchical tree view
+/// or a card-based grid view. Each node/card represents a path segment or an
+/// intent file. Users can switch between views while maintaining the same data
+/// and interactions.
 /// {@endtemplate}
 class UiIntentsView extends StatefulWidget {
   /// {@macro ui_intents_view}
@@ -25,6 +28,7 @@ class _UiIntentsViewState extends State<UiIntentsView> {
   TreeNode? _root;
   List<TreeNode> _visibleNodes = [];
   late final TextEditingController _searchController;
+  bool _isCardView = false;
 
   @override
   void initState() {
@@ -43,7 +47,6 @@ class _UiIntentsViewState extends State<UiIntentsView> {
   }
 
   Future<void> _initializeView() async {
-    // Initialize filtered intents with current search query
     await SearchIntentsCommand(
       query: IntentSearchResource.instance.value,
     ).execute();
@@ -58,7 +61,6 @@ class _UiIntentsViewState extends State<UiIntentsView> {
           intents: FilteredIntentsResource.instance.orderedValues,
           projectPath: IntentsFolderResource.instance.value,
         );
-    // Expand root by default
     _expandedPaths.add('');
     _updateVisibleNodes(root);
   }
@@ -89,7 +91,6 @@ class _UiIntentsViewState extends State<UiIntentsView> {
   void _handleSelect(final String path) {
     setState(() {
       _selectedPath = path;
-      // Find the intent file for this path and update SelectedIntentResource
       final intent =
           FilteredIntentsResource.instance.orderedValues
               .where((final i) => i.path.endsWith(path))
@@ -129,7 +130,6 @@ class _UiIntentsViewState extends State<UiIntentsView> {
 
   @override
   Widget build(final BuildContext context) {
-    // Listen to search query changes to update controller if changed externally
     final searchQuery = context.watch<IntentSearchResource>().value;
     if (searchQuery != _searchController.text) {
       _searchController.text = searchQuery;
@@ -143,7 +143,7 @@ class _UiIntentsViewState extends State<UiIntentsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Search and Sort Controls
+          // Search and View Controls
           Row(
             children: [
               Flexible(
@@ -174,14 +174,32 @@ class _UiIntentsViewState extends State<UiIntentsView> {
                   ),
                 ),
               ),
+              // View Toggle Button
+              Padding(
+                padding: const EdgeInsets.all(4),
+                child: IconButton(
+                  icon: Icon(
+                    _isCardView ? Icons.account_tree : Icons.grid_view,
+                    size: 16,
+                  ),
+                  tooltip:
+                      _isCardView
+                          ? 'Switch to Tree View'
+                          : 'Switch to Card View',
+                  onPressed: () => setState(() => _isCardView = !_isCardView),
+                ),
+              ),
             ],
           ),
-          // Tree View
+          // View Content
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: _buildTreeItem(root, depth: 0),
-            ),
+            child:
+                _isCardView
+                    ? const UiIntentCardsView()
+                    : SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: _buildTreeItem(root, depth: 0),
+                    ),
           ),
         ],
       ),

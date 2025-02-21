@@ -1,0 +1,79 @@
+semantic_intent:
+  name: "PathEditorToolIntent"
+  type: "SemanticCommandIntent"
+  version: 1
+  meaning: |
+    Tool for editing and managing semantic intent paths in the card view.
+    Provides functionality for adding, removing, and reordering path segments
+    while maintaining valid path structure and semantic meaning.
+
+    Core responsibilities:
+    - Path segment manipulation (add/remove/reorder)
+    - Path validation and normalization
+    - Undo/redo support for path operations
+    - Visual feedback during path changes
+
+  semantic_properties:
+    path_operations:
+      - name: "addSegment"
+        params:
+          - name: "path"
+            type: "String"
+          - name: "segment"
+            type: "String"
+          - name: "position"
+            type: "int?"
+            default: null
+        validation: "PathValidationRules.validStructure"
+
+      - name: "removeSegment"
+        params:
+          - name: "path"
+            type: "String"
+          - name: "position"
+            type: "int"
+        validation: "PathValidationRules.nonEmpty"
+
+      - name: "reorderSegment"
+        params:
+          - name: "path"
+            type: "String"
+          - name: "oldPosition"
+            type: "int"
+          - name: "newPosition"
+            type: "int"
+        validation: "PathValidationRules.validStructure"
+
+    validation_rules:
+      - name: "validStructure"
+        description: "Ensures path follows valid directory structure"
+        rules:
+          - "No empty segments"
+          - "No special characters except underscore and hyphen"
+          - "Must start with lib/"
+          - "Must end with .dart or .yaml"
+
+      - name: "nonEmpty"
+        description: "Ensures path maintains minimum required segments"
+        rules:
+          - "Must have at least 2 segments"
+          - "Must maintain lib/ prefix"
+
+  semantic_interactions:
+    - event: onPathChange
+      action: MoveIntentCommand
+      params:
+        intent: selectedIntent
+        newPath: calculatedPath
+      validation: PathValidationRules.validStructure
+
+  output_artifacts:
+    - path: path_editor_tool.dart
+    - path: path_editor_tool.test.dart
+    - path: path_validation_rules.dart
+
+  scratchpad_todo:
+    - Implement path segment validation logic
+    - Add visual feedback animations
+    - Create undo/redo stack
+    - Add path suggestions based on existing structure

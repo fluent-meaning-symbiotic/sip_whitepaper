@@ -1,0 +1,60 @@
+semantic_intent:
+  name: "IntentCardFooterIntent"
+  type: "SemanticUiIntent"
+  version: 1
+  meaning: |
+    Footer section of the intent card that displays metadata and actions.
+    Shows preview availability and last modification time, providing quick
+    access to intent artifacts and status information.
+
+    Visual structure:
+    [Preview Icon] Preview    Last modified: 2h ago
+    With muted text and icons for secondary information.
+
+  semantic_properties:
+    layout:
+      type: Row
+      params:
+        padding: EdgeInsets.fromLTRB(8, 2, 8, 6)
+        spacing: 4
+
+    preview_section:
+      type: Row
+      params:
+        spacing: 4
+        icon:
+          name: preview_outlined
+          size: 14
+          color: secondaryText(0.7)
+        text:
+          content: "Preview"
+          typography:
+            fontSize: 11
+            fontWeight: 400
+            letterSpacing: 0.3
+            color: secondaryText(0.7)
+
+    timestamp:
+      type: Text
+      params:
+        typography:
+          fontSize: 10
+          fontWeight: 300
+          letterSpacing: 0.3
+          color: secondaryText(0.7)
+
+  semantic_interactions:
+    - event: onPreviewTap
+      action: ShowPreviewCommand
+      params:
+        intent: currentIntent
+        artifacts: previewableArtifacts
+
+  output_artifacts:
+    - path: intent_card_footer.dart
+
+  scratchpad_todo:
+    - Add relative timestamp formatting
+    - Implement preview functionality
+    - Add preview availability indicator
+    - Consider adding more metadata

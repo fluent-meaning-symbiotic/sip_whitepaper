@@ -1,0 +1,62 @@
+semantic_intent:
+  name: "IntentCardHeaderIntent"
+  type: "SemanticUiIntent"
+  version: 1
+  meaning: |
+    Header section of the intent card that displays the intent type and name.
+    Provides quick identification of the intent's purpose and includes actions
+    for intent manipulation.
+
+    Visual structure:
+    [Type Badge] [Name] ⋮(actions)
+    With a subtle separator between type and name when present.
+
+  semantic_properties:
+    layout:
+      type: Row
+      params:
+        padding: EdgeInsets.fromLTRB(8, 8, 4, 4)
+        spacing: 4
+
+    badge:
+      type: Container
+      params:
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2)
+        borderRadius: 4
+        background: primaryAccent(0.1)
+        typography:
+          fontSize: 10
+          fontWeight: 400
+          letterSpacing: 0.5
+          color: primaryAccent
+
+    separator:
+      type: Divider
+      params:
+        width: 1
+        height: 10
+        color: primaryAccent(0.2)
+        margin: EdgeInsets.symmetric(horizontal: 4)
+
+    actions:
+      type: IconButton
+      params:
+        icon: more_vert
+        size: 16
+        padding: 0
+        visualDensity: compact
+
+  semantic_interactions:
+    - event: onMorePress
+      action: ShowContextMenuCommand
+      params:
+        intent: currentIntent
+        position: buttonPosition
+
+  output_artifacts:
+    - path: intent_card_header.dart
+
+  scratchpad_todo:
+    - Implement context menu actions
+    - Add tooltip for type badge
+    - Consider adding intent status indicator 

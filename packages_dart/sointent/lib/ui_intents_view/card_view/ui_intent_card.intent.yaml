@@ -1,0 +1,47 @@
+semantic_intent:
+  name: "UiIntentCardIntent"
+  type: "SemanticUiIntent"
+  version: 1
+  meaning: |
+    A card component that displays a semantic intent's information in a compact,
+    selectable format. Serves as a container for header, body, and footer sections
+    while managing selection state and interaction.
+
+    Core responsibilities:
+    - Container styling and layout
+    - Selection state management
+    - Touch interaction handling
+    - Visual feedback for selection state
+
+  semantic_properties:
+    layout:
+      type: Card
+      params:
+        elevation: 1
+        borderRadius: 8
+        padding: 0
+
+    selection:
+      type: Selectable
+      params:
+        visualFeedback:
+          - borderColor: primaryAccent(0.3)
+          - borderWidth: 1px
+        defaultState:
+          - borderColor: primaryAccent(0.03)
+          - borderWidth: 0.5px
+
+  semantic_interactions:
+    - event: onSelect
+      action: SelectIntentCommand
+      params:
+        intent: currentIntent
+
+  output_artifacts:
+    - path: ui_intent_card.dart
+
+  scratchpad_todo:
+    - Add hover state feedback
+    - Implement context menu
+    - Add keyboard navigation support
+    - Consider drag-and-drop support

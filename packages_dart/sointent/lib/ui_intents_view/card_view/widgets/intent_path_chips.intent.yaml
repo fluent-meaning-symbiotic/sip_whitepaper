@@ -1,0 +1,60 @@
+semantic_intent:
+  name: "IntentPathChipsIntent"
+  type: "SemanticUiIntent"
+  version: 1
+  meaning: |
+    Horizontal list of path segments displayed as chips, representing the
+    intent's location in the project structure. Segments are separated by
+    forward slashes and can be scrolled horizontally if they exceed the
+    available width.
+
+    Visual structure:
+    [lib] / [path] / [to] / [intent.yaml]
+    With subtle borders and background to distinguish segments.
+
+  semantic_properties:
+    layout:
+      type: ScrollableRow
+      params:
+        spacing: 0
+        scrollDirection: horizontal
+
+    separator:
+      type: Text
+      params:
+        content: "/"
+        typography:
+          fontSize: 11
+          fontWeight: 300
+          color: secondaryText(0.5)
+
+    chip:
+      type: Container
+      params:
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1)
+        borderRadius: 2
+        background: baseBackground(0.3)
+        border:
+          color: primaryAccent(0.05)
+          width: 0.5
+        typography:
+          fontSize: 11
+          fontWeight: 400
+          letterSpacing: 0.3
+          color: secondaryText
+
+  semantic_interactions:
+    - event: onChipTap
+      action: NavigateToSegmentCommand
+      params:
+        path: segmentPath
+        intent: currentIntent
+
+  output_artifacts:
+    - path: intent_path_chips.dart
+
+  scratchpad_todo:
+    - Add chip hover state
+    - Implement path segment navigation
+    - Consider drag-and-drop reordering
+    - Add path completion suggestions 

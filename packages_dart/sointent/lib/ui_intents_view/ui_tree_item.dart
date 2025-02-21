@@ -1,5 +1,5 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/ui_intents_view/intent_tree_builder.dart';
+import 'package:sointent/ui_intents_view/tree_view/intent_tree_builder.dart';
 
 /// {@template ui_tree_item}
 /// A widget that displays a single item in the tree view.

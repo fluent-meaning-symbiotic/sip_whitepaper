@@ -68,8 +68,16 @@ semantic_intent:
     - path: ui_intent_chip.dart
 
   scratchpad_todo:
-    - Create PathEditorTool semantic intent
-    - Implement chip drag-n-drop reordering
-    - Add visual feedback for path changes
-    - Connect to filesystem watcher
-    - Add undo/stack for path operations
+    - Connect cards to FilteredIntentsResource.instance.orderedValues
+    - Add drag-and-drop support for path reordering using ReorderableGridView
+    - Implement MoveIntentCommand for path changes
+    - Add visual feedback animations using flutter_animate
+    - Create context menu with common actions (rename, delete, etc.)
+    - Add hover effects for artifact previews
+    - Implement view switching between tree and cards
+    - Add search filtering support matching tree view
+    - Implement path suggestions based on existing structure
+    - Add undo/redo support for path operations
+    - Create loading and error states
+    - Add accessibility support (labels, focus, etc.)
+    - Write widget tests for card interactions
