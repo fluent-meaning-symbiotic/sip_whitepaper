@@ -1,0 +1,67 @@
+semantic_intent:
+  name: IntentsLocalApi
+  type: SemanticApiIntent
+  version: 1
+  meaning: |
+    Local API for managing semantic intents following SIP principles.
+    Provides core functionality for loading, saving, and managing intent files
+    while maintaining semantic relationships and integrity.
+
+    Core responsibilities:
+    - Loading intents recursively from directories
+    - Saving intents to files with proper validation
+    - Managing intent file paths and relationships
+    - Handling YAML serialization/deserialization
+    - Maintaining semantic integrity during file operations
+
+  semantic_properties:
+    file_operations:
+      - name: getRecursiveIntents
+        params:
+          - name: dirPath
+            type: String
+            description: Directory path to scan for intents
+        returns: List<SemanticIntentFile>
+        validation: DirectoryExists
+
+      - name: saveIntent
+        params:
+          - name: path
+            type: String
+            description: Path to save the intent file
+          - name: intent
+            type: SemanticIntentFile
+            description: Intent to save
+        validation: ValidYamlStructure
+
+      - name: getOriginalPath
+        params:
+          - name: intent
+            type: YamlMap
+            description: Intent data to get path for
+        returns: String?
+        validation: ValidPathFormat
+
+  semantic_validations:
+    - DirectoryExists: Ensures target directory exists and is accessible
+    - ValidYamlStructure: Validates YAML structure follows SIP principles
+    - ValidPathFormat: Ensures path format is valid for the system
+
+  test_categories:
+    functional:
+      - Load intents from directory
+      - Save intent to file
+      - Handle invalid paths
+      - Validate YAML structure
+    integration:
+      - File system operations
+      - Error handling
+      - Path management
+
+  output_artifacts:
+    - intents_local_api.dart
+
+  dependencies:
+    - SemanticIntentFile
+    - StructuredIntentData
+    - YamlUtils

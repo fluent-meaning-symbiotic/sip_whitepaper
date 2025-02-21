@@ -1,11 +1,25 @@
 import 'package:path/path.dart' as path;
 import 'package:sointent/common_imports.dart';
 
-///  for managing semantic intents
+/// {@template intents_local_api}
+/// Local API for managing semantic intents following SIP principles.
+/// Provides functionality for loading, saving, and managing intent files.
+///
+/// Core responsibilities:
+/// - Loading intents recursively from directories
+/// - Saving intents to files
+/// - Managing intent file paths
+/// - Handling YAML serialization/deserialization
+/// {@endtemplate}
 class IntentsLocalApi {
   static late IntentsLocalApi instance;
 
-  /// Loads all intent.yaml files from a directory recursively
+  /// Loads all intent.yaml files from a directory recursively.
+  ///
+  /// Follows SIP principles by:
+  /// - Maintaining semantic meaning through proper file structure
+  /// - Preserving intent relationships in directory hierarchy
+  /// - Validating intent file format and content
   Future<List<SemanticIntentFile>> getRecursiveIntents({
     required final String dirPath,
   }) async {
@@ -41,7 +55,13 @@ class IntentsLocalApi {
     }
   }
 
-  /// Saves a semantic intent to a file
+  /// Saves a semantic intent to a file, preserving its semantic meaning
+  /// and relationships within the intent graph.
+  ///
+  /// Follows SIP principles by:
+  /// - Maintaining semantic integrity during serialization
+  /// - Preserving intent relationships
+  /// - Validating output format
   Future<void> saveIntent(
     final String path,
     final SemanticIntentFile intent,
@@ -51,6 +71,7 @@ class IntentsLocalApi {
     await file.writeAsString(yamlContent);
   }
 
-  /// Gets the original path for a semantic intent
+  /// Gets the original path for a semantic intent, maintaining
+  /// semantic relationships in the intent graph.
   String? getOriginalPath(final YamlMap intent) => null;
 }

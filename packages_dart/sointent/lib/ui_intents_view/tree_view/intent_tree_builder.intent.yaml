@@ -1,0 +1,86 @@
+semantic_intent:
+  name: IntentTreeBuilder
+  type: SemanticTypeIntent
+  version: 1
+  meaning: |
+    Utility for building and managing the semantic intent tree structure.
+    Converts a flat list of SemanticIntentFiles into a hierarchical tree structure
+    that represents the semantic relationships between intents.
+
+    Core responsibilities:
+    - Building tree structure from intent files
+    - Maintaining parent-child relationships
+    - Handling path normalization
+    - Managing tree node metadata
+
+  semantic_properties:
+    tree_node:
+      properties:
+        - name: name
+          type: String
+          description: Display name of the node
+        - name: path
+          type: String
+          description: Full path to node in tree
+        - name: intent
+          type: SemanticIntentFile?
+          description: Associated intent file for leaf nodes
+        - name: children
+          type: Map<String, TreeNode>
+          description: Child nodes mapped by name
+
+    tree_operations:
+      - name: buildFromIntents
+        params:
+          - name: intents
+            type: Iterable<SemanticIntentFile>
+            description: Intent files to organize
+          - name: projectPath
+            type: String
+            description: Base path for normalization
+        returns: TreeNode
+        validation: ValidTreeStructure
+
+      - name: _addParentPaths
+        internal: true
+        params:
+          - name: path
+            type: String
+          - name: paths
+            type: Set<String>
+        validation: ValidPathFormat
+
+      - name: _buildNode
+        internal: true
+        params:
+          - name: path
+            type: String
+          - name: allParentPaths
+            type: Set<String>
+          - name: intentsByPath
+            type: Map<String, SemanticIntentFile>
+        returns: TreeNode
+        validation: ValidNodeStructure
+
+  semantic_validations:
+    - ValidTreeStructure: Ensures proper hierarchical organization
+    - ValidPathFormat: Validates path formatting and normalization
+    - ValidNodeStructure: Verifies node relationships and metadata
+
+  test_categories:
+    functional:
+      - Build tree from intents
+      - Handle empty intent list
+      - Process path normalization
+      - Manage node relationships
+    unit:
+      - Path handling
+      - Node creation
+      - Tree structure
+
+  output_artifacts:
+    - intent_tree_builder.dart
+
+  dependencies:
+    - SemanticIntentFile
+    - TreeNode
