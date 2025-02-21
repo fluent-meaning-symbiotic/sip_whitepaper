@@ -1,5 +1,4 @@
 import 'package:sointent/common_imports.dart';
-import 'package:sointent/data_commands/intent_editor/set_intent.cmd.dart';
 import 'package:sointent/data_commands/intent_editor/update_content.cmd.dart';
 import 'package:sointent/data_resources/intent_editor_resource.dart';
 import 'package:sointent/ui_intent_editor/structured_intent_editor.dart';
@@ -100,22 +99,7 @@ class _TabButton extends StatelessWidget {
 
 class _UiIntentEditorState extends State<UiIntentEditor> {
   String? _errorMessage;
-  SemanticIntentName? _currentIntentName;
   int _selectedTabIndex = 0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final selectedIntent = context.read<SelectedIntentResource>();
-
-    if (selectedIntent.value != null &&
-        _currentIntentName != selectedIntent.value!.name) {
-      _currentIntentName = selectedIntent.value!.name;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        SetIntentCommand(intent: selectedIntent.value!).execute();
-      });
-    }
-  }
 
   void _setErrorMessage(final String? message) {
     setState(() {

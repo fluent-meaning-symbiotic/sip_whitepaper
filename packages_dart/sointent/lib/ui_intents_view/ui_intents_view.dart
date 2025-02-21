@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sointent/common_imports.dart';
 import 'package:sointent/data_commands/search/search_intents.cmd.dart';
+import 'package:sointent/data_resources/intent_editor_resource.dart';
 import 'package:sointent/ui_intents_view/intent_tree_builder.dart';
 import 'package:sointent/ui_intents_view/ui_tree_item.dart';
 
@@ -93,7 +94,16 @@ class _UiIntentsViewState extends State<UiIntentsView> {
           FilteredIntentsResource.instance.orderedValues
               .where((final i) => i.path.endsWith(path))
               .firstOrNull;
-      SelectedIntentResource.instance.value = intent;
+      final currentIntentName = SelectedIntentResource.instance.value?.name;
+      if (intent != null && currentIntentName != intent.name) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          IntentEditorResource.instance.updateState(
+            currentIntent: intent,
+            isDirty: false,
+          );
+          SelectedIntentResource.instance.value = intent;
+        });
+      }
     });
   }
 

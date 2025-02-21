@@ -1,0 +1,75 @@
+semantic_intent:
+  name: "UiIntentCardsViewIntent"
+  type: "SemanticUiIntent"
+  version: 1
+  meaning: |
+    # Borderless Card-based Intent Visualization to complement the tree view.
+    Both views should be kept in sync and switchable between.
+
+    Alternative spatial representation of semantic intents using card metaphor:
+    - Each card represents a single SemanticIntent
+    - Visual hierarchy expressed through path chip interactions
+    - Direct manipulation of intent organization through chip editing
+
+    Borderless Card Anatomy:
+
+    ● ● ● (contextual actions)      
+    ││ Title: Intent Meaning          
+    ││ Chips: lib/path/to/[intent]     
+    ││ Artifact previews (when hovered)
+
+    Handle to drag-n-drop the card to a new path is on leading edge of the card.
+
+  semantic_properties:
+    layout:
+      type: ResponsiveGrid
+      params:
+        minCardWidth: 300
+        maxCardWidth: 400
+        gutter: 16
+
+    card_components:
+      - type: CardHeader
+        elements:
+          - IntentTypeBadge
+          - ContextMenuButton
+
+      - type: CardBody
+        elements:
+          - Title: intent.meaning|truncate:40
+          - PathChips:
+              editable: true
+              maxChips: 5
+              onAdd: PathEditorTool.addSegment
+              onRemove: PathEditorTool.removeSegment
+
+      - type: CardFooter
+        elements:
+          - ArtifactPreviews
+          - LastModified
+
+  semantic_interactions:
+    - event: onChipAdd
+      action: MoveIntentCommand
+      params:
+        intent: selectedIntent
+        newPath: newPathFromChips
+      validation: PathValidationRules.validStructure
+
+    - event: onChipRemove
+      action: MoveIntentCommand
+      params:
+        intent: selectedIntent
+        newPath: recalculatedPath
+      validation: PathValidationRules.nonEmpty
+
+  output_artifacts:
+    - path: ui_intent_cards_view.dart
+    - path: ui_intent_chip.dart
+
+  scratchpad_todo:
+    - Create PathEditorTool semantic intent
+    - Implement chip drag-n-drop reordering
+    - Add visual feedback for path changes
+    - Connect to filesystem watcher
+    - Add undo/stack for path operations

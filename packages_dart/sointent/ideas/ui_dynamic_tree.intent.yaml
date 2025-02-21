@@ -1,0 +1,167 @@
+semantic_intent:
+  name: "SemanticTreeViewEnhancementIntent"
+  type: "SemanticUiIntent"
+  meaning: "Enhanced tree view with semantic domain visualization and dynamic meaning exploration"
+
+  description: |
+    Reimagines the tree view as a "semantic space" with innovative visualization 
+    and interaction patterns that reveal meaning relationships while maintaining 
+    information density.
+
+  semantic_properties:
+    layout:
+      main_components:
+        tree_view:
+          type: "DynamicTreeView"
+          features:
+            - semantic_minimap
+            - meaning_trails
+            - domain_focus
+            - semantic_breadcrumbs
+
+        semantic_minimap:
+          position: "right"
+          width: "120px"
+          opacity: 0.8
+          visualization:
+            type: "force_directed_graph"
+            nodes: "semantic_domains"
+            edges: "meaning_relationships"
+            highlight: "current_context"
+
+        meaning_trails:
+          type: "animated_path"
+          style:
+            color: "accent.secondary"
+            width: "1px"
+            opacity: 0.3
+            glow: true
+
+        domain_focus:
+          activation: "hover"
+          transition: "180ms cubic-bezier(0.2,0,0,1)"
+          effects:
+            - dim_other_domains
+            - highlight_related_items
+            - reveal_meaning_connections
+
+    interactions:
+      hover_effects:
+        item:
+          - show_semantic_preview
+          - highlight_domain_position
+          - reveal_meaning_trails
+        domain:
+          - expand_domain_context
+          - focus_related_items
+          - show_domain_summary
+
+      gestures:
+        pinch:
+          - zoom_semantic_space
+          - adjust_detail_level
+        swipe:
+          - navigate_domains
+          - reveal_connections
+
+      keyboard:
+        ctrl_hover:
+          - show_deep_relationships
+          - reveal_implementation_details
+        alt_hover:
+          - show_usage_examples
+          - reveal_test_coverage
+
+  visual_enhancements:
+    semantic_breadcrumbs:
+      style:
+        font: "Micro"
+        color: "text.60%"
+        spacing: "4px"
+      animation:
+        type: "fade_slide"
+        duration: "120ms"
+
+    domain_highlighting:
+      background: "surface + 6%"
+      border: "1px radial gradient"
+      shadow: "2px cosmic glow"
+
+    meaning_connections:
+      line_style: "dashed"
+      animation: "pulse"
+      color: "accent.primary"
+      width: "0.5px"
+
+  output_artifacts:
+    - "lib/ui_intents_view/semantic_tree_view.dart"
+    - "lib/ui_intents_view/widgets/semantic_minimap.dart"
+    - "lib/ui_intents_view/widgets/meaning_trails.dart"
+    - "lib/ui_intents_view/widgets/domain_focus.dart"
+
+  implementation_details: |
+    Key innovative features:
+
+    1. Semantic Minimap
+       - Real-time force-directed graph showing domain relationships
+       - Current context highlighted with cosmic glow
+       - Domains sized by semantic weight
+       - Smooth animations for context transitions
+
+    2. Meaning Trails
+       - Ethereal lines connecting related intents
+       - Animate and glow on hover
+       - Reveal semantic relationships
+       - Fade in/out with elegant transitions
+
+    3. Domain Focus
+       - Subtle background highlight for domain groups
+       - Related items connected with meaning trails
+       - Non-related items slightly dimmed
+       - Smooth transitions between focus states
+
+    4. Dynamic Detail Levels
+       - Micro view: Traditional dense tree
+       - Hover view: Expanded semantic context
+       - Focus view: Full domain relationships
+       - Pinch to zoom between levels
+
+    5. Semantic Breadcrumbs
+       - Ultra-compact domain path
+       - Reveals full context on hover
+       - Shows semantic position in hierarchy
+       - Animated transitions between states
+
+    Example Interaction Flow:
+    ```
+    ▼ ui_domain/                    [Semantic Minimap]
+      ▶ components/                  ○ ─── ○
+      ▼ screens/                     │  ○  │
+        ├── login_screen*         ○ ─ ○ ─ ○ ─ ○
+        └── dashboard*               │  ○  │
+                                    ○ ─── ○
+    ```
+    * On hover: 
+      - Meaning trails appear connecting related items
+      - Domain context expands in minimap
+      - Semantic breadcrumbs show full path
+      - Related implementations highlighted
+
+    * On domain focus:
+      - Non-domain items fade slightly
+      - Domain items connected with meaning trails
+      - Minimap zooms to show detailed relationships
+      - Semantic summary appears in breadcrumbs
+
+    * On pinch zoom:
+      - Smoothly transitions between detail levels
+      - Reveals more semantic context
+      - Updates minimap visualization
+      - Adjusts meaning trail visibility
+
+  scratchpad_todo:
+    - Implement force-directed graph for minimap
+    - Create smooth animations for meaning trails
+    - Design domain focus transitions
+    - Build semantic breadcrumb component
+    - Add pinch-to-zoom gesture handling

@@ -1,0 +1,32 @@
+semantic_intent:
+  name: "MoveIntentCommandIntent"
+  type: "SemanticCommandIntent"
+  version: 1
+  meaning: |
+    Handles intent relocation operations initiated through:
+    - Path chip modifications
+    - Drag-and-drop between cards
+    - Explicit move/copy actions
+
+    Executes:
+    1. Validate new path structure  
+    2. Update intent YAML file location
+    3. Move associated artifacts
+    4. Update all references
+    5. Refresh UI state
+
+  semantic_validations:
+    - rule: "newPath != currentPath"
+      message: "Cannot move to same location"
+    - rule: "!path.contains('//')"
+      message: "Invalid path structure"
+    - rule: "pathSegments.length <= 5"
+      message: "Maximum depth exceeded"
+
+  llm_prompts:
+    code: |
+      Generate a command that safely moves intent files while:
+      - Preserving file relationships
+      - Updating import statements
+      - Maintaining intent graph consistency
+      - Handling filesystem errors gracefully
