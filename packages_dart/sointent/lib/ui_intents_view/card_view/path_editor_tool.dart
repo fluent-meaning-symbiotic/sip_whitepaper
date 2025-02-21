@@ -76,6 +76,7 @@ class PathEditorTool {
 }
 
 class PathValidationRules {
+  PathValidationRules._();
   static bool validStructure(final String path) {
     try {
       PathEditorTool._validateAndNormalizePath(path);

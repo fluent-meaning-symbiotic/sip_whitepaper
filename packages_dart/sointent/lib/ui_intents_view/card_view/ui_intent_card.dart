@@ -19,30 +19,31 @@ class UiIntentCard extends StatelessWidget {
   Widget build(final BuildContext context) {
     final theme = AppTheme.of(context);
 
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color:
-              isSelected
-                  ? theme.primaryAccent.withOpacity(0.3)
-                  : theme.primaryAccent.withOpacity(0),
-          width: isSelected ? 1 : 0,
-        ),
-      ),
-      color: theme.surfaceBackground,
+    return Material(
+      color:
+          isSelected
+              ? theme.primaryAccent.withOpacity(0.05)
+              : theme.surfaceBackground,
       child: InkWell(
         onTap: onSelect,
-        borderRadius: BorderRadius.circular(8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IntentCardHeader(intent: intent),
-            IntentCardBody(intent: intent),
-          ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: isSelected ? theme.primaryAccent : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IntentCardHeader(intent: intent),
+              IntentCardBody(intent: intent),
+            ],
+          ),
         ),
       ),
     );
