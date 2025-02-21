@@ -1,79 +1,96 @@
 semantic_intent:
-  name: "PathEditorToolIntent"
-  type: "SemanticCommandIntent"
+  name: PathEditorTool
+  type: SemanticTypeIntent
   version: 1
   meaning: |
-    Tool for editing and managing semantic intent paths in the card view.
+    Utility for editing and managing semantic intent paths.
     Provides functionality for adding, removing, and reordering path segments
     while maintaining valid path structure and semantic meaning.
 
     Core responsibilities:
     - Path segment manipulation (add/remove/reorder)
     - Path validation and normalization
-    - Undo/redo support for path operations
-    - Visual feedback during path changes
+    - Undo/redo support
+    - Path format rules enforcement
 
   semantic_properties:
-    path_operations:
-      - name: "addSegment"
+    validation:
+      rules:
+        - pattern: ^[a-zA-Z0-9_\-]+$
+          description: Valid segment characters
+        - extension: .dart|.yaml
+          description: Must end with .dart or .yaml
+        - minSegments: 2
+          description: Must have at least two segments
+
+    operations:
+      - name: addSegment
         params:
-          - name: "path"
-            type: "String"
-          - name: "segment"
-            type: "String"
-          - name: "position"
-            type: "int?"
-            default: null
-        validation: "PathValidationRules.validStructure"
+          - name: path
+            type: String
+            description: Current path
+          - name: segment
+            type: String
+            description: New segment to add
+          - name: position
+            type: int?
+            description: Optional position to insert
+            default: before last segment
+        validation: ValidSegmentPattern
 
-      - name: "removeSegment"
+      - name: removeSegment
         params:
-          - name: "path"
-            type: "String"
-          - name: "position"
-            type: "int"
-        validation: "PathValidationRules.nonEmpty"
+          - name: path
+            type: String
+            description: Current path
+          - name: position
+            type: int
+            description: Position to remove
+        validation: NonEmptyPath
 
-      - name: "reorderSegment"
+      - name: reorderSegment
         params:
-          - name: "path"
-            type: "String"
-          - name: "oldPosition"
-            type: "int"
-          - name: "newPosition"
-            type: "int"
-        validation: "PathValidationRules.validStructure"
+          - name: path
+            type: String
+            description: Current path
+          - name: oldPosition
+            type: int
+            description: Current segment position
+          - name: newPosition
+            type: int
+            description: Target segment position
+        validation: ValidPositions
 
-    validation_rules:
-      - name: "validStructure"
-        description: "Ensures path follows valid directory structure"
-        rules:
-          - "No empty segments"
-          - "No special characters except underscore and hyphen"
-          - "Must start with lib/"
-          - "Must end with .dart or .yaml"
+    state_management:
+      type: PathEditorState
+      properties:
+        - currentPath: String
+        - undoStack: List<String>
+        - redoStack: List<String>
+      operations:
+        - updatePath
+        - undo
+        - redo
 
-      - name: "nonEmpty"
-        description: "Ensures path maintains minimum required segments"
-        rules:
-          - "Must have at least 2 segments"
-          - "Must maintain lib/ prefix"
+  semantic_validations:
+    - ValidSegmentPattern: Segment matches ^[a-zA-Z0-9_\-]+$
+    - NonEmptyPath: At least 2 segments
+    - ValidPositions: Cannot move segment 0 or filename segments
 
-  semantic_interactions:
-    - event: onPathChange
-      action: MoveIntentCommand
-      params:
-        intent: selectedIntent
-        newPath: calculatedPath
-      validation: PathValidationRules.validStructure
+  test_categories:
+    functional:
+      - Path manipulation
+      - Validation rules
+      - Undo/redo
+      - Error handling
+    unit:
+      - Segment validation
+      - Path normalization
+      - State management
 
   output_artifacts:
-    - path: path_editor_tool.dart
-    - path: path_editor_tool.test.dart
-    - path: path_validation_rules.dart
+    - path_editor_tool.dart
 
-  scratchpad_todo:
-    - Implement path segment validation logic
-    - Add visual feedback animations
-    - Create undo/redo stack
-    - Add path suggestions based on existing structure
+  dependencies:
+    - ChangeNotifier
+    - RegExp

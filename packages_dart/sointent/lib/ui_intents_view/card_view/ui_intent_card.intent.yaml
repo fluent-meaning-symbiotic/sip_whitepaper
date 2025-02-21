@@ -1,47 +1,56 @@
 semantic_intent:
-  name: "UiIntentCardIntent"
-  type: "SemanticUiIntent"
+  name: UiIntentCard
+  type: SemanticUiIntent
   version: 1
   meaning: |
     A card component that displays a semantic intent's information in a compact,
-    selectable format. Serves as a container for header, body, and footer sections
-    while managing selection state and interaction.
+    selectable format. Provides visual feedback for selection state and handles
+    user interaction for intent selection.
 
     Core responsibilities:
-    - Container styling and layout
-    - Selection state management
-    - Touch interaction handling
-    - Visual feedback for selection state
+    - Display intent information in a card layout
+    - Show selection state with visual feedback
+    - Handle selection interaction
+    - Maintain consistent styling with theme
 
   semantic_properties:
     layout:
-      type: Card
+      type: Material
       params:
-        elevation: 1
-        borderRadius: 8
-        padding: 0
+        color: theme.surfaceBackground
+        selectedColor: theme.primaryAccent.withOpacity(0.05)
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6)
+        borderLeft:
+          selected: 2px primaryAccent
+          unselected: transparent
 
-    selection:
-      type: Selectable
-      params:
-        visualFeedback:
-          - borderColor: primaryAccent(0.3)
-          - borderWidth: 1px
-        defaultState:
-          - borderColor: primaryAccent(0.03)
-          - borderWidth: 0.5px
+    components:
+      - name: header
+        type: IntentCardHeader
+        description: Displays intent type and name
+      - name: body
+        type: IntentCardBody
+        description: Shows intent meaning and path
 
   semantic_interactions:
-    - event: onSelect
-      action: SelectIntentCommand
-      params:
-        intent: currentIntent
+    onSelect:
+      meaning: User selects this intent card
+      triggers: SelectIntentCommand
+
+  test_categories:
+    functional:
+      - Selection state handling
+      - Theme integration
+      - Layout composition
+    visual:
+      - Selection feedback
+      - Theme consistency
+      - Component spacing
 
   output_artifacts:
-    - path: ui_intent_card.dart
+    - ui_intent_card.dart
 
-  scratchpad_todo:
-    - Add hover state feedback
-    - Implement context menu
-    - Add keyboard navigation support
-    - Consider drag-and-drop support
+  dependencies:
+    - IntentCardHeader
+    - IntentCardBody
+    - AppTheme
