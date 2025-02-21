@@ -13,22 +13,28 @@ class PathEditorTool {
       throw ArgumentError('Invalid segment: $segment');
     }
 
-    final segments = path.split('/');
+    final segments = path.split('/')..removeWhere((final s) => s.isEmpty);
 
     if (position != null) {
       segments.insert(position, segment);
     } else {
-      segments.add(segment);
+      // Insert before the last segment (filename)
+      segments.insert(segments.length - 1, segment);
     }
 
     return _validateAndNormalizePath(segments.join('/'));
   }
 
   static String removeSegment(final String path, final int position) {
-    final segments = path.split('/');
+    final segments = path.split('/')..removeWhere((final s) => s.isEmpty);
 
     if (position < 0 || position >= segments.length) {
       throw RangeError('Invalid position: $position');
+    }
+
+    // Don't allow removing lib/ or the filename
+    if (position == 0 || position == segments.length - 1) {
+      throw ArgumentError('Cannot remove lib/ prefix or filename');
     }
 
     segments.removeAt(position);
@@ -40,13 +46,21 @@ class PathEditorTool {
     final int oldPosition,
     final int newPosition,
   ) {
-    final segments = path.split('/');
+    final segments = path.split('/')..removeWhere((final s) => s.isEmpty);
 
     if (oldPosition < 0 ||
         oldPosition >= segments.length ||
         newPosition < 0 ||
         newPosition >= segments.length) {
       throw RangeError('Invalid position');
+    }
+
+    // Don't allow moving lib/ or the filename
+    if (oldPosition == 0 ||
+        oldPosition == segments.length - 1 ||
+        newPosition == 0 ||
+        newPosition == segments.length - 1) {
+      throw ArgumentError('Cannot move lib/ prefix or filename');
     }
 
     final segment = segments.removeAt(oldPosition);
@@ -58,8 +72,8 @@ class PathEditorTool {
   static String _validateAndNormalizePath(final String path) {
     final segments = path.split('/')..removeWhere((final s) => s.isEmpty);
 
-    if (segments.isEmpty || segments[0] != 'lib') {
-      throw ArgumentError('Path must start with lib/');
+    if (segments.isEmpty) {
+      throw ArgumentError('Path must not be empty');
     }
 
     if (segments.length < 2) {

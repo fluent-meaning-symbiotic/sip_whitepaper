@@ -39,7 +39,7 @@ class _IntentPathChipsState extends State<IntentPathChips> {
 
     try {
       final newPath = PathEditorTool.removeSegment(
-        segments.join('/'),
+        widget.intent.path,
         segments.length - 2, // Remove parent folder of the file
       );
 
@@ -58,14 +58,11 @@ class _IntentPathChipsState extends State<IntentPathChips> {
       return;
     }
 
-    final segments = widget.intent.path.split('/')
-      ..removeWhere((final s) => s.isEmpty);
-
     try {
+      final projectPath = context.read<IntentsFolderResource>().value;
       final newPath = PathEditorTool.addSegment(
-        segments.join('/'),
+        widget.intent.getRelativePath(projectPath),
         _newFolderController.text,
-        segments.length - 1, // Insert before filename
       );
 
       await MoveIntentPathCommand(
