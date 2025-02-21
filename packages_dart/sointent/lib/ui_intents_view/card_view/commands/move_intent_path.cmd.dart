@@ -79,7 +79,7 @@ class MoveIntentPathCommand extends SemanticCommand {
 
       // Update the intent in the editor
       final updatedIntent = SemanticIntentFile(
-        path: newPath,
+        path: newFullPath,
         type: intent.type,
         name: intent.name,
         meaning: intent.meaning,
@@ -97,7 +97,7 @@ class MoveIntentPathCommand extends SemanticCommand {
       SelectedIntentResource.instance.value = updatedIntent;
 
       // Update filtered intents
-      FilteredIntentsResource.instance.upsert(intent.name, updatedIntent);
+      IntentsResource.instance.upsert(intent.name, updatedIntent);
 
       // Trigger a refresh of the filtered intents
       await SearchIntentsCommand(

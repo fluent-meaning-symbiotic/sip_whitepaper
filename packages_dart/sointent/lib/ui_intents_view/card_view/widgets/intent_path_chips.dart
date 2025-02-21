@@ -39,7 +39,7 @@ class _IntentPathChipsState extends State<IntentPathChips> {
 
     try {
       final newPath = PathEditorTool.removeSegment(
-        widget.intent.path,
+        widget.intent.getRelativePath(projectPath),
         segments.length - 2, // Remove parent folder of the file
       );
 
