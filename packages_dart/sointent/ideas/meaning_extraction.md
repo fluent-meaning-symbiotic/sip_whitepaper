@@ -8,3 +8,11 @@
 6. Exclude implementation details and focus on the 'what' rather than the 'how'
    Identify potential Semantic Test Intents that would validate these domains
    The output should be a numbered list of domain meanings that could be used as reference points in the codebase and could potentially seed new Semantic Intents.
+
+## Transformers
+
+zero shot classification for intent meaning classification
+
+text generation
+
+summarization

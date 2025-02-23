@@ -1,0 +1,58 @@
+semantic_intent:
+  version: 2.1
+  name: SemanticPaletteIntent
+  type: SemanticUiIntent
+  meaning: "Gesture-driven refactoring interface using spatial manipulation of meaning elements"
+  description: |
+    Implements a physics-based palette system that:
+    - Maps touch/pen gestures to semantic operations
+    - Provides haptic feedback during refactoring
+    - Projects impact visualization through AR overlay
+
+  semantic_properties:
+    gestures:
+      - pattern: "circle"
+        action: "create_wrapper"
+        params:
+          radius_threshold: 50
+      - pattern: "slash"
+        action: "split_intent"
+        params:
+          angle_tolerance: 15
+      - pattern: "spiral"
+        action: "merge_intents"
+        params:
+          rotation_threshold: 1.5
+    feedback:
+      haptic:
+        - on: "conflict_detect"
+          pattern: "**-*-*"
+        - on: "merge_success"
+          pattern: "*-*-*"
+
+  semantic_interactions:
+    - event: gestureStart
+      action: beginSemanticCapture
+      params:
+        input_source: ["touch", "pen"]
+    - event: gestureUpdate
+      action: previewRefactoring
+      params:
+        prediction_depth: 3
+    - event: gestureEnd
+      action: commitSemanticChange
+      params:
+        validation: "strict"
+
+  output_artifacts:
+    - "lib/ui_palette/gesture_recognizer.dart"
+    - "lib/ui_palette/haptic_feedback.dart"
+    - "lib/commands/semantic_refactor.cmd.dart"
+
+  dependencies:
+    - GestureResource
+    - ImpactProjectionEngine
+
+  scratchpad_todo:
+    - "Integrate with ARKit/ARCore for spatial projections"
+    - "Add ML gesture classification fallback"
