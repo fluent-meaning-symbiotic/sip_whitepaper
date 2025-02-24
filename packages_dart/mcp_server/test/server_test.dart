@@ -132,11 +132,6 @@ void main() {
       final inputController = StreamController<List<int>>();
       final outputController = StreamController<List<int>>();
 
-      // Create a completer to track test completion
-      final testCompleter = Completer<void>();
-
-      // Override stdin and stdout for the test
-      final testStdin = Stream.fromIterable([]);
       final testStdout = IOSink(outputController.sink);
 
       // Create a server instance with test streams
