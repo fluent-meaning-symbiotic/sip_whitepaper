@@ -1,5 +1,5 @@
 semantic_intent:
-  version: 1
+  version: 2
   name: McpServerIntent
   type: SemanticApiIntent
   meaning: "MCP (Model Context Protocol) server for managing Semantic Intents, providing standardized communication between AI agents and the SIP system"
@@ -9,13 +9,18 @@ semantic_intent:
     - Provides WebSocket-based communication
     - Handles file attachments and context
     - Integrates with LLMs for intent generation and modification
+    - Supports local template-based operation without LLM
+    - Supports remote LLM operation (OpenAI/LM Studio)
+    - Provides AI-powered property type inference
 
   semantic_properties:
     server_config:
       host: string
       port: number
-      llm_provider: string
-      llm_api_key: string
+      llm_mode: enum(local, remote)
+      llm_config:
+        openai_base_url: string?
+        openai_model: string?
 
     supported_tools:
       - name: create_intent
@@ -24,30 +29,69 @@ semantic_intent:
           description: string
           path: string?
           initial_yaml: string?
+        returns:
+          path: string
+          yaml: string
 
       - name: modify_intent
         description: "Modifies an existing semantic intent"
         parameters:
           path: string
           changes: string
+        returns:
+          yaml: string
 
       - name: refactor_intents
         description: "Refactors multiple semantic intents"
         parameters:
           paths: string[]
           changes: string
+        returns:
+          updated_paths: string[]
 
       - name: generate_artifacts
         description: "Generates implementation artifacts from intent"
         parameters:
           path: string
           type: string?
+        returns:
+          artifacts: map<string, string>
 
       - name: update_intent_from_implementation
         description: "Updates intent based on implementation changes"
         parameters:
           path: string
           code: string
+        returns:
+          yaml: string
+
+      - name: infer_property_type
+        description: "Infers semantic type for a property using AI"
+        parameters:
+          property_name: string
+          description: string?
+          context: string?
+        returns:
+          type: string
+
+    llm_providers:
+      local:
+        description: "Template-based provider without external dependencies"
+        capabilities:
+          - Basic intent generation
+          - Type inference
+          - Name generation
+          - Simple validations
+          - AI-powered property type inference
+
+      remote:
+        description: "OpenAI/LM Studio integration"
+        capabilities:
+          - Advanced intent generation
+          - Complex refactoring
+          - Code analysis
+          - Natural language understanding
+          - AI-powered property type inference
 
   semantic_validations:
     - "All tool responses must follow MCP protocol format"
@@ -55,13 +99,21 @@ semantic_intent:
     - "LLM interactions must handle rate limits and errors"
     - "WebSocket connections must be authenticated"
     - "File attachments must be validated for size and type"
+    - "Local LLM provider must work without external dependencies"
+    - "Remote LLM provider must handle API errors gracefully"
+    - "Property type inference must return valid Dart types"
+    - "Property type inference must handle edge cases gracefully"
 
   output_artifacts:
-    - lib/mcp/server.dart
-    - lib/mcp/tools/
-    - lib/mcp/handlers/
-    - lib/mcp/models/
-    - lib/mcp/websocket/
+    - lib/server.dart
+    - lib/tools/create_intent.dart
+    - lib/tools/modify_intent.dart
+    - lib/tools/refactor_intents.dart
+    - lib/tools/generate_artifacts.dart
+    - lib/tools/update_intent.dart
+    - lib/tools/infer_property_type.dart
+    - lib/llm/llm_provider.dart
+    - lib/main.dart
 
   llm_prompts:
     server:
@@ -72,7 +124,7 @@ semantic_intent:
         - Follow MCP message format
         - Handle file attachments
         - Manage tool execution
-        - Integrate with LLMs
+        - Support multiple LLM providers
         - Provide proper error handling
 
     tools:
@@ -81,6 +133,17 @@ semantic_intent:
         Each tool should:
         - Follow MCP tool format
         - Handle file system operations safely
-        - Integrate with LLMs when needed
+        - Use configured LLM provider
         - Provide proper error handling
         - Return standardized responses
+
+    llm_providers:
+      description: "Generate LLM provider implementations"
+      context: |
+        Each provider should:
+        - Follow common interface
+        - Handle errors gracefully
+        - Support message history
+        - Return standardized responses
+        - Work independently of other providers
+        - Support AI-powered property type inference

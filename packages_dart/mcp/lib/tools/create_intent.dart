@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as path;
-import 'package:sointent/common_imports.dart';
-import 'package:sointent/mcp/server.dart';
+
+import '../llm/llm_provider.dart';
+import '../server.dart';
 
 /// MCP tool for creating new semantic intents
 class CreateIntentTool extends McpTool {
   /// Creates a new instance of [CreateIntentTool]
-  const CreateIntentTool({required this.llmClient});
+  const CreateIntentTool({required this.llmProvider});
 
-  final AiClient llmClient;
+  /// The LLM provider to use
+  final LlmProvider llmProvider;
 
   @override
   String get name => 'create_intent';
@@ -63,8 +67,7 @@ class CreateIntentTool extends McpTool {
   }
 
   Future<String> _generateYaml(final String description) async {
-    // Use LLM to generate initial YAML
-    final response = await llmClient.processMessage(
+    final response = await llmProvider.processMessage(
       '''Generate a semantic intent YAML for: $description
       
 Follow this structure:
@@ -81,10 +84,12 @@ semantic_intent:
       [], // Empty history for now
     );
 
-    throw Exception('Failed to generate YAML: ${response.error}');
+    if (response.hasError) {
+      throw Exception('Failed to generate YAML: ${response.error}');
+    }
 
-    final content = response.message.content;
-    if (content.isEmpty) {
+    final content = response.content;
+    if (content == null || content.isEmpty) {
       throw Exception('LLM returned empty YAML content');
     }
 
