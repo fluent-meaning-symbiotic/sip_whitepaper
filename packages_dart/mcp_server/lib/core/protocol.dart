@@ -120,7 +120,7 @@ class McpError {
   McpError({required this.code, required this.message, this.data, this.taskId});
 
   Map<String, dynamic> toJson() {
-    final json = {'code': code, 'message': message};
+    final Map<String, dynamic> json = {'code': code, 'message': message};
     if (data != null) json['data'] = data;
     if (taskId != null) json['task_id'] = taskId;
     return json;
@@ -136,7 +136,7 @@ class McpResponse {
   McpResponse({required this.id, this.result, this.error});
 
   Map<String, dynamic> toJson() {
-    final json = {'id': id};
+    final Map<String, dynamic> json = {'id': id};
     if (result != null) json['result'] = result;
     if (error != null) json['error'] = error!.toJson();
     return json;
@@ -167,14 +167,59 @@ abstract class McpTool {
 
 /// Core protocol implementation for MCP
 class McpProtocol with ProgressReporting {
+  /// Protocol version
   final String version;
+
+  /// Transport type (websocket or stdio)
   final McpTransport transport;
+
+  /// Registry of available tools
   final Map<String, McpTool> _toolRegistry = {};
+
+  /// Active tasks with their cancellation tokens
   final Map<String, CancellationToken> _activeTasks = {};
 
+  /// Controller for progress update events
+  final _progressController =
+      StreamController<Map<String, dynamic>>.broadcast();
+
+  /// Stream of progress updates for tool execution
+  Stream<Map<String, dynamic>> get progressUpdates =>
+      _progressController.stream;
+
+  /// Creates a new MCP protocol instance
+  ///
+  /// [version] specifies the protocol version
+  /// [transport] specifies the transport type (websocket or stdio)
   McpProtocol({required this.version, required this.transport});
 
+  @override
+  void reportProgress(String taskId, String message, double progress) {
+    if (!_progressController.isClosed) {
+      _progressController.add({
+        'type': 'progress',
+        'task_id': taskId,
+        'message': message,
+        'progress': progress,
+      });
+    }
+  }
+
+  /// Disposes of the protocol instance and releases resources
+  Future<void> dispose() async {
+    // Cancel all active tasks
+    for (final token in _activeTasks.values) {
+      token.cancel();
+    }
+    _activeTasks.clear();
+
+    // Close the progress controller
+    await _progressController.close();
+  }
+
   /// Register a tool with the protocol
+  ///
+  /// Throws [McpException] if a tool with the same name is already registered
   void registerTool(McpTool tool) {
     if (_toolRegistry.containsKey(tool.name)) {
       throw McpException(
@@ -186,6 +231,8 @@ class McpProtocol with ProgressReporting {
   }
 
   /// Get a tool by name
+  ///
+  /// Returns null if the tool is not found
   McpTool? getTool(String name) => _toolRegistry[name];
 
   /// List all registered tools

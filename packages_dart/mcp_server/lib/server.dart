@@ -1,14 +1,40 @@
+import 'dart:developer' as developer;
+
 import 'common_imports.dart';
 import 'core/protocol.dart';
 
 /// The main MCP server class that handles WebSocket and stdio communication
 class McpServer {
+  /// Host to bind to
   final String host;
+
+  /// Port to listen on (for WebSocket transport)
   final int port;
+
+  /// Transport type (websocket or stdio)
   final McpTransport transport;
+
+  /// Protocol version
   final String version;
+
+  /// Protocol implementation
   final McpProtocol _protocol;
 
+  /// WebSocket server instance
+  HttpServer? _server;
+
+  /// Active WebSocket connections
+  final _connections = <WebSocket>{};
+
+  /// Stdio subscription
+  StreamSubscription<String>? _stdioSubscription;
+
+  /// Creates a new MCP server
+  ///
+  /// [host] specifies the host to bind to
+  /// [port] specifies the port to listen on (for WebSocket transport)
+  /// [transport] specifies the transport type (websocket or stdio)
+  /// [version] specifies the protocol version
   McpServer({
     required this.host,
     required this.port,
@@ -31,17 +57,46 @@ class McpServer {
     }
   }
 
+  /// Stop the server and cleanup resources
+  Future<void> stop() async {
+    // Stop accepting new connections
+    await _server?.close();
+
+    // Close all active connections
+    for (final connection in _connections) {
+      await connection.close();
+    }
+    _connections.clear();
+
+    // Cancel stdio subscription
+    await _stdioSubscription?.cancel();
+
+    // Cleanup protocol
+    await _protocol.dispose();
+
+    developer.log('Server stopped', name: 'McpServer');
+  }
+
   /// Start the WebSocket server
   Future<void> _startWebSocketServer() async {
-    final server = await HttpServer.bind(host, port);
+    _server = await HttpServer.bind(host, port);
+    developer.log(
+      'WebSocket server listening on ws://$host:$port',
+      name: 'McpServer',
+    );
 
-    await for (final request in server) {
+    await for (final request in _server!) {
       if (WebSocketTransformer.isUpgradeRequest(request)) {
         try {
           final socket = await WebSocketTransformer.upgrade(request);
           _handleWebSocketConnection(socket);
-        } catch (e) {
-          print('Error upgrading WebSocket connection: $e');
+        } catch (e, stackTrace) {
+          developer.log(
+            'Error upgrading WebSocket connection',
+            error: e,
+            stackTrace: stackTrace,
+            name: 'McpServer',
+          );
         }
       } else {
         request.response
@@ -54,6 +109,21 @@ class McpServer {
 
   /// Handle a WebSocket connection
   void _handleWebSocketConnection(WebSocket socket) {
+    _connections.add(socket);
+
+    // Subscribe to progress updates
+    final progressSubscription = _protocol.progressUpdates.listen(
+      (update) => socket.add(json.encode(update)),
+      onError: (error, stackTrace) {
+        developer.log(
+          'Error sending progress update',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'McpServer',
+        );
+      },
+    );
+
     socket.listen(
       (data) async {
         try {
@@ -65,7 +135,14 @@ class McpServer {
           final request = McpRequest.fromJson(message);
           final response = await _protocol.handleRequest(request);
           socket.add(json.encode(response.toJson()));
-        } catch (e) {
+        } catch (e, stackTrace) {
+          developer.log(
+            'Error processing message',
+            error: e,
+            stackTrace: stackTrace,
+            name: 'McpServer',
+          );
+
           final error = McpError(
             code: McpErrorCode.internalError.code,
             message: 'Error processing message: $e',
@@ -73,18 +150,41 @@ class McpServer {
           socket.add(json.encode({'error': error.toJson()}));
         }
       },
-      onError: (error) {
-        print('WebSocket error: $error');
+      onError: (error, stackTrace) {
+        developer.log(
+          'WebSocket error',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'McpServer',
+        );
       },
       onDone: () {
-        print('WebSocket connection closed');
+        progressSubscription.cancel();
+        _connections.remove(socket);
+        developer.log('WebSocket connection closed', name: 'McpServer');
       },
+      cancelOnError: true,
     );
   }
 
   /// Start the stdio server
   Future<void> _startStdioServer() async {
-    stdin
+    developer.log('Starting stdio server', name: 'McpServer');
+
+    // Subscribe to progress updates
+    final progressSubscription = _protocol.progressUpdates.listen(
+      (update) => stdout.writeln(json.encode(update)),
+      onError: (error, stackTrace) {
+        developer.log(
+          'Error sending progress update',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'McpServer',
+        );
+      },
+    );
+
+    _stdioSubscription = stdin
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen(
@@ -94,7 +194,14 @@ class McpServer {
               final request = McpRequest.fromJson(message);
               final response = await _protocol.handleRequest(request);
               stdout.writeln(json.encode(response.toJson()));
-            } catch (e) {
+            } catch (e, stackTrace) {
+              developer.log(
+                'Error processing message',
+                error: e,
+                stackTrace: stackTrace,
+                name: 'McpServer',
+              );
+
               final error = McpError(
                 code: McpErrorCode.internalError.code,
                 message: 'Error processing message: $e',
@@ -102,12 +209,19 @@ class McpServer {
               stdout.writeln(json.encode({'error': error.toJson()}));
             }
           },
-          onError: (error) {
-            print('Stdio error: $error');
+          onError: (e, stackTrace) {
+            developer.log(
+              'Stdio error',
+              error: e,
+              stackTrace: stackTrace,
+              name: 'McpServer',
+            );
           },
           onDone: () {
-            print('Stdio connection closed');
+            progressSubscription.cancel();
+            developer.log('Stdio connection closed', name: 'McpServer');
           },
+          cancelOnError: true,
         );
   }
 }

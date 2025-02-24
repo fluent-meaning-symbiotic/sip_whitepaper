@@ -17,7 +17,6 @@ List<int> encodeMessage(Map<String, dynamic> message) {
 
 /// Decodes a length-prefixed JSON message from a stream of bytes
 Future<Map<String, dynamic>> decodeMessage(Stream<List<int>> stream) async {
-  final controller = StreamController<List<int>>();
   final lengthBytes = await stream
       .take(4)
       .fold<List<int>>([], (previous, element) => [...previous, ...element]);
