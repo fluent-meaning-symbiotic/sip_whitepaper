@@ -1,5 +1,4 @@
 import 'package:mcp_server/common_imports.dart';
-import 'package:mcp_server/core/protocol.dart';
 import 'package:mcp_server/server.dart';
 import 'package:mcp_server/tools/echo_tool.dart';
 
