@@ -59,8 +59,11 @@ class McpServer {
     _protocol.registerTool(tool);
   }
 
-  void registerTools(List<McpTool> tools) =>
-      tools.forEach(_protocol.registerTool);
+  void registerTools(List<McpTool> tools) {
+    for (final tool in tools) {
+      _protocol.registerTool(tool);
+    }
+  }
 
   /// Start the server
   Future<void> start() async {

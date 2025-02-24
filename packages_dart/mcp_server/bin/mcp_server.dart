@@ -5,7 +5,7 @@ import 'package:mcp_server/tools/echo_tool.dart';
 void main(List<String> arguments) async {
   // Get configuration from environment variables or use defaults
   final host = Platform.environment['MCP_HOST'] ?? 'localhost';
-  final port = int.tryParse(Platform.environment['MCP_PORT'] ?? '') ?? 8080;
+  final port = int.tryParse(Platform.environment['MCP_PORT'] ?? '') ?? 3234;
   final transport =
       String.fromEnvironment(
                 'MCP_TRANSPORT',
@@ -35,12 +35,4 @@ void main(List<String> arguments) async {
   } else {
     print('MCP Server (v$version) running in stdio mode');
   }
-
-  // Automatically list tools on startup
-  print(
-    json.encode({
-      'id': 'init-list',
-      'result': {'tools': tools.map((tool) => tool.toJson()).toList()},
-    }),
-  );
 }
