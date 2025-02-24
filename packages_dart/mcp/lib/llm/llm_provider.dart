@@ -2,6 +2,7 @@ import 'package:yaml/yaml.dart';
 
 import '../server.dart';
 import '../tools/infer_property_type.dart';
+import 'ai_client.dart';
 
 /// Response from an LLM provider
 class LlmResponse {
@@ -77,7 +78,7 @@ class LocalLlmProvider extends LlmProvider {
     
   semantic_properties: ${_formatProperties(properties)}
   semantic_validations: ${_generateValidations(type, properties)}
-  output_artifacts: ${_generateArtifactPaths(type, _generateName(description))}
+  output_artifacts: ${_generateArtifactFileNames(type, _generateName(description))}
   llm_prompts: {}''',
       );
     }
@@ -710,25 +711,49 @@ class ${name.replaceAll('Intent', 'Widget')} extends StatelessWidget {
     return validations;
   }
 
-  List<String> _generateArtifactPaths(final String type, final String name) {
+  List<String> _generateArtifactFileNames(
+    final String type,
+    final String name,
+  ) {
     final baseName = name.replaceAll('Intent', '').toLowerCase();
-    final paths = <String>[];
+    final fileNames = <String>[];
 
-    /// TODO(arenukvern): Implement artifact path generation - should depend on
-    /// where is intent file is located.
-    ///
-    /// For example, if intent is in lib/intent.yaml, then the artifact should be
-    /// in lib/intent.dart, lib/intent_test.dart
-    ///
-    /// Notice:
-    /// type of intent != folder of artifacts.
-    /// for example:
-    /// SemanticCommandIntent may be placed in lib/commands/load_app/load_app_command.dart
-    /// or SemanticUiIntent may be placed in lib/ui_settings/settings_screen.dart
-    ///
-    throw UnimplementedError();
+    switch (type) {
+      case 'SemanticTypeIntent':
+        fileNames.addAll([
+          '${baseName}_type.dart',
+          '${baseName}_type_test.dart',
+        ]);
+      case 'SemanticCommandIntent':
+        fileNames.addAll([
+          '${baseName}.cmnd.dart',
+          '${baseName}.cmnd_test.dart',
+        ]);
+      case 'SemanticUiIntent':
+        final isScreen = _isScreenComponent(name);
+        final suffix = isScreen ? 'screen' : 'widget';
+        fileNames.addAll([
+          '${baseName}.$suffix.dart',
+          '${baseName}.${suffix}_test.dart',
+        ]);
+      case 'SemanticTestIntent':
+        fileNames.add('${baseName}_test.dart');
+      case 'SemanticApiIntent':
+        fileNames.addAll(['${baseName}_api.dart', '${baseName}_api_test.dart']);
+      default:
+        fileNames.addAll(['$baseName.dart', '${baseName}_test.dart']);
+    }
 
-    return paths;
+    return fileNames;
+  }
+
+  bool _isScreenComponent(String name) {
+    final lower = name.toLowerCase();
+    return lower.contains('screen') ||
+        lower.contains('page') ||
+        lower.contains('view') ||
+        lower.contains('route') ||
+        lower.contains('window');
   }
 }
 
@@ -746,28 +771,10 @@ class RemoteLlmProvider extends LlmProvider {
     final List<String> history,
   ) async {
     try {
-      final response = await client.processMessage(
-        message,
-        history
-            .map(
-              (final h) => AiMessage(
-                chatMessageJson: {'role': 'user', 'content': h},
-                content: h,
-                role: 'user',
-                timestamp: AiMessageTimestamp(DateTime.now()),
-              ),
-            )
-            .toList(),
+      // TODO: Implement remote LLM provider
+      return const LlmResponse(
+        error: 'Remote LLM provider not implemented yet',
       );
-
-      return LlmResponse(error: response.error);
-
-      final content = response.message.content;
-      if (content.isEmpty) {
-        return const LlmResponse(error: 'Empty response from LLM');
-      }
-
-      return LlmResponse(content: content);
     } catch (e) {
       return LlmResponse(error: e.toString());
     }

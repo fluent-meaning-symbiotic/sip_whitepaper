@@ -1,4 +1,4 @@
-import 'package:mcp/common_imports.dart';
+import 'common_imports.dart';
 
 /// Standard MCP error codes
 enum McpErrorCode {
@@ -28,15 +28,13 @@ class McpServer {
     required this.host,
     required this.port,
     required this.llmProvider,
-    required this.llmApiKey,
     required this.version,
     this.transport = McpTransport.websocket,
   });
 
   final String host;
   final int port;
-  final String llmProvider;
-  final String llmApiKey;
+  final LlmProvider llmProvider;
   final McpTransport transport;
   final String version;
 
@@ -114,9 +112,18 @@ class McpServer {
           final socket = await WebSocketTransformer.upgrade(request);
           final channel = IOWebSocketChannel(socket);
           _handleConnection(channel);
-        } catch (e) {
-          print('Error upgrading connection: $e');
+        } catch (e, stack) {
+          print('Error upgrading connection: $e\n$stack');
+          request.response
+            ..statusCode = HttpStatus.internalServerError
+            ..write('WebSocket upgrade failed')
+            ..close();
         }
+      } else {
+        request.response
+          ..statusCode = HttpStatus.badRequest
+          ..write('Expected WebSocket upgrade request')
+          ..close();
       }
     }
   }
@@ -141,11 +148,16 @@ class McpServer {
           );
         }
       },
-      onDone: () => _connections.remove(channel),
-      onError: (error) {
-        print('WebSocket error: $error');
+      onDone: () {
         _connections.remove(channel);
+        channel.sink.close();
       },
+      onError: (error, stack) {
+        print('WebSocket error: $error\n$stack');
+        _connections.remove(channel);
+        channel.sink.close();
+      },
+      cancelOnError: true,
     );
   }
 
@@ -243,12 +255,16 @@ class McpServer {
 
   /// Stops the MCP server
   Future<void> stop() async {
-    for (final conn in _connections) {
-      await conn.sink.close();
-    }
-    await _server?.close();
+    // Close all active WebSocket connections
+    await Future.wait(_connections.map((channel) => channel.sink.close()));
     _connections.clear();
+
+    // Cancel all active tools
     _activeTools.clear();
+
+    // Close the HTTP server
+    await _server?.close(force: true);
+    _server = null;
   }
 
   /// Registers an MCP tool

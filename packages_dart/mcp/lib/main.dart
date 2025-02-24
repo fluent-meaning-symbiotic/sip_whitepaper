@@ -1,12 +1,4 @@
 import 'common_imports.dart';
-import 'llm/llm_provider.dart';
-import 'server.dart';
-import 'tools/create_intent.dart';
-import 'tools/generate_artifacts.dart';
-import 'tools/infer_property_type.dart';
-import 'tools/modify_intent.dart';
-import 'tools/refactor_intents.dart';
-import 'tools/update_intent.dart';
 
 /// Configuration for the MCP server
 class McpServerConfig {
@@ -61,18 +53,9 @@ enum LlmMode {
 }
 
 /// Starts the MCP server with the given configuration
-Future<void> startMcpServer([
+Future<void> startMcpServer({
   final McpServerConfig config = const McpServerConfig(),
-]) async {
-  final server = McpServer(
-    host: config.host,
-    port: config.port,
-    llmProvider: config.llmConfig.openAiBaseUrl,
-    llmApiKey: config.llmConfig.openAiModel,
-    transport: config.transport,
-    version: config.version,
-  );
-
+}) async {
   // Create LLM provider based on mode
   final llmProvider = switch (config.llmMode) {
     LlmMode.local => LocalLlmProvider(),
@@ -84,12 +67,21 @@ Future<void> startMcpServer([
     ),
   };
 
+  final server = McpServer(
+    host: config.host,
+    port: config.port,
+    llmProvider: llmProvider,
+    transport: config.transport,
+    version: config.version,
+  );
+
   // Register all tools with the same LLM provider
   server
     ..registerTool(CreateIntentTool(llmProvider: llmProvider))
     ..registerTool(ModifyIntentTool(llmProvider: llmProvider))
     ..registerTool(RefactorIntentsTool(llmProvider: llmProvider))
     ..registerTool(GenerateArtifactsTool(llmProvider: llmProvider))
+    ..registerTool(GenerateArtifactPathsTool(llmProvider: llmProvider))
     ..registerTool(UpdateIntentFromImplementationTool(llmProvider: llmProvider))
     ..registerTool(InferPropertyTypeTool(llmProvider: llmProvider));
 
