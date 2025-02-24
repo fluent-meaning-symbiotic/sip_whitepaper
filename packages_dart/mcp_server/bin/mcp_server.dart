@@ -23,9 +23,8 @@ void main(List<String> arguments) async {
     transport: transport,
     version: version,
   );
-
-  // Register the example echo tool
-  server.registerTool(EchoTool());
+  final tools = [EchoTool()]; // Register the example echo tool
+  server.registerTools(tools);
 
   // Start the server
   await server.start();
@@ -36,4 +35,12 @@ void main(List<String> arguments) async {
   } else {
     print('MCP Server (v$version) running in stdio mode');
   }
+
+  // Automatically list tools on startup
+  print(
+    json.encode({
+      'id': 'init-list',
+      'result': {'tools': tools.map((tool) => tool.toJson()).toList()},
+    }),
+  );
 }
