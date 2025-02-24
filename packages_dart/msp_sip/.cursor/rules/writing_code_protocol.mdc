@@ -1,0 +1,24 @@
+---
+description: Writing Code Protocol
+globs: *
+---
+**Writing Code Protocol**
+
+- Place mock, test and implementation exactly near intent file.
+- Export files from its folders using barrel file (ui/ui.dart, commands/commands.dart etc.).
+- To find implementation, try to load intents first.
+- Do not rely on strings, use enums.
+- Use context.read/context.select to subscribe to observable state in build methods.
+- If you create new file, make sure to check its intent. If it doesn't have an intent - create it.
+
+
+**Command-Resource Pattern**
+- Resources are pure data containers with no business logic
+- Each resource manages a specific piece of state
+- Commands contain all business logic and transform data
+- Commands are executed based on user actions
+- Commands can read from multiple resources and can update multiple resources
+- Use OrderedMapNotifier/OrderedListNotifier for collections of resources
+- Use ValueNotifier for single values resources
+- Follow naming: {Action}{Resource}Command for commands
+- Follow naming: {Domain}Resource for resources
