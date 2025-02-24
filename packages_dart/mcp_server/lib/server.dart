@@ -26,6 +26,9 @@ class McpServer {
   /// Active WebSocket connections
   final _connections = <WebSocket>{};
 
+  /// Active SSE connections
+  final _sseConnections = <HttpResponse>{};
+
   /// Stdio subscription
   StreamSubscription<String>? _stdioSubscription;
 
@@ -75,6 +78,9 @@ class McpServer {
       case McpTransport.stdio:
         developer.log('Using stdio transport', name: 'McpServer');
         await _startStdioServer();
+      case McpTransport.sse:
+        developer.log('Using SSE transport', name: 'McpServer');
+        await _startSseServer();
     }
     developer.log('Server started', name: 'McpServer');
   }
@@ -86,11 +92,17 @@ class McpServer {
     // Stop accepting new connections
     await _server?.close();
 
-    // Close all active connections
+    // Close all active WebSocket connections
     for (final connection in _connections) {
       await connection.close();
     }
     _connections.clear();
+
+    // Close all active SSE connections
+    for (final connection in _sseConnections) {
+      await connection.close();
+    }
+    _sseConnections.clear();
 
     // Cancel stdio subscription
     await _stdioSubscription?.cancel();
@@ -328,5 +340,183 @@ class McpServer {
     // Wait for initialization to complete
     await initCompleter.future;
     developer.log('Stdio server started successfully', name: 'McpServer');
+  }
+
+  /// Start the SSE server
+  Future<void> _startSseServer() async {
+    developer.log('Binding SSE server to $host:$port', name: 'McpServer');
+
+    try {
+      _server = await HttpServer.bind(host, port);
+      developer.log('SSE server bound successfully', name: 'McpServer');
+
+      // Listen for requests
+      _server!.listen(
+        (request) async {
+          developer.log('Received HTTP request', name: 'McpServer');
+
+          // Check if this is an SSE request (typically has Accept: text/event-stream header)
+          if (request.headers.value('Accept')?.contains('text/event-stream') ==
+                  true ||
+              request.uri.path == '/events') {
+            try {
+              developer.log('Setting up SSE connection', name: 'McpServer');
+
+              // Set up SSE connection
+              request.response.headers.set('Content-Type', 'text/event-stream');
+              request.response.headers.set('Cache-Control', 'no-cache');
+              request.response.headers.set('Connection', 'keep-alive');
+              request.response.headers.set('Access-Control-Allow-Origin', '*');
+
+              // Keep the connection alive
+              request.response.bufferOutput;
+
+              developer.log('SSE connection established', name: 'McpServer');
+
+              _handleSseConnection(request);
+            } catch (e, stackTrace) {
+              developer.log(
+                'Error setting up SSE connection',
+                error: e,
+                stackTrace: stackTrace,
+                name: 'McpServer',
+              );
+            }
+          } else {
+            // Handle regular HTTP requests for tool calls
+            if (request.method == 'POST' && request.uri.path == '/api/mcp') {
+              await _handleHttpToolCall(request);
+            } else {
+              developer.log('Rejecting non-SSE request', name: 'McpServer');
+              request.response
+                ..statusCode = HttpStatus.badRequest
+                ..write(
+                  'This is an SSE endpoint. Connect with EventSource or use /api/mcp for tool calls.',
+                )
+                ..close();
+            }
+          }
+        },
+        onError: (error, stackTrace) {
+          developer.log(
+            'Error handling HTTP request',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'McpServer',
+          );
+        },
+        cancelOnError: false,
+      );
+
+      developer.log(
+        'SSE server listening on http://$host:$port',
+        name: 'McpServer',
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error starting SSE server',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'McpServer',
+      );
+      rethrow;
+    }
+  }
+
+  /// Handle an SSE connection
+  void _handleSseConnection(HttpRequest request) {
+    final response = request.response;
+
+    // Keep track of the connection
+    _sseConnections.add(response);
+
+    // Subscribe to progress updates
+    final progressSubscription = _protocol.progressUpdates.listen(
+      (update) {
+        _sendSseEvent(response, 'progress', json.encode(update));
+      },
+      onError: (error, stackTrace) {
+        developer.log(
+          'Error sending progress update',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'McpServer',
+        );
+      },
+    );
+
+    // Handle connection close
+    response.done
+        .then((_) {
+          progressSubscription.cancel();
+          _sseConnections.remove(response);
+          developer.log('SSE connection closed', name: 'McpServer');
+        })
+        .catchError((error, stackTrace) {
+          developer.log(
+            'Error on SSE connection',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'McpServer',
+          );
+          progressSubscription.cancel();
+          _sseConnections.remove(response);
+        });
+  }
+
+  /// Handle HTTP tool call requests
+  Future<void> _handleHttpToolCall(HttpRequest request) async {
+    try {
+      // Read the request body
+      final bodyBytes = await request.fold<List<int>>(
+        <int>[],
+        (previous, element) => previous..addAll(element),
+      );
+      final bodyString = utf8.decode(bodyBytes);
+
+      // Parse the request
+      final message = json.decode(bodyString) as Map<String, dynamic>;
+      final mcpRequest = McpRequest.fromJson(message);
+
+      // Process the request
+      final response = await _protocol.handleRequest(mcpRequest);
+
+      // Send the response
+      request.response.headers.contentType = ContentType.json;
+      request.response.write(json.encode(response.toJson()));
+      await request.response.close();
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error processing HTTP tool call',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'McpServer',
+      );
+
+      final error = McpError(
+        code: McpErrorCode.internalError.code,
+        message: 'Error processing message: $e',
+      );
+
+      request.response.statusCode = HttpStatus.internalServerError;
+      request.response.headers.contentType = ContentType.json;
+      request.response.write(json.encode({'error': error.toJson()}));
+      await request.response.close();
+    }
+  }
+
+  /// Send an SSE event
+  void _sendSseEvent(HttpResponse response, String event, String data) {
+    try {
+      response.write('event: $event\n');
+      response.write('data: $data\n\n');
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error sending SSE event',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'McpServer',
+      );
+    }
   }
 }

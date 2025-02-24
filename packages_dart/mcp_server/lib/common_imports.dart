@@ -13,4 +13,7 @@ enum McpTransport {
 
   /// Standard input/output transport
   stdio,
+
+  /// Server-Sent Events transport
+  sse,
 }
