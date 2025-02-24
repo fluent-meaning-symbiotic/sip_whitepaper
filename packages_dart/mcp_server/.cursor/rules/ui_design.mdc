@@ -1,0 +1,88 @@
+---
+description: ui design rules
+globs: *.dart
+---
+// ======== CORE PRINCIPLES ======== //
+1. Spatial Hierarchy
+   - Base unit: 8px (4px for micro-interactions)
+   - Section padding: 24px (light) / 20px (dark)
+   - Element spacing: 12px vertical, 16px horizontal
+   - Nested group indent: 20px (both themes)
+
+2. Type Scale (Space Grotesk-based)
+   - Primary: 14px/1.3 (500) + 0.2 tracking → 15px in dark mode
+   - Secondary: 13px/1.4 (400) + 0.5 tracking
+   - Tertiary: 12px/1.5 (400) + 0.6 tracking → 13px in dark mode
+   - Micro: 11px/1.6 (300) + 0.7 tracking (caps only)
+   - Ultra-micro: 10px/1.7 (500) + 0.8 tracking (numeric only)
+   - Headers: 16px (600) with +0.1 letter spacing
+   - Code: 13px Fira Code (400) with 0.5 tracking
+   - Code Micro: 11px Fira Code (300) with 0.7 tracking
+
+3. Component Anatomy
+   - Buttons: 32px height, 10px radius, 1.5px extrusion
+   - Inputs: 36px height, recessed 1px inner shadow
+   - Cards: 16px radius, 2.5px dual-layer depth
+   - Icons: 20px (nav), 18px (actions), 2px padding
+
+// ======== VISUAL TECHNIQUES ======== //
+4. Light Theme (Cosmic Day)
+   - Background: #1E1B2E (base), #2A2639 (surface)
+   - Shadows: 
+     ▸ Light: rgba(107,99,255,0.1) 2px
+     ▸ Dark: rgba(0,0,0,0.2) 3px
+   - Accents: #8E7CFF (primary), #4A90E2 (secondary)
+   - Text: #E0E0EC (90%), #B0B0C0 (60%)
+
+5. Dark Theme (Deep Space)
+   - Background: #0F0B1E (base), #1A1628 (surface)
+   - Shadows:
+     ▸ Light: rgba(123,99,255,0.06) 2px
+     ▸ Dark: rgba(0,0,0,0.3) 3px  
+   - Accents: #9D8FFF (primary), #5B9FE2 (secondary)
+   - Text: #F0F0FF (90%), #A0A0C0 (60%)
+
+6. Depth System
+   - Default: 1.5px extrusion (0.8px for mobile)
+   - Active: Reverse shadow direction + 0.5px inset
+   - Floating: 4px elevation (3px in dark mode)
+
+// ======== INTERACTION PATTERNS ======== //
+7. States & Feedback
+   - Hover: +8% lightness (light)/+6% (dark)
+   - Pressed: -2px depth + 0.5px border highlight
+   - Focus: 1.5px accent ring (30% opacity overlay)
+   - Disabled: 40% opacity + grayscale filter
+
+8. Transitions
+   - Micro-interactions: 120ms ease-in-out
+   - State changes: 180ms cubic-bezier(0.2,0,0,1)
+   - Complex animations: 300ms staged reveals
+
+// ======== ACCESSORY RULES ======== //
+9. Cosmic Enhancements
+   - 1px radial gradient borders (3% luminosity diff)
+   - 2% noise texture on surfaces (5% in dark mode)
+   - Subtle purple glow on active elements
+   - Star-like sparkles on primary actions
+
+10. Accessibility
+    - Minimum 4.6:1 text contrast
+    - 3px focus indicator (WCAG AAA)
+    - Optional motion reduction toggle
+    - High contrast mode support
+
+11. Small Text Applications
+    - Tertiary: Metadata, form helper text, chart labels
+    - Micro: Timestamps, pagination, table footers
+    - Ultra-micro: Legal text, copyright notices
+    - Code Micro: Comments, linting annotations
+    - All small text requires minimum 4.6:1 contrast
+    
+Key sources:  
+https://fonts.google.com/specimen/Space+Grotesk Space Grotesk's geometric precision
+https://fonts.google.com/specimen/Fira+Code Fira Code's programming ligatures
+https://www.justinmind.com/ui-design/neumorphism Neumorphic design principles
+https://developer.apple.com/design/human-interface-guidelines/dark-mode Dark mode best practices
+
+

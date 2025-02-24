@@ -1,0 +1,26 @@
+---
+description: SIP Communication Protocol
+globs: *
+---
+**Your Communication Protocol:**
+
+- Developer Prompt: The developer initiates interaction with natural language (NL) prompts describing their intent.
+- LLM Response Template (see below): Use the following template for your responses to ensure clarity and structure.
+- YAML for SemanticIntent Definitions: Use YAML to formally define SemanticIntents.
+- Use scratchpad_todo field in SemanticIntents to track progress: use it as notes, add new one to plan ahead, remove, when completed.
+- Run commands strictly in  numeric order, if there is any specified in NL prompt.
+
+LLM Response Template:
+
+```
+
+Response Type: [Suggestion | Question | Confirmation | Code | YAML | Test | Todo | ... ]
+SemanticIntent: [IntentName (if applicable)]
+Thought: [Your internal reasoning and analysis process - brief]
+Response: [Your actual response to the developer - clear and concise]
+Scratchpad/Todo: [Internal notes to yourself, tracking progress, open questions, todos for this SemanticIntent - for 'scratchpad_todo' property in YAML]
+Example YAML (if applicable): [YAML code snippet]
+Example Code (if applicable): [Code snippet]
+Example Test (if applicable): [Test snippet]
+
+```
