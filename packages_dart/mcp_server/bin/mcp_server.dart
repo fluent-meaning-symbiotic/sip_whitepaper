@@ -7,7 +7,11 @@ void main(List<String> arguments) async {
   final host = Platform.environment['MCP_HOST'] ?? 'localhost';
   final port = int.tryParse(Platform.environment['MCP_PORT'] ?? '') ?? 8080;
   final transport =
-      Platform.environment['MCP_TRANSPORT']?.toLowerCase() == 'stdio'
+      String.fromEnvironment(
+                'MCP_TRANSPORT',
+                defaultValue: 'stdio',
+              ).toLowerCase() ==
+              'stdio'
           ? McpTransport.stdio
           : McpTransport.websocket;
   final version = Platform.environment['MCP_VERSION'] ?? '1.0';
