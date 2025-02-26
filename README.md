@@ -4,9 +4,11 @@
 
 First - this is very raw idea, but at the current time, I'm trying to experiment with everything, so parts of documentation can be scrapped and outdated very fast.
 
-## What is SIP?
+For most comprehensive documenetation and the mission please read [Whitepaper](/docs/2025_feb_9_whitepaper_v1.md).
 
-For most comprehensive doc read [Whitepaper](/docs/2025_feb_9_whitepaper_v1.md).
+The text below is written with AI with small proofreading and doesn't contain the whole idea.
+
+## What is SIP?
 
 The Semantic Intent Paradigm (SIP) is a new approach to software development that prioritizes **meaning** above implementation. Instead of writing code directly, you first define the _intent_ and _purpose_ of each part of your software using structured YAML files called **Semantic Intents**. These intents then serve as the single source of truth, from which code, UI, tests, and other artifacts can be generated (with the assistance of an LLM in the future).
 
